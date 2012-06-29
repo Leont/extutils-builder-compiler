@@ -31,22 +31,32 @@ has _ccdlflags => (
 	lazy => 1,
 );
 
+has _lddlflags => (
+	is => 'ro',
+	default => sub {
+		my $self = shift;
+		require ExtUtils::Helpers;
+		my $lddlflags = $self->config->get('lddlflags');
+		my $optimize = $self->config->get('optimize');
+		$lddlflags =~ s/ ?\Q$optimize//;
+		my %ldflags = map { ( $_ => 1 ) } ExtUtils::Helpers::split_like_shell($self->config->get('ldflags'));
+		return [ grep { not $ldflags{$_} } ExtUtils::Helpers::split_like_shell($lddlflags) ];
+	},
+	lazy => 1,
+);
+
 sub get_linker_flags {
 	my ($self, %opts) = @_;
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
-		return '-shared';
-	}
-	elsif ($type eq 'static-library') {
-		return '-static';
+		return $self->_lddlflags;
 	}
 	elsif ($type eq 'executable') {
-		return $self->_has_export && $self->export eq 'all' ? $self->_ccdlflags : ();
+		return $self->_has_export && $self->export eq 'all' ? $self->_ccdlflags : [];
 	}
 	else {
 		Carp::croak("Unknown linkage type $type");
 	}
-	return;
 }
 
 sub link {
@@ -54,14 +64,19 @@ sub link {
 
 	$from = [ $from ] if not ref $from;
 
-	my @arguments = (
-		$self->arguments,
-		ExtUtils::Builder::Argument->new(ranking => 10, value => [ $self->get_linker_flags ]),
-		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, @{$from} ]),
-	);
+	if ($self->type eq 'static-lib') {
+		...;
+	}
+	else {
+		my @arguments = (
+			$self->arguments,
+			ExtUtils::Builder::Argument->new(ranking => 10, value => $self->get_linker_flags),
+			ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, @{$from} ]),
+		);
 
-	my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@arguments);
-	return ExtUtils::Builder::ActionSet->new($action);
+		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@arguments);
+		return ExtUtils::Builder::ActionSet->new($action);
+	}
 }
 
 1;
