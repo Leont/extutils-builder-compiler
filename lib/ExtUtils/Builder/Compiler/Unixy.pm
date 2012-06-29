@@ -39,13 +39,9 @@ sub compile_flags {
 		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, '-c', $from ]);
 }
 
-sub compile {
-	my ($self, $from, $to, %opts) = @_;
-
-	my @arguments = ($self->arguments, $self->compile_flags($from, $to));
-
-	my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@arguments);
-	return ExtUtils::Builder::ActionSet->new($action);
+sub language_flags {
+	my $self = shift;
+	return $self->language eq 'c++' ? ExtUtils::Builder::Arguments->new(ranking => 10, value => [qw/-x c++/]) : ();
 }
 
 1;
