@@ -16,7 +16,6 @@ has config => (
 sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $language = delete $opts->{language} || 'C';
-	croak 'Only C is supported so far' if $language ne 'C';
 	my $cc = $self->config->get('cc');
 	if (is_os_type('Unix') or $cc =~ / \A gcc \b /xm) {
 		my @cc = split_like_shell($cc);
@@ -45,6 +44,9 @@ sub get_compiler {
 	if (my $defines = delete $opts{define}) {
 		$compiler->add_defines($defines);
 	}
+	if (my $extra = delete $opts{extra_args}) {
+		$compiler->add_argument(value => $extra);
+	}
 	croak 'Unkown options: ' . join ',', keys %opts if keys %opts;
 	return $compiler;
 }
@@ -52,7 +54,6 @@ sub get_compiler {
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $language = delete $opts->{language} || 'C';
-	croak 'Only C is supported so far' if $language ne 'C';
 	if (is_os_type('Unix')) {
 		require ExtUtils::Builder::Linker::Unixy;
 		my $ld     = $self->config->get('ld');
@@ -77,13 +78,13 @@ sub get_linker {
 	if (defined(my $shared = $opts{shared})) {
 	}
 	if (my $library_dirs = delete $opts{library_dirs}) {
-		$self->add_library_dirs($library_dirs);
+		$linker->add_library_dirs($library_dirs);
 	}
 	if (my $libraries = delete $opts{libraries}) {
-		$self->add_libraries($libraries);
+		$linker->add_libraries($libraries);
 	}
 	if (my $extra_args = delete $opts{extra_args}) {
-		$self->add_argument(ranking => 45, value => [ @{ $opts{extra_args} } ]);
+		$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
 	}
 	croak 'Unkown options: ' . join ',', keys %opts if keys %opts;
 	return $linker;

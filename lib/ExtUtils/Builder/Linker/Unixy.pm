@@ -59,6 +59,18 @@ sub get_linker_flags {
 	}
 }
 
+has cpp_flags => (
+	is => 'rw',
+	default => sub {
+		return [ '-lstdc++' ];
+	},
+);
+sub get_language_flags {
+	my $self = shift;
+	return [] if $self->language eq 'C';
+	return [ $self->cpp_flags ] if $self->language eq 'C++';
+}
+
 sub link {
 	my ($self, $from, $to, %opts) = @_;
 
@@ -72,6 +84,7 @@ sub link {
 			$self->arguments,
 			ExtUtils::Builder::Argument->new(ranking => 10, value => $self->get_linker_flags),
 			ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, @{$from} ]),
+			ExtUtils::Builder::Argument->new(ranking => 85, value => $self->get_language_flags),
 		);
 
 		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@arguments);
