@@ -68,7 +68,7 @@ $c->compile($source_file, $object_file)->execute(logger => \*STDERR, quiet => $q
 
 ok(-e $object_file, "object file $object_file has been created");
 
-my $lib_file = catfile(dirname($source_file), basename($object_file, '.o') . ".$Config{dlext}");
+my $lib_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . ".$Config{dlext}");
 
 my $l = $b->get_linker(profile => 'Perl', type => 'loadable-object');
 ok($l, "get_linker");
