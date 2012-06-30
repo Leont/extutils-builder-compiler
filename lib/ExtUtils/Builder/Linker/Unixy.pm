@@ -77,7 +77,7 @@ sub link {
 	$from = [ $from ] if not ref $from;
 
 	if ($self->type eq 'static-lib') {
-		...;
+		die;
 	}
 	else {
 		my @arguments = (

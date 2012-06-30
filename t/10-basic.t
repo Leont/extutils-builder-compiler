@@ -29,7 +29,10 @@ my $source_file = File::Spec->catfile('t', 'compilet.c');
 #include "XSUB.h"
 
 XS(exported) {
-	dVAR; dXSARGS;
+#ifdef dVAR
+	dVAR;
+#endif
+	dXSARGS;
 
 	PERL_UNUSED_VAR(cv); /* -W */
 	PERL_UNUSED_VAR(items); /* -W */
@@ -37,8 +40,15 @@ XS(exported) {
 	XSRETURN_IV(42);
 }
 
+#ifndef XS_EXTERNAL
+#define XS_EXTERNAL(foo) XS(foo)
+#endif
+
 XS_EXTERNAL(boot_compilet) {
-	dVAR; dXSARGS;
+#ifdef dVAR
+	dVAR;
+#endif
+	dXSARGS;
 
 	PERL_UNUSED_VAR(cv); /* -W */
 	PERL_UNUSED_VAR(items); /* -W */
