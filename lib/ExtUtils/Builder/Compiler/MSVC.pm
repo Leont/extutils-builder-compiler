@@ -2,7 +2,7 @@ package ExtUtils::Builder::Compiler::MSVC;
 
 use Moo;
 
-extends 'ExtUtils::Builder::Role::Compiler';
+with 'ExtUtils::Builder::Role::Compiler';
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::ActionSet;
@@ -29,7 +29,7 @@ sub language_flags {
 
 }
 
-sub compiler_flags {
+sub compile_flags {
 	my ($self, $from, $to) = @_;
 	return ExtUtils::Builder::Argument->new(ranking => 75, value => [ "/Fo$to", '/c', $from ])
 }
