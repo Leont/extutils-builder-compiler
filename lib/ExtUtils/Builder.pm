@@ -71,7 +71,8 @@ sub _get_linker {
 	if ($self->_is_gcc($self->config->get('ld')) or (is_os_type('Unix') and $^O ne 'aix')) {
 		my $type = delete $opts->{type};
 		if ($type ne 'static-library') {
-			return $self->_make_command('Linker::Unixy', $self->config->get('ld'), type => $type, language => $language);
+			my $export = delete $opts->{export} || is_os_type('Unix') && $^O ne 'aix' ? 'all' : 'none';
+			return $self->_make_command('Linker::Unixy', $self->config->get('ld'), type => $type, language => $language, export => $export);
 		}
 		else {
 			return $self->_make_command('Linker::Ar', $self->config->get('ar'), type => $type, language => $language);

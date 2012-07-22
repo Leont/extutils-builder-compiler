@@ -8,7 +8,7 @@ with qw/ExtUtils::Builder::Role::Toolchain/;
 
 has export => (
 	is => 'ro',
-	predicate => '_has_export',
+	required => 1,
 );
 
 requires qw/link add_library_dirs add_libraries/;

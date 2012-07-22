@@ -49,7 +49,7 @@ sub get_linker_flags {
 		return $self->_lddlflags;
 	}
 	elsif ($type eq 'executable') {
-		return $self->_has_export && $self->export eq 'all' ? $self->_ccdlflags : [];
+		return $self->export eq 'all' ? $self->_ccdlflags : [];
 	}
 	else {
 		Carp::croak("Unknown linkage type $type");
