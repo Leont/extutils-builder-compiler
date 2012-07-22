@@ -4,8 +4,6 @@ use Moo;
 
 with 'ExtUtils::Builder::Role::Compiler';
 
-use ExtUtils::Builder::Action::Command;
-use ExtUtils::Builder::ActionSet;
 use ExtUtils::Builder::Argument;
 
 has pic => (

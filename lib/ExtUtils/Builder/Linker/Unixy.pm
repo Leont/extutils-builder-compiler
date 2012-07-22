@@ -3,11 +3,10 @@ package ExtUtils::Builder::Linker::Unixy;
 use Moo;
 
 use Carp ();
-use ExtUtils::Builder::Action::Command;
-use ExtUtils::Builder::ActionSet;
 use ExtUtils::Builder::Argument;
+use ExtUtils::Builder::Role::Command;
 
-with 'ExtUtils::Builder::Role::Linker';
+with Command(method => 'link'), 'ExtUtils::Builder::Role::Linker';
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;
@@ -71,25 +70,15 @@ sub get_language_flags {
 	return [ $self->cpp_flags ] if $self->language eq 'C++';
 }
 
-sub link {
-	my ($self, $from, $to, %opts) = @_;
-
-	$from = [ $from ] if not ref $from;
-
-	if ($self->type eq 'static-lib') {
-		die;
-	}
-	else {
-		my @arguments = (
-			$self->arguments,
-			ExtUtils::Builder::Argument->new(ranking => 10, value => $self->get_linker_flags),
-			ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, @{$from} ]),
-			ExtUtils::Builder::Argument->new(ranking => 85, value => $self->get_language_flags),
-		);
-
-		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@arguments);
-		return ExtUtils::Builder::ActionSet->new($action);
-	}
-}
+around arguments => sub {
+	my ($orig, $self, $from, $to, %opts) = @_;
+	return (
+		$self->$orig,
+		ExtUtils::Builder::Argument->new(ranking => 10, value => $self->get_linker_flags),
+		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, @{$from} ]),
+		ExtUtils::Builder::Argument->new(ranking => 85, value => $self->get_language_flags),
+	);
+};
 
 1;
+

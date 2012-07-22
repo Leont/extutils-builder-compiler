@@ -4,7 +4,7 @@ use Moo::Role;
 
 use Carp ();
 
-with 'ExtUtils::Builder::Role::ToolchainCommand';
+with qw/ExtUtils::Builder::Role::Toolchain/;
 
 has export => (
 	is => 'ro',
