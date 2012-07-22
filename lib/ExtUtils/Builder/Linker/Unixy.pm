@@ -24,8 +24,7 @@ has _ccdlflags => (
 	is => 'ro',
 	default => sub { 
 		my $self = shift;
-		require ExtUtils::Helpers;
-		return [ ExtUtils::Helpers::split_like_shell($self->config->get('ccdlflags')) ];
+		return $self->config->get('ccdlflags');
 	},
 	lazy => 1,
 );
@@ -34,7 +33,6 @@ has _lddlflags => (
 	is => 'ro',
 	default => sub {
 		my $self = shift;
-		require ExtUtils::Helpers;
 		my $lddlflags = $self->config->get('lddlflags');
 		my $optimize = $self->config->get('optimize');
 		$lddlflags =~ s/ ?\Q$optimize//;

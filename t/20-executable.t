@@ -8,7 +8,6 @@ use Test::More;
 use Config;
 use ExtUtils::Builder;
 use ExtUtils::Embed qw/ldopts/;
-use ExtUtils::Helpers qw//;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
 use IPC::System::Simple qw/capturex/;
