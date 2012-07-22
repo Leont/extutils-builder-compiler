@@ -13,20 +13,29 @@ has config => (
 	default => sub { ExtUtils::Config->new },
 );
 
+sub _make_command {
+	my ($self, $shortname, $command, @options) = @_;
+	my $module = "ExtUtils::Builder::$shortname";
+	load($module);
+	my @command = ref $command ? @{$command} : split_like_shell($command);
+	my $thingie = $module->new(command => shift @command, config => $self->config, @options);
+	$thingie->add_argument(ranking => 0, value => \@command) if @command;
+	return $thingie;
+}
+
 sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $language = delete $opts->{language} || 'C';
 	my $cc = $self->config->get('cc');
 	if (is_os_type('Unix') or $cc =~ / \A gcc \b /xm) {
-		my @cc = split_like_shell($cc);
-		my $module = 'ExtUtils::Builder::Compiler::' . ($cc[0] =~ /gcc/i || delete $opts->{force_gcc} ? 'GCC' : 'Unixy');
-		load($module);
-		my $compiler = $module->new(command => shift @cc, language => $language, type => delete $opts->{type}, config => $self->config);
-		$compiler->add_argument(ranking => 0, value => \@cc) if @cc;
-		return $compiler;
+		my $module = 'Compiler::' . ($cc =~ /^gcc/i || delete $opts->{force_gcc} ? 'GCC' : 'Unixy');
+		return $self->_make_command($module, $cc, language => $language, type => delete $opts->{type});
+	}
+	elsif (is_os_type('Windows') && $cc =~ /^ cl \b /x) {
+		return $self->_make_command('Compiler::MSVC', $cc, language => $language, type => delete $opts->{type});
 	}
 	else {
-		croak 'Non-Unix is not supported yet...';
+		croak 'Your platform is not supported yet...';
 	}
 }
 
@@ -54,16 +63,17 @@ sub get_compiler {
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $language = delete $opts->{language} || 'C';
-	if (is_os_type('Unix')) {
-		require ExtUtils::Builder::Linker::Unixy;
-		my $ld     = $self->config->get('ld');
-		my @ld     = split_like_shell($ld);
-		my $linker = ExtUtils::Builder::Linker::Unixy->new(command => shift @ld, type => delete $opts->{type}, language => $language, config => $self->config);
-		$linker->add_argument(ranking => 0, value => \@ld) if @ld;
-		return $linker;
+	if (is_os_type('Unix') and $^O ne 'aix') {
+		my $type = delete $opts->{type};
+		if ($type ne 'static-library') {
+			return $self->_make_command('Linker::Unixy', $self->config->get('ld'), type => $type, language => $language);
+		}
+		else {
+			return $self->_make_command('Linker::Ar', $self->config->get('ar'), type => $type, language => $language);
+		}
 	}
 	else {
-		croak 'Non-Unix is not supported yet...';
+		croak 'Non-Unix linking is not supported yet...';
 	}
 }
 
