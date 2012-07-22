@@ -16,7 +16,7 @@ sub add_library_dirs {
 
 sub add_libraries {
 	my ($self, $libraries, %opts) = @_;
-	$self->add_argument(ranking => _fix_ranking(35, $opts{ranking}), value => [ map { "-l$_" } @{$libraries} ]);
+	$self->add_argument(ranking => _fix_ranking(75, $opts{ranking}), value => [ map { "-l$_" } @{$libraries} ]);
 	return;
 }
 
@@ -75,8 +75,8 @@ around arguments => sub {
 	return (
 		$self->$orig,
 		ExtUtils::Builder::Argument->new(ranking => 10, value => $self->get_linker_flags),
-		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, @{$from} ]),
-		ExtUtils::Builder::Argument->new(ranking => 85, value => $self->get_language_flags),
+		ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]),
+		ExtUtils::Builder::Argument->new(ranking => 75, value => $self->get_language_flags),
 	);
 };
 
