@@ -23,12 +23,17 @@ sub _make_command {
 	return $thingie;
 }
 
+sub _is_gcc {
+	my ($self, $cc) = @_;
+	return $self->config->get('gccversion') || $cc =~ /^gcc/i;
+}
+
 sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $language = delete $opts->{language} || 'C';
 	my $cc = $self->config->get('cc');
 	if (is_os_type('Unix') or $cc =~ / \A gcc \b /xm) {
-		my $module = 'Compiler::' . ($cc =~ /^gcc/i || delete $opts->{force_gcc} ? 'GCC' : 'Unixy');
+		my $module = 'Compiler::' . ($self->_is_gcc($cc) ? 'GCC' : 'Unixy');
 		return $self->_make_command($module, $cc, language => $language, type => delete $opts->{type});
 	}
 	elsif (is_os_type('Windows') && $cc =~ /^ cl \b /x) {
@@ -63,7 +68,7 @@ sub get_compiler {
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $language = delete $opts->{language} || 'C';
-	if (is_os_type('Unix') and $^O ne 'aix') {
+	if ($self->_is_gcc($self->config->get('ld')) or (is_os_type('Unix') and $^O ne 'aix')) {
 		my $type = delete $opts->{type};
 		if ($type ne 'static-library') {
 			return $self->_make_command('Linker::Unixy', $self->config->get('ld'), type => $type, language => $language);
