@@ -30,8 +30,8 @@ sub _build_command {
 }
 
 has env => (
-	is      => 'ro',
-	default => sub { {} },
+	is       => 'ro',
+	required => 1,
 );
 
 has logger => (
@@ -44,12 +44,11 @@ sub execute {
 	my $env = $self->env;
 	print { $opts{logger} || $self->logger } $self->oneliner, "\n" if not $opts{quiet};
 	if (not $opts{dry_run}) {
+		local @ENV{keys %{$env}} = values %{$env};
 		if ($opts{verbose}) {
-			local @ENV{keys %{$env}} = values %{$env};
 			systemx(@{ $self->command });
 		}
 		else {
-			local @ENV{keys %{$env}} = values %{$env};
 			capturex(@{ $self->command });
 		}
 	}

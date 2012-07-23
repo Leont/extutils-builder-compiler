@@ -23,6 +23,11 @@ sub make_variant {
 		init_arg => 'arguments',
 	);
 
+	has env => (
+		is      => 'ro',
+		default => sub { {} },
+	);
+
 	install 'arguments' => sub {
 		my $self = shift;
 		return @{ $self->_arguments };
@@ -30,7 +35,7 @@ sub make_variant {
 
 	install $arguments{method}, sub {
 		my ($self, @arguments) = @_;
-		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => [ $self->arguments(@arguments) ]);
+		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => [ $self->arguments(@arguments) ], env => $self->env);
 		return ExtUtils::Builder::ActionSet->new($action);
 	};
 

@@ -14,11 +14,12 @@ has config => (
 );
 
 sub _make_command {
-	my ($self, $shortname, $command, @options) = @_;
+	my ($self, $shortname, $command, %options) = @_;
 	my $module = "ExtUtils::Builder::$shortname";
 	load($module);
 	my @command = ref $command ? @{$command} : split_like_shell($command);
-	my $thingie = $module->new(command => shift @command, config => $self->config, @options);
+	my %env = $command[0] =~ /\w+=\S+/ ? split /=/, shift @command, 2 : ();
+	my $thingie = $module->new(command => shift @command, env => \%env, %options);
 	$thingie->add_argument(ranking => 0, value => \@command) if @command;
 	return $thingie;
 }
