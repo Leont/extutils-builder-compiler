@@ -13,21 +13,8 @@ has program => (
 
 has arguments => (
 	is       => 'ro',
-	default  => sub { [] },
+	required => 1,
 );
-
-has command => (
-	is => 'lazy',
-#	init_arg => undef,
-);
-
-sub _build_command {
-	my $self = shift;
-	use sort 'stable';
-	my @arguments = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } @{ $self->arguments };
-
-	return [ $self->program, @arguments ];
-}
 
 has env => (
 	is       => 'ro',
@@ -39,25 +26,26 @@ has logger => (
 	default => sub { \*STDOUT },
 );
 
+sub listify {
+	my $self = shift;
+	return ($self->program, @{ $self->arguments });
+}
+
 sub execute {
 	my ($self, %opts) = @_;
-	my $env = $self->env;
-	print { $opts{logger} || $self->logger } $self->oneliner, "\n" if not $opts{quiet};
+	my @command = $self->listify;
+ 	print { $opts{logger} || $self->logger } join(' ', map { s/(['#])/\\$1/g ? "'$_'" : $_ } @command), "\n" if not $opts{quiet};
 	if (not $opts{dry_run}) {
+		my $env = $self->env;
 		local @ENV{keys %{$env}} = values %{$env};
 		if ($opts{verbose}) {
-			systemx(@{ $self->command });
+			systemx(@command);
 		}
 		else {
-			capturex(@{ $self->command });
+			capturex(@command);
 		}
 	}
 	return;
-}
-
-sub oneliner {
-	my ($self, %opts) = @_;
-	return join ' ', @{ $self->command };
 }
 
 1;

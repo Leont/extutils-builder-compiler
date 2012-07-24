@@ -34,8 +34,10 @@ sub make_variant {
 	};
 
 	install $arguments{method}, sub {
-		my ($self, @arguments) = @_;
-		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => [ $self->arguments(@arguments) ], env => $self->env);
+		my ($self, @args) = @_;
+		use sort 'stable';
+		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
+		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@argv, env => $self->env);
 		return ExtUtils::Builder::ActionSet->new($action);
 	};
 
