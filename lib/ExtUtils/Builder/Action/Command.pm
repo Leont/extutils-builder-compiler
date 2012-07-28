@@ -34,7 +34,7 @@ sub listify {
 sub execute {
 	my ($self, %opts) = @_;
 	my @command = $self->listify;
- 	print { $opts{logger} || $self->logger } join(' ', map { s/(['#])/\\$1/g ? "'$_'" : $_ } @command), "\n" if not $opts{quiet};
+ 	print { $opts{logger} || $self->logger } join(' ', map { my $arg = $_; $arg =~ s/ (?= ['#] ) /\\/gx ? "'$arg'" : $arg } @command), "\n" if not $opts{quiet};
 	if (not $opts{dry_run}) {
 		my $env = $self->env;
 		local @ENV{keys %{$env}} = values %{$env};

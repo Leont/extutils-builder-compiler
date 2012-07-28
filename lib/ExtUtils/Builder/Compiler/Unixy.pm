@@ -7,13 +7,18 @@ with 'ExtUtils::Builder::Role::Compiler';
 use ExtUtils::Builder::Argument;
 
 has pic => (
-	is => 'lazy',
+	is => 'ro',
+	default => sub {
+		my $self = shift;
+		return $self->type eq 'shared-library' || $self->type eq 'loadable-object';
+	},
+	lazy => 1,
 );
 
-sub _build_pic {
-	my $self = shift;
-	return $self->type eq 'shared-library' || $self->type eq 'loadable-object' ? $self->config->get('cccdlflags') : ();
-}
+has cccdlflags => (
+	is => 'ro',
+	required => 1,
+);
 
 sub add_include_dirs {
 	my ($self, $dirs, %opts) = @_;
@@ -32,9 +37,9 @@ sub add_defines {
 
 sub compile_flags {
 	my ($self, $from, $to) = @_;
-	return 
-		($self->pic ? ExtUtils::Builder::Argument->new(ranking => 45, value => [ $self->pic ]) : ()),
-		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, '-c', $from ]);
+	return
+		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, '-c', $from ]),
+		$self->pic ? ExtUtils::Builder::Argument->new(ranking => 45, value => [ $self->cccdlflags ]) : ();
 }
 
 sub language_flags {

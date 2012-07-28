@@ -20,39 +20,27 @@ sub add_libraries {
 	return;
 }
 
-has _ccdlflags => (
+has ccdlflags => (
 	is => 'ro',
-	default => sub { 
-		my $self = shift;
-		return $self->config->get('ccdlflags');
-	},
-	lazy => 1,
+	required => 1,
 );
 
-has _lddlflags => (
+has lddlflags => (
 	is => 'ro',
-	default => sub {
-		my $self = shift;
-		my $lddlflags = $self->config->get('lddlflags');
-		my $optimize = $self->config->get('optimize');
-		$lddlflags =~ s/ ?\Q$optimize//;
-		my %ldflags = map { ( $_ => 1 ) } ExtUtils::Helpers::split_like_shell($self->config->get('ldflags'));
-		return [ grep { not $ldflags{$_} } ExtUtils::Helpers::split_like_shell($lddlflags) ];
-	},
-	lazy => 1,
+	required => 1,
 );
 
 sub get_linker_flags {
 	my ($self, %opts) = @_;
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
-		return $self->_lddlflags;
+		return $self->lddlflags;
 	}
 	elsif ($type eq 'executable') {
-		return $self->export eq 'all' ? $self->_ccdlflags : [];
+		return $self->export eq 'all' ? $self->ccdlflags : [];
 	}
 	else {
-		Carp::croak("Unknown linkage type $type");
+		croak("Unknown linkage type $type");
 	}
 }
 

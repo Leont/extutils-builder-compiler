@@ -2,11 +2,6 @@ package ExtUtils::Builder::Role::Toolchain;
 
 use Moo::Role;
 
-has config => (
-	is       => 'ro',
-	required => 1,
-);
-
 has language => (
 	is       => 'ro',
 	required => 1,

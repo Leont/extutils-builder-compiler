@@ -13,36 +13,34 @@ has config => (
 	default => sub { ExtUtils::Config->new },
 );
 
+sub _get_opt {
+	my ($self, $opts, $name) = @_;
+	return delete $opts->{$name} if defined $opts and defined $opts->{$name};
+	return $self->config->get($name);
+}
+
 sub _make_command {
 	my ($self, $shortname, $command, %options) = @_;
 	my $module = "ExtUtils::Builder::$shortname";
 	load($module);
 	my @command = ref $command ? @{$command} : split_like_shell($command);
-	my %env = $command[0] =~ /\w+=\S+/ ? split /=/, shift @command, 2 : ();
+	my %env = $command[0] =~ / \w+ = \S+ /x ? split /=/, shift @command, 2 : ();
 	my $thingie = $module->new(command => shift @command, env => \%env, %options);
 	$thingie->add_argument(ranking => 0, value => \@command) if @command;
 	return $thingie;
 }
 
 sub _is_gcc {
-	my ($self, $cc) = @_;
-	return $self->config->get('gccversion') || $cc =~ /^gcc/i;
+	my ($self, $cc, $opts) = @_;
+	return $self->_get_opt($opts, 'gccversion') || $cc =~ / ^ gcc /ix;
 }
 
 sub _get_compiler {
 	my ($self, $opts) = @_;
-	my $language = delete $opts->{language} || 'C';
-	my $cc = $self->config->get('cc');
-	if (is_os_type('Unix') or $cc =~ / \A gcc \b /xm) {
-		my $module = 'Compiler::' . ($self->_is_gcc($cc) ? 'GCC' : 'Unixy');
-		return $self->_make_command($module, $cc, language => $language, type => delete $opts->{type});
-	}
-	elsif (is_os_type('Windows') && $cc =~ /^ cl \b /x) {
-		return $self->_make_command('Compiler::MSVC', $cc, language => $language, type => delete $opts->{type});
-	}
-	else {
-		croak 'Your platform is not supported yet...';
-	}
+	my $cc = $self->_get_opt($opts, 'cc');
+	my $module = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix') ? 'Unixy' : is_os_type('Windows') ? 'MSVC' : croak 'Your platform is not supported yet';
+	my %args = (language => delete $opts->{language} || 'C', type => delete $opts->{type}, cccdlflags => $self->_get_opt($opts, 'cccdlflags'));
+	return $self->_make_command("Compiler::$module", $cc, %args);
 }
 
 sub get_compiler {
@@ -66,22 +64,30 @@ sub get_compiler {
 	return $compiler;
 }
 
+sub _lddlflags {
+	my ($self, $opts) = @_;
+	return delete $opts->{lddlflags} if defined $opts->{lddlflags};
+	my $lddlflags = $self->config->get('lddlflags');
+	my $optimize = $self->_get_opt($opts, 'optimize');
+	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
+	my %ldflags = map { ( $_ => 1 ) } ExtUtils::Helpers::split_like_shell($self->_get_opt($opts, 'ldflags'));
+	return [ grep { not $ldflags{$_} } ExtUtils::Helpers::split_like_shell($lddlflags) ];
+}
+
 sub _get_linker {
 	my ($self, $opts) = @_;
-	my $language = delete $opts->{language} || 'C';
-	if ($self->_is_gcc($self->config->get('ld')) or (is_os_type('Unix') and $^O ne 'aix')) {
-		my $type = delete $opts->{type};
-		if ($type ne 'static-library') {
-			my $export = delete $opts->{export} || is_os_type('Unix') && $^O ne 'aix' ? 'all' : 'none';
-			return $self->_make_command('Linker::Unixy', $self->config->get('ld'), type => $type, language => $language, export => $export);
-		}
-		else {
-			return $self->_make_command('Linker::Ar', $self->config->get('ar'), type => $type, language => $language);
-		}
-	}
-	else {
-		croak 'Non-Unix linking is not supported yet...';
-	}
+	my $type = delete $opts->{type};
+	my %args = (
+		type => $type, language => delete $opts->{language} || 'C',
+		export => delete $opts->{export} || is_os_type('Unix') && $^O ne 'aix' ? 'all' : 'none',
+		ccdlflags => $self->_get_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts));
+	my $ld = $self->_get_opt($opts, 'ld');
+	my $module =
+		$type eq 'static-library' ? 'Ar' :
+		$self->_is_gcc($ld, $opts) ? 'GCC' :
+		is_os_type('Unix') && $^O ne 'aix' ? 'Unixy' :
+		croak 'Linking is not supported yet on your platform';
+	return $self->_make_command("Linker::$module", $ld, %args);
 }
 
 sub get_linker {
