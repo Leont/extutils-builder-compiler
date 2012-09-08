@@ -47,9 +47,10 @@ sub get_linker_flags {
 has cpp_flags => (
 	is => 'rw',
 	default => sub {
-		return [ '-lstdc++' ];
+		return '-lstdc++';
 	},
 );
+
 sub get_language_flags {
 	my $self = shift;
 	return [] if $self->language eq 'C';
