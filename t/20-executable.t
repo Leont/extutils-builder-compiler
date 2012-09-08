@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More 0.89;
 
 use Config;
 use ExtUtils::Builder;
@@ -49,7 +49,7 @@ ok(-e $source_file, "source file '$source_file' created");
 
 my $object_file = catfile(dirname($source_file), basename($source_file, '.c') . $Config{obj_ext});
 
-$c->compile($source_file, $object_file)->execute(logger => \*STDERR, quiet => $quiet);
+$c->compile($source_file, $object_file)->execute(logger => \&note, quiet => $quiet);
 
 ok(-e $object_file, "object file $object_file has been created");
 
@@ -58,7 +58,7 @@ my $exe_file = catfile(dirname($source_file), basename($object_file, $Config{obj
 my $l = $b->get_linker(profile => 'Perl', type => 'executable');
 ok($l, "get_linker");
 
-$l->link([$object_file], $exe_file)->execute(logger => \*STDERR, quiet => $quiet);
+$l->link([$object_file], $exe_file)->execute(logger => \&note, quiet => $quiet);
 
 ok(-e $exe_file, "lib file $exe_file has been created");
 

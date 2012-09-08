@@ -21,11 +21,6 @@ has env => (
 	required => 1,
 );
 
-has logger => (
-	is      => 'ro',
-	default => sub { \*STDOUT },
-);
-
 sub listify {
 	my $self = shift;
 	return ($self->program, @{ $self->arguments });
@@ -34,7 +29,7 @@ sub listify {
 sub execute {
 	my ($self, %opts) = @_;
 	my @command = $self->listify;
- 	print { $opts{logger} || $self->logger } join(' ', map { my $arg = $_; $arg =~ s/ (?= ['#] ) /\\/gx ? "'$arg'" : $arg } @command), "\n" if not $opts{quiet};
+	($opts{logger} || $self->logger)->(join ' ', map { my $arg = $_; $arg =~ s/ (?= ['#] ) /\\/gx ? "'$arg'" : $arg } @command) if not $opts{quiet};
 	if (not $opts{dry_run}) {
 		my $env = $self->env;
 		local @ENV{keys %{$env}} = values %{$env};
