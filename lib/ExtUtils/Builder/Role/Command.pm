@@ -33,12 +33,16 @@ sub make_variant {
 		return @{ $self->_arguments };
 	};
 
-	install $arguments{method}, sub {
+	install $_ => sub {} for qw/pre_action post_action/;
+	install 'make_action' => sub {
 		my ($self, @args) = @_;
 		use sort 'stable';
 		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
 		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@argv, env => $self->env);
-		return ExtUtils::Builder::ActionSet->new($action);
+	};
+	install $arguments{method}, sub {
+		my ($self, @args) = @_;
+		return ExtUtils::Builder::ActionSet->new($self->pre_action(@args), $self->make_action(@args), $self->post_action(@args));
 	};
 
 	install add_argument => sub {

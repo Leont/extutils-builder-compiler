@@ -77,15 +77,16 @@ sub _lddlflags {
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $type = delete $opts->{type};
+	my $prelink = !is_os_type('Unix') || $^O eq 'aix';
 	my %args = (
 		type => $type, language => delete $opts->{language} || 'C',
-		export => delete $opts->{export} || is_os_type('Unix') && $^O ne 'aix' ? 'all' : 'none',
+		export => delete $opts->{export} || !$prelink ? 'all' : 'none', prelink => $prelink,
 		ccdlflags => $self->_get_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts));
 	my $ld = $self->_get_opt($opts, 'ld');
 	my $module =
 		$type eq 'static-library' ? 'Ar' :
 		$self->_is_gcc($ld, $opts) ? 'GCC' :
-		is_os_type('Unix') && $^O ne 'aix' ? 'Unixy' :
+		is_os_type('Unix') ? 'Unixy' :
 		croak 'Linking is not supported yet on your platform';
 	return $self->_make_command("Linker::$module", $ld, %args);
 }
