@@ -34,10 +34,10 @@ sub get_linker_flags {
 	my ($self, %opts) = @_;
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
-		return $self->lddlflags;
+		return @{ $self->lddlflags };
 	}
 	elsif ($type eq 'executable') {
-		return $self->export eq 'all' ? $self->ccdlflags : [];
+		return $self->export eq 'all' ? @{ $self->ccdlflags } : ();
 	}
 	else {
 		croak("Unknown linkage type $type");
@@ -61,7 +61,7 @@ around arguments => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	return (
 		$self->$orig,
-		ExtUtils::Builder::Argument->new(ranking => 10, value => $self->get_linker_flags),
+		ExtUtils::Builder::Argument->new(ranking => 10, value => [ $self->get_linker_flags ]),
 		ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]),
 		ExtUtils::Builder::Argument->new(ranking => 75, value => $self->get_language_flags),
 	);
