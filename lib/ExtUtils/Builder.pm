@@ -19,6 +19,12 @@ sub _get_opt {
 	return $self->config->get($name);
 }
 
+sub _split_opt {
+	my ($self, $opts, $name) = @_;
+	my $ret = _get_opt($self, $opts, $name);
+	return ref($ret) ? $ret : [ split_like_shell($ret) ];
+}
+
 sub _make_command {
 	my ($self, $shortname, $command, %options) = @_;
 	my $module = "ExtUtils::Builder::$shortname";
@@ -39,7 +45,7 @@ sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $cc = $self->_get_opt($opts, 'cc');
 	my $module = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix') ? 'Unixy' : is_os_type('Windows') ? 'MSVC' : croak 'Your platform is not supported yet';
-	my %args = (language => delete $opts->{language} || 'C', type => delete $opts->{type}, cccdlflags => $self->_get_opt($opts, 'cccdlflags'));
+	my %args = (language => delete $opts->{language} || 'C', type => delete $opts->{type}, cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
 	return $self->_make_command("Compiler::$module", $cc, %args);
 }
 
@@ -70,7 +76,7 @@ sub _lddlflags {
 	my $lddlflags = $self->config->get('lddlflags');
 	my $optimize = $self->_get_opt($opts, 'optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
-	my %ldflags = map { ( $_ => 1 ) } ExtUtils::Helpers::split_like_shell($self->_get_opt($opts, 'ldflags'));
+	my %ldflags = map { ( $_ => 1 ) } @{ $self->_split_opt($opts, 'ldflags') };
 	return [ grep { not $ldflags{$_} } ExtUtils::Helpers::split_like_shell($lddlflags) ];
 }
 
@@ -81,7 +87,7 @@ sub _get_linker {
 	my %args = (
 		type => $type, language => delete $opts->{language} || 'C',
 		export => delete $opts->{export} || !$prelink ? 'all' : 'none', prelink => $prelink,
-		ccdlflags => $self->_get_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts));
+		ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts));
 	my $ld = $self->_get_opt($opts, 'ld');
 	my $module =
 		$type eq 'static-library' ? 'Ar' :

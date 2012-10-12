@@ -39,7 +39,7 @@ sub compile_flags {
 	my ($self, $from, $to) = @_;
 	return
 		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, '-c', $from ]),
-		$self->pic ? ExtUtils::Builder::Argument->new(ranking => 45, value => [ $self->cccdlflags ]) : ();
+		$self->pic ? ExtUtils::Builder::Argument->new(ranking => 45, value => $self->cccdlflags) : ();
 }
 
 sub language_flags {
