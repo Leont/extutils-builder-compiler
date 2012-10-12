@@ -28,7 +28,7 @@ has command => (
 	}
 );
 
-sub listify {
+sub serialize {
 	my $self = shift;
 	return @{ $self->command };
 }

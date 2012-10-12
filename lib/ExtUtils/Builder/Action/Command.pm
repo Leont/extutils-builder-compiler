@@ -21,14 +21,14 @@ has env => (
 	required => 1,
 );
 
-sub listify {
+sub serialize {
 	my $self = shift;
 	return ($self->program, @{ $self->arguments });
 }
 
 sub execute {
 	my ($self, %opts) = @_;
-	my @command = $self->listify;
+	my @command = $self->serialize;
 	($opts{logger} || $self->logger)->(join ' ', map { my $arg = $_; $arg =~ s/ (?= ['#] ) /\\/gx ? "'$arg'" : $arg } @command) if not $opts{quiet};
 	if (not $opts{dry_run}) {
 		my $env = $self->env;

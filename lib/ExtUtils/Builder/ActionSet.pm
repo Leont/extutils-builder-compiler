@@ -17,16 +17,15 @@ sub BUILDARGS {
 
 sub execute {
 	my ($self, %opts) = @_;
-	my @actions = @{ $self->_actions };
-	for my $action (@actions) {
+	for my $action (@{ $self->_actions }) {
 		$action->execute(%opts);
 	}
 	return;
 }
 
-sub oneliners {
+sub serialize {
 	my ($self, %opts) = @_;
-	return map { $_->oneliner } @{ $self->_actions };
+	return map { [ $_->serialize(%opts) ] } @{ $self->_actions };
 }
 
 1;

@@ -2,7 +2,7 @@ package ExtUtils::Builder::Role::Action;
 
 use Moo::Role;
 
-requires qw/execute listify/;
+requires qw/execute serialize/;
 
 has logger => (
 	is      => 'ro',
