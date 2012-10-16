@@ -15,22 +15,35 @@ sub execute {
 	return;
 }
 
-has command => (
-	is => 'ro',
+has serialized => (
+	is => 'lazy',
 	default => sub {
 		my $self = shift;
 
 		require B::Deparse;
-		my $text = B::Deparse->new->coderef2text($self->code);
-
-		require Devel::FindPerl;
-		return [ Devel::FindPerl::find_perl_interpreter(), '-e', $text ];
+		return B::Deparse->new->coderef2text($self->code);
 	}
 );
 
+has _modules => (
+	is => 'ro',
+	init_arg => 'modules',
+	default => sub { [] },
+);
+
+sub _get_perl {
+	my %args = @_;
+	return $args{perl} if $args{perl};
+	require Devel::FindPerl;
+	return Devel::FindPerl::find_perl_interpreter($args{config});
+}
+
 sub serialize {
-	my $self = shift;
-	return @{ $self->command };
+	my ($self, %args) = @_;
+	my $text = $self->serialized;
+	my $perl = _get_perl(%args);
+	my @modules = map { "-M$_" } @{ $self->_modules };
+	return ($perl, @modules, '-e', $text);
 }
 
 1;
