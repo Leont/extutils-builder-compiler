@@ -6,7 +6,7 @@ use Carp ();
 use ExtUtils::Builder::Argument;
 use ExtUtils::Builder::Role::Command;
 
-with Command(method => 'link'), 'ExtUtils::Builder::Role::Linker';
+with 'ExtUtils::Builder::Role::Linker';
 
 has static_args => (
 	is => 'ro',

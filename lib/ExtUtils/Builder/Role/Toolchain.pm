@@ -2,9 +2,11 @@ package ExtUtils::Builder::Role::Toolchain;
 
 use Moo::Role;
 
+use Carp qw//;
+
 has language => (
 	is       => 'ro',
-	required => 1,
+	default  => sub { 'C' },
 );
 
 my %allowed_types = map { ( $_ => 1) } qw/shared-library static-library loadable-object executable/;

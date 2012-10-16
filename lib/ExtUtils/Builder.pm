@@ -41,11 +41,17 @@ sub _is_gcc {
 	return $self->_get_opt($opts, 'gccversion') || $cc =~ / ^ gcc /ix;
 }
 
+sub _filter_args {
+	my ($opts, @names) = @_;
+	return map { $_ => delete $opts->{$_} } grep { exists $opts->{$_} } @names;
+}
+
 sub _get_compiler {
 	my ($self, $opts) = @_;
+	my $os = delete $opts->{osname} || $^O;
 	my $cc = $self->_get_opt($opts, 'cc');
-	my $module = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix') ? 'Unixy' : is_os_type('Windows') ? 'MSVC' : croak 'Your platform is not supported yet';
-	my %args = (language => delete $opts->{language} || 'C', type => delete $opts->{type}, cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
+	my $module = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix', $os) ? 'Unixy' : is_os_type('Windows', $os) ? 'MSVC' : croak 'Your platform is not supported yet';
+	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
 	return $self->_make_command("Compiler::$module", $cc, %args);
 }
 
@@ -77,23 +83,21 @@ sub _lddlflags {
 	my $optimize = $self->_get_opt($opts, 'optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
 	my %ldflags = map { ( $_ => 1 ) } @{ $self->_split_opt($opts, 'ldflags') };
-	return [ grep { not $ldflags{$_} } ExtUtils::Helpers::split_like_shell($lddlflags) ];
+	return [ grep { not $ldflags{$_} } split_like_shell($lddlflags) ];
 }
 
 sub _get_linker {
 	my ($self, $opts) = @_;
-	my $type = delete $opts->{type};
-	my $prelink = !is_os_type('Unix') || $^O eq 'aix';
+	my $os = delete $opts->{osname} || $^O;
 	my %args = (
-		type => $type, language => delete $opts->{language} || 'C',
-		export => delete $opts->{export} || !$prelink ? 'all' : 'none', prelink => $prelink,
+		_filter_args($opts, qw/type export langage/),
 		ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts));
 	my $ld = $self->_get_opt($opts, 'ld');
 	my $module =
-		$type eq 'static-library' ? 'Ar' :
-		$self->_is_gcc($ld, $opts) ?
-		$^O eq 'darwin' ? 'GCC::Darwin' : 'GCC' :
-		is_os_type('Unix') ? 'Unixy' :
+		$args{type} eq 'static-library' ? 'Ar' :
+		$os eq 'darwin' ? 'GCC::Darwin' :
+		$self->_is_gcc($ld, $opts) ?  'GCC' :
+		is_os_type('Unix', $os) ? 'Unixy' :
 		croak 'Linking is not supported yet on your platform';
 	return $self->_make_command("Linker::$module", $ld, %args);
 }

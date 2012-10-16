@@ -4,6 +4,10 @@ use Moo;
 
 extends 'ExtUtils::Builder::Linker::Unixy';
 
+has '+command' => (
+	default => sub { 'gcc' },
+);
+
 has '+ccdlflags' => (
 	default => sub { ['-Wl,-E'] },
 );
