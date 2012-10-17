@@ -6,11 +6,15 @@ with 'ExtUtils::Builder::Role::Compiler';
 
 use ExtUtils::Builder::Argument;
 
+has '+command' => (
+	default => sub { 'cc' },
+);
+
 has pic => (
 	is => 'ro',
 	default => sub {
 		my $self = shift;
-		return $self->type eq 'shared-library' || $self->type eq 'loadable-object';
+		return ($self->type eq 'shared-library' || $self->type eq 'loadable-object') && $self->cccdlflags =~ /\S/;
 	},
 	lazy => 1,
 );
@@ -44,7 +48,7 @@ sub compile_flags {
 
 sub language_flags {
 	my $self = shift;
-	return $self->language eq 'c++' ? ExtUtils::Builder::Arguments->new(ranking => 10, value => [qw/-x c++/]) : ();
+	return $self->language eq 'C++' ? ExtUtils::Builder::Arguments->new(ranking => 10, value => [qw/-x c++/]) : ();
 }
 
 1;
