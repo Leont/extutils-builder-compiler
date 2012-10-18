@@ -38,14 +38,13 @@ sub add_libraries {
 	return;
 }
 
-around arguments => sub {
-	my ($orig, $self, $from, $to, %opts) = @_;
+sub linker_flags {
+	my ($self, $from, $to, %opts) = @_;
 	return (
-		$self->$orig,
 		ExtUtils::Builder::Argument->new(ranking =>  0, value => $self->static_args),
 		ExtUtils::Builder::Argument->new(ranking => 10, value => [ $to ]),
 		ExtUtils::Builder::Argument->new(ranking => 75, value => [ @{$from} ]),
 	);
-};
+}
 
 1;

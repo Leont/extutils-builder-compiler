@@ -9,7 +9,7 @@ my %flag_for = (
 	'shared-library' => '-dynamiclib',
 );
 
-around 'get_linker_flags' => sub {
+around 'linker_flags' => sub {
 	my ($orig, $self, %opts) = @_;
 	my @ret = $self->$orig(%opts);
 	unshift @ret, $flag_for{ $self->type } if $flag_for{ $self->type };

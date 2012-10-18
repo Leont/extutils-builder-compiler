@@ -6,8 +6,22 @@ use ExtUtils::Builder::Argument;
 
 with 'ExtUtils::Builder::Role::Linker::Shared';
 
-has '+prelinking' => (
-	default => sub { 0 },
+has ccdlflags => (
+	is => 'ro',
+	required => 1,
+);
+
+has lddlflags => (
+	is => 'ro',
+	required => 1,
+);
+
+has '+export' => (
+	default => sub {
+		my $self = shift;
+		return $self->type eq 'executable' ? 'none' : 'all';
+	},
+	lazy => 1,
 );
 
 sub add_library_dirs {
@@ -22,9 +36,21 @@ sub add_libraries {
 	return;
 }
 
-sub file_flags {
+sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
-	return ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]),
+	my $type = $self->type;
+	my @ret;
+	if ($type eq 'shared-library' or $type eq 'loadable-object') {
+		push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => $self->lddlflags);
+	}
+	elsif ($type eq 'executable') {
+		push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => $self->ccdlflags) if $self->export eq 'all';
+	}
+	else {
+		croak("Unknown linkage type $type");
+	}
+	push @ret, ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]);
+	return @ret;
 }
 
 has cpp_flags => (
@@ -34,11 +60,12 @@ has cpp_flags => (
 	},
 );
 
-sub language_flags {
-	my $self = shift;
-	return if $self->language eq 'C';
-	return ExtUtils::Builder::Argument->new(ranking => 76, value => $self->cpp_flags) if $self->language eq 'C++';
-}
+around 'language_flags' => sub {
+	my ($orig, $self, %opts) = @_;
+	my @ret = $self->$orig(%opts);
+	push @ret, ExtUtils::Builder::Argument->new(ranking => 76, value => $self->cpp_flags) if $self->language eq 'C++';
+	return @ret;
+};
 
 1;
 
