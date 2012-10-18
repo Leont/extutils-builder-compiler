@@ -1,28 +1,10 @@
-package ExtUtils::Builder::Linker::Unixy;
+package ExtUtils::Builder::Role::Linker::Unixy;
 
-use Moo;
+use Moo::Role;
 
 use ExtUtils::Builder::Argument;
 
 with 'ExtUtils::Builder::Role::Linker::Shared';
-
-has ccdlflags => (
-	is => 'ro',
-	required => 1,
-);
-
-has lddlflags => (
-	is => 'ro',
-	required => 1,
-);
-
-has '+export' => (
-	default => sub {
-		my $self = shift;
-		return $self->type eq 'executable' ? 'none' : 'all';
-	},
-	lazy => 1,
-);
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;
@@ -38,19 +20,7 @@ sub add_libraries {
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
-	my $type = $self->type;
-	my @ret;
-	if ($type eq 'shared-library' or $type eq 'loadable-object') {
-		push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => $self->lddlflags);
-	}
-	elsif ($type eq 'executable') {
-		push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => $self->ccdlflags) if $self->export eq 'all';
-	}
-	else {
-		croak("Unknown linkage type $type");
-	}
-	push @ret, ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]);
-	return @ret;
+	return ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ])
 }
 
 has cpp_flags => (

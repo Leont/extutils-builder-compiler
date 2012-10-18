@@ -1,8 +1,8 @@
-package ExtUtils::Builder::Linker::GCC;
+package ExtUtils::Builder::Linker::GCC::ELF;
 
 use Moo;
 
-extends 'ExtUtils::Builder::Linker::Unixy';
+extends 'ExtUtils::Builder::Linker::ELF';
 
 has '+command' => (
 	default => sub { 'gcc' },
@@ -17,4 +17,5 @@ has '+lddlflags' => (
 );
 
 1;
+
 

@@ -89,16 +89,15 @@ sub _lddlflags {
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
-	my %args = (
-		_filter_args($opts, qw/type export langage/),
-		ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts));
+	my %args = _filter_args($opts, qw/type export langage/);
 	my $ld = $self->_get_opt($opts, 'ld');
 	my $module =
 		$args{type} eq 'static-library' ? 'Ar' :
 		$os eq 'darwin' ? 'GCC::Darwin' :
-		$self->_is_gcc($ld, $opts) ?  'GCC' :
+		$self->_is_gcc($ld, $opts) ? 'GCC::ELF' :
 		is_os_type('Unix', $os) ? 'Unixy' :
 		croak 'Linking is not supported yet on your platform';
+	%args = (%args, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) if $module eq 'Unixy';
 	return $self->_make_command("Linker::$module", $ld, %args);
 }
 
