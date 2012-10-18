@@ -12,7 +12,7 @@ my %flag_for = (
 around 'linker_flags' => sub {
 	my ($orig, $self, %opts) = @_;
 	my @ret = $self->$orig(%opts);
-	unshift @ret, $flag_for{ $self->type } if $flag_for{ $self->type };
+	push @ret, ExtUtils::Builder::Arguments->new(rank => 10, value => [ $flag_for{ $self->type } ]) if $flag_for{ $self->type };
 	return @ret;
 };
 
