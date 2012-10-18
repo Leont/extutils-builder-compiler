@@ -6,7 +6,7 @@ use warnings;
 use Test::More 0.89;
 
 use Config;
-use ExtUtils::Builder;
+use ExtUtils::Builder::AutoDetect;
 use ExtUtils::Embed qw/ldopts/;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
@@ -15,7 +15,7 @@ use IPC::System::Simple qw/capturex/;
 # TEST does not like extraneous output
 my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
 
-my $b = ExtUtils::Builder->new;
+my $b = ExtUtils::Builder::AutoDetect->new;
 my $c = $b->get_compiler(profile => 'Perl', type => 'executable');
 
 my $source_file = catfile('t', 'executable.c');
