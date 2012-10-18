@@ -10,8 +10,8 @@ has code => (
 );
 
 sub execute {
-	my ($self, @args) = @_;
-	$self->code->(@args);
+	my ($self, %opts) = @_;
+	$self->code->(%{ $self->arguments }, %opts);
 	return;
 }
 
@@ -21,8 +21,24 @@ has serialized => (
 		my $self = shift;
 
 		require B::Deparse;
-		return B::Deparse->new->coderef2text($self->code);
-	}
+		my $core = B::Deparse->new('-sCi0')->coderef2text($self->code);
+		$core =~ s/ \A { \n? (.*?) ;? \n? } \z /{ $1 }/mx;
+		my $args = $self->arguments;
+		if (keys %{$args}) {
+			require Data::Dumper;
+			my $args = Data::Dumper->new([ $args ])->Terse(1)->Indent(0)->Dump;
+			return "(sub $core)->(%{ $args }, \@ARGV)";
+		}
+		else {
+			return "(sub $core)->(\@ARGV)";
+		}
+	},
+	predicate => '_has_serialized',
+);
+
+has arguments => (
+	is => 'ro',
+	default => sub { {} },
 );
 
 has _modules => (
@@ -32,16 +48,16 @@ has _modules => (
 );
 
 sub _get_perl {
-	my %args = @_;
-	return $args{perl} if $args{perl};
+	my %opts = @_;
+	return $opts{perl} if $opts{perl};
 	require Devel::FindPerl;
-	return Devel::FindPerl::find_perl_interpreter($args{config});
+	return Devel::FindPerl::find_perl_interpreter($opts{config});
 }
 
 sub serialize {
-	my ($self, %args) = @_;
+	my ($self, %opts) = @_;
 	my $text = $self->serialized;
-	my $perl = _get_perl(%args);
+	my $perl = _get_perl(%opts);
 	my @modules = map { "-M$_" } @{ $self->_modules };
 	return ($perl, @modules, '-e', $text);
 }
