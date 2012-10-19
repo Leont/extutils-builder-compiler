@@ -14,7 +14,7 @@ has pic => (
 	is => 'ro',
 	default => sub {
 		my $self = shift;
-		return ($self->type eq 'shared-library' || $self->type eq 'loadable-object') && $self->cccdlflags =~ /\S/;
+		return ($self->type eq 'shared-library' || $self->type eq 'loadable-object') && @{ $self->cccdlflags };
 	},
 	lazy => 1,
 );
