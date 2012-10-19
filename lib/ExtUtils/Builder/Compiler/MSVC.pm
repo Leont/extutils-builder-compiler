@@ -12,7 +12,7 @@ has '+command' => (
 
 sub add_include_dirs {
 	my ($self, $dirs, %opts) = @_;
-	$self->add_argument(ranking => _fix_ranking(30, $opts{ranking}), value => [ map { "/I$_" } @{$dirs} ]);
+	$self->add_argument(ranking => $self->fix_ranking(30, $opts{ranking}), value => [ map { "/I$_" } @{$dirs} ]);
 	return;
 }
 
@@ -20,7 +20,7 @@ sub add_defines {
 	my ($self, $defines, %opts) = @_;
 	for my $key (keys %{$defines}) {
 		my $value = defined $defines->{$key} ? $defines->{$key} ne '' ? "/D$key=$defines->{$key}" : "/D$key" : "/U$key";
-		$self->add_argument(ranking => _fix_ranking(40, $opts{ranking}), value => [ $value ]);
+		$self->add_argument(ranking => $self->fix_ranking(40, $opts{ranking}), value => [ $value ]);
 	}
 	return;
 }

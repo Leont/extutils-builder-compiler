@@ -51,8 +51,8 @@ sub make_variant {
 		return;
 	};
 
-	install _fix_ranking => sub {
-		my ($baseline, $override) = @_;
+	install fix_ranking => sub {
+		my (undef, $baseline, $override) = @_;
 		return $baseline if not defined $override;
 		return (ref($override) eq 'CODE') ? $override->($baseline) : $override;
 	};
