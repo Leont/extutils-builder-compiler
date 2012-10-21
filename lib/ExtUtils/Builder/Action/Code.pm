@@ -4,6 +4,8 @@ use Moo;
 
 with 'ExtUtils::Builder::Role::Action';
 
+use Module::Load ();
+
 has code => (
 	is => 'ro',
 	required => 1,
@@ -11,6 +13,7 @@ has code => (
 
 sub execute {
 	my ($self, %opts) = @_;
+	Module::Load::load($_) for @{ $self->_modules };
 	$self->code->(%{ $self->arguments }, %opts);
 	return;
 }

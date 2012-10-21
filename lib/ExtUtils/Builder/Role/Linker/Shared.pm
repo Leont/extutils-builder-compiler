@@ -10,8 +10,20 @@ around pre_action => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig(%opts);
 	if ($self->export eq 'some') {
-		my %dl_args = map { $_ => $opts{$_} } grep { /^dl_/ } keys %opts;
-		push @ret, ExtUtils::Builder::Action::Code->new(code => \&prelink, args => \%dl_args);
+		push @ret, ExtUtils::Builder::Action::Code->new(
+			code => sub { ExtUtils::Mksymlists::Mksymlists(@_) },
+			modules => [ 'ExtUtils::Mksymlists' ],
+			args => { 
+				DL_VARS  => $opts{dl_vars}      || [],
+				DL_FUNCS => $opts{dl_funcs}     || {},
+				FUNCLIST => $opts{dl_func_list} || [],
+				IMPORTS  => $opts{dl_imports}   || {},
+				NAME     => $opts{dl_name},    # Name of the Perl module
+				DLBASE   => $opts{dl_base},    # Basename of DLL file
+				FILE     => $opts{dl_file},    # Dir + Basename of symlist file
+				VERSION  => (defined $opts{dl_version} ? $opts{dl_version} : '0.0'),
+			},
+		);
 	}
 	return @ret;
 };
@@ -22,23 +34,6 @@ around arguments => sub {
 };
 
 sub language_flags {
-}
-
-sub _prelink {
-	my ($self, %args) = @_;
-	require ExtUtils::Mksymlists;
-	ExtUtils::Mksymlists::Mksymlists(
-		DL_VARS  => $args{dl_vars}      || [],
-		DL_FUNCS => $args{dl_funcs}     || {},
-		FUNCLIST => $args{dl_func_list} || [],
-		IMPORTS  => $args{dl_imports}   || {},
-		NAME     => $args{dl_name},    # Name of the Perl module
-		DLBASE   => $args{dl_base},    # Basename of DLL file
-		FILE     => $args{dl_file},    # Dir + Basename of symlist file
-		VERSION  => (defined $args{dl_version} ? $args{dl_version} : '0.0'),
-	);
-
-	return grep { -e } map { "$args{dl_file}.$_" } qw(ext def opt);
 }
 
 1;
