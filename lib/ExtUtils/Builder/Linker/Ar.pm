@@ -8,6 +8,10 @@ use ExtUtils::Builder::Role::Command;
 
 with 'ExtUtils::Builder::Role::Linker';
 
+has '+export' => (
+	default => sub { 'implicit' },
+);
+
 has static_args => (
 	is => 'ro',
 	default => sub { 'cr' },

@@ -6,11 +6,6 @@ with 'ExtUtils::Builder::Role::Linker';
 
 use ExtUtils::Builder::Action::Code;
 
-has export => (
-	is => 'lazy',
-	required => 1,
-);
-
 around pre_action => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig(%opts);
