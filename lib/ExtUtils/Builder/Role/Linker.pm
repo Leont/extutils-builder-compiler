@@ -10,7 +10,7 @@ requires qw/add_library_dirs add_libraries linker_flags/;
 
 use Carp ();
 
-my %allowed_export = map { $_ => 1 } qw/implicit explicit all/;
+my %allowed_export = map { $_ => 1 } qw/none some all/;
 has export => (
 	is => 'lazy',
 	required => 1,

@@ -9,7 +9,7 @@ use ExtUtils::Builder::Action::Code;
 around pre_action => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig(%opts);
-	if ($self->export eq 'explicit') {
+	if ($self->export eq 'some') {
 		my %dl_args = map { $_ => $opts{$_} } grep { /^dl_/ } keys %opts;
 		push @ret, ExtUtils::Builder::Action::Code->new(code => \&prelink, args => \%dl_args);
 	}

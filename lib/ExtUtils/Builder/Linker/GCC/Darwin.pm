@@ -9,7 +9,7 @@ has '+command' => (
 );
 
 has '+export' => (
-	default => sub { 'implicit' },
+	default => sub { 'all' },
 );
 
 my %flag_for = (

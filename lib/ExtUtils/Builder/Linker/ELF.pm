@@ -19,7 +19,7 @@ has lddlflags => (
 has '+export' => (
 	default => sub {
 		my $self = shift;
-		return $self->type eq 'executable' ? 'none' : 'implicit';
+		return $self->type eq 'executable' ? 'none' : 'all';
 	},
 	lazy => 1,
 );
