@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Linker::GCC::Darwin;
+package ExtUtils::Builder::Linker::GCC::Mach;
 
 use Moo;
 

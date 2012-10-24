@@ -93,7 +93,7 @@ sub _get_linker {
 	my $ld = $self->_get_opt($opts, 'ld');
 	my $module =
 		$args{type} eq 'static-library' ? 'Ar' :
-		$os eq 'darwin' ? 'GCC::Darwin' :
+		$os eq 'darwin' ? 'GCC::Mach' :
 		$self->_is_gcc($ld, $opts) ? 'GCC::ELF' :
 		is_os_type('Unix', $os) ? 'Unixy' :
 		croak 'Linking is not supported yet on your platform';
