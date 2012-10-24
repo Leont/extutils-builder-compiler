@@ -38,10 +38,21 @@ sub make_variant {
 		my ($self, @args) = @_;
 		use sort 'stable';
 		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
-		my $action = ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@argv, env => $self->env);
+		return ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@argv, env => $self->env);
+	};
+
+	has _option_filters => (
+		is => 'ro',
+		default => sub { [] },
+	);
+	install add_option_filter => sub {
+		my ($self, $filter) = @_;
+		push @{ $self->_option_filters }, $filter;
+		return;
 	};
 	install $arguments{method}, sub {
 		my ($self, @args) = @_;
+		@args = $self->$_(@args) for @{ $self->_option_filters };
 		return ExtUtils::Builder::ActionSet->new($self->pre_action(@args), $self->make_action(@args), $self->post_action(@args));
 	};
 
