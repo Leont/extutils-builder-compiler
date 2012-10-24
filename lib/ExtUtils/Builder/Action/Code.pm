@@ -4,11 +4,16 @@ use Moo;
 
 with 'ExtUtils::Builder::Role::Action';
 
+use Carp ();
 use Module::Load ();
 
 has code => (
-	is => 'ro',
-	required => 1,
+	is => 'lazy',
+	default => sub {
+		my $self = shift;
+		return eval sprintf 'sub { %s }', $self->serialized;
+	},
+	predicate => '_has_code',
 );
 
 sub execute {
@@ -25,19 +30,17 @@ has serialized => (
 
 		require B::Deparse;
 		my $core = B::Deparse->new('-sCi0')->coderef2text($self->code);
-		$core =~ s/ \A { \n? (.*?) ;? \n? } \z /{ $1 }/mx;
-		my $args = $self->arguments;
-		if (keys %{$args}) {
-			require Data::Dumper;
-			my $args = Data::Dumper->new([ $args ])->Terse(1)->Indent(0)->Dump;
-			return "(sub $core)->(%{ $args }, \@ARGV)";
-		}
-		else {
-			return "(sub $core)->(\@ARGV)";
-		}
+		$core =~ s/ \A { ( .* ) } \z /$1/msx;
+		$core =~ s/ \A \n? (.*?) ;? \n? \z /{ $1 }/mx;
+		return $core;
 	},
 	predicate => '_has_serialized',
 );
+
+sub BUILD {
+	my $self = shift;
+	Carp::croak('Need to define at least one of code or serialized') if !$self->_has_code && !$self->_has_serialized;
+}
 
 has arguments => (
 	is => 'ro',
@@ -59,10 +62,14 @@ sub _get_perl {
 
 sub serialize {
 	my ($self, %opts) = @_;
-	my $text = $self->serialized;
+	my $serialized = $self->serialized;
+	my $args = %{ $self->arguments } ? do { 
+		require Data::Dumper;
+		sprintf '%%{ %s }, @ARGV', Data::Dumper->new([ $self->arguments ])->Terse(1)->Indent(0)->Dump;
+	} : '@ARGV';
 	my $perl = _get_perl(%opts);
 	my @modules = map { "-M$_" } @{ $self->_modules };
-	return ($perl, @modules, '-e', $text);
+	return ($perl, @modules, '-e', "(sub { $serialized })->($args)");
 }
 
 1;
