@@ -16,6 +16,13 @@ sub process_compiler {
 sub process_linker {
 	my ($class, $linker, $config) = @_;
 	$linker->add_argument(ranking => 60, value => $config->get('ldflags'));
+	if ($linker->export eq 'some') {
+		$linker->add_option_filter(sub {
+			my ($self, $from, $to, %opts) = @_;
+			$opts{dl_name} ||= $opts{module_name};
+			return ($from, $to, %opts);
+		});
+	}
 	if ($linker->type eq 'executable' or $linker->type eq 'shared-library') {
 		$linker->add_libraries(['perl']);
 		$linker->add_library_dirs([ catdir($config->get('archlibexp'), 'CORE')]);
