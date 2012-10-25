@@ -16,13 +16,10 @@ has lddlflags => (
 	required => 1,
 );
 
-has '+export' => (
-	default => sub {
-		my $self = shift;
-		return $self->type eq 'executable' ? 'none' : 'all';
-	},
-	lazy => 1,
-);
+sub _build_export {
+	my $self = shift;
+	return $self->type eq 'executable' ? 'none' : 'all';
+}
 
 around 'linker_flags' => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;

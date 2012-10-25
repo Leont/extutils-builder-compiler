@@ -13,11 +13,11 @@ use Carp ();
 my %allowed_export = map { $_ => 1 } qw/none some all/;
 has export => (
 	is => 'lazy',
-	required => 1,
 	isa => sub {
 		Carp::croak("$_[0] is not an allowed export value") if not $allowed_export{ $_[0] };
 	},
 );
+requires '_build_export';
 
 around arguments => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;

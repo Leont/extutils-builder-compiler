@@ -18,13 +18,10 @@ my %export_for = (
 	'loadable-object' => 'some',
 );
 
-has '+export' => (
-	default => sub {
-		my $self = shift;
-		return $export_for{ $self->type };
-	},
-	lazy => 1,
-);
+sub _build_export {
+	my $self = shift;
+	return $export_for{ $self->type };
+}
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;

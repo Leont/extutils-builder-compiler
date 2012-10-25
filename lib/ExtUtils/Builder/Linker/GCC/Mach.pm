@@ -8,9 +8,9 @@ has '+command' => (
 	default => sub { 'gcc' },
 );
 
-has '+export' => (
-	default => sub { 'all' },
-);
+sub _build_export {
+	return 'all';
+}
 
 my %flag_for = (
 	'loadable-object' => [ qw/-bundle -undefined dynamic_lookup/ ],
