@@ -15,17 +15,15 @@ sub make_variant {
 	has command => (
 		is => 'ro',
 		required => 1,
+		coerce => sub {
+			return ref $_[0] ? $_[0] : [ $_[0] ];
+		}
 	);
 
 	has _arguments => (
 		is => 'ro',
 		default => sub { [] },
 		init_arg => 'arguments',
-	);
-
-	has env => (
-		is      => 'ro',
-		default => sub { {} },
 	);
 
 	install 'arguments' => sub {
@@ -38,7 +36,7 @@ sub make_variant {
 		my ($self, @args) = @_;
 		use sort 'stable';
 		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
-		return ExtUtils::Builder::Action::Command->new(program => $self->command, arguments => \@argv, env => $self->env);
+		return ExtUtils::Builder::Action::Command->new(command => [ @{ $self->command }, @argv ]);
 	};
 
 	has _option_filters => (

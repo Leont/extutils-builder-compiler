@@ -52,7 +52,7 @@ around 'post_action' => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig(%opts);
 	my $manifest = $opts{manifest} || "$to.manifest";
-	push @ret, ExtUtils::Builder::Action::Command->new(program => 'if', arguments => [ 'exist', $manifest, 'mt', '-nologo', $manifest, "-outputresource:$to;2" ], env => {});
+	push @ret, ExtUtils::Builder::Action::Command->new(command => [ 'if', 'exist', $manifest, 'mt', '-nologo', $manifest, "-outputresource:$to;2" ]);
 	return @ret;
 };
 

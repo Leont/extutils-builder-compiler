@@ -30,10 +30,7 @@ sub _make_command {
 	my $module = "ExtUtils::Builder::$shortname";
 	load($module);
 	my @command = ref $command ? @{$command} : split_like_shell($command);
-	my %env = $command[0] =~ / \w+ = \S+ /x ? split /=/, shift @command, 2 : ();
-	my $thingie = $module->new(command => shift @command, env => \%env, %options);
-	$thingie->add_argument(ranking => 0, value => \@command) if @command;
-	return $thingie;
+	return $module->new(command => \@command, %options);
 }
 
 sub _is_gcc {

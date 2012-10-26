@@ -6,24 +6,15 @@ with 'ExtUtils::Builder::Role::Action';
 
 use IPC::System::Simple qw/systemx capturex/;
 
-has program => (
+has _command => (
 	is       => 'ro',
 	required => 1,
-);
-
-has arguments => (
-	is       => 'ro',
-	required => 1,
-);
-
-has env => (
-	is       => 'ro',
-	required => 1,
+	init_arg => 'command',
 );
 
 sub serialize {
 	my $self = shift;
-	return ($self->program, @{ $self->arguments });
+	return (@{ $self->_command });
 }
 
 sub execute {
@@ -31,8 +22,6 @@ sub execute {
 	my @command = $self->serialize;
 	($opts{logger} || $self->logger)->(join ' ', map { my $arg = $_; $arg =~ s/ (?= ['#] ) /\\/gx ? "'$arg'" : $arg } @command) if not $opts{quiet};
 	if (not $opts{dry_run}) {
-		my $env = $self->env;
-		local @ENV{keys %{$env}} = values %{$env};
 		if ($opts{verbose}) {
 			systemx(@command);
 		}
