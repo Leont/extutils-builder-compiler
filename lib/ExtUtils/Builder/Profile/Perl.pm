@@ -28,8 +28,8 @@ sub process_linker {
 		$linker->add_library_dirs([ catdir($config->get('archlibexp'), 'CORE')]);
 		$linker->add_argument(ranking => 80, value => $config->get('perllibs'));
 	}
-	if ($linker->type eq 'executable' && $config->get('useshrplib') && $linker->can('add_runtime_path')) {
-		$linker->add_runtime_path([ catdir($config->get('archlibexp'), 'CORE')]);
+	if ($linker->type eq 'executable' && $config->get('ccdlflags') =~ / \b ( (?: -Wl,-R | -Wl,rpath, | -R\  ) \S+ ) /x) {
+		$linker->add_argument(ranking => 40, value => $1);
 	}
 	return;
 }
