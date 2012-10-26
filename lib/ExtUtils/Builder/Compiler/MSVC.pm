@@ -27,7 +27,7 @@ sub add_defines {
 
 sub language_flags {
 	my $self = shift;
-	return $self->language eq 'C++' ? ExtUtils::Builder::Arguments->new(ranking => 10, value => [qw{/TP /EHsc}]) : ();
+	return $self->language eq 'C++' ? ExtUtils::Builder::Argument->new(ranking => 10, value => [qw{/TP /EHsc}]) : ();
 }
 
 sub compile_flags {

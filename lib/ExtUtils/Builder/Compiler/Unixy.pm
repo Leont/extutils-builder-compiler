@@ -48,7 +48,7 @@ sub compile_flags {
 
 sub language_flags {
 	my $self = shift;
-	return $self->language eq 'C++' ? ExtUtils::Builder::Arguments->new(ranking => 10, value => [qw/-x c++/]) : ();
+	return $self->language eq 'C++' ? ExtUtils::Builder::Argument->new(ranking => 10, value => [qw/-x c++/]) : ();
 }
 
 1;
