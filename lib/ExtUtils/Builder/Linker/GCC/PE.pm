@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Linker::GCC::Windows;
+package ExtUtils::Builder::Linker::GCC::PE;
 
 use Moo;
 
