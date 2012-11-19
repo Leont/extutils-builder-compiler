@@ -93,10 +93,10 @@ sub _get_linker {
 		$os eq 'darwin' ? 'GCC::Mach' :
 		$self->_is_gcc($ld, $opts) ?
 		$os eq 'MSWin32' ? 'GCC::PE' : 'GCC::ELF' :
-		is_os_type('Unix', $os) ? 'Unixy' :
+		is_os_type('Unix', $os) ? 'ELF' :
 		$os eq 'MSWin32' ? 'MSVC' :
 		croak 'Linking is not supported yet on your platform';
-	%args = (%args, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) if $module eq 'Unixy';
+	%args = (%args, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) if $module eq 'ELF';
 	return $self->_make_command("Linker::$module", $ld, %args);
 }
 
