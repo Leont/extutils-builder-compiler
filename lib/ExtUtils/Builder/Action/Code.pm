@@ -16,9 +16,15 @@ has code => (
 	predicate => '_has_code',
 );
 
+has message => (
+	is => 'ro',
+	predicate => '_has_message'
+);
+
 sub execute {
 	my ($self, %opts) = @_;
 	Module::Load::load($_) for @{ $self->_modules };
+	($opts{logger} || $self->logger)->($self->message) if $self->_has_message && not $opts{quiet};
 	$self->code->(%{ $self->arguments }, %opts);
 	return;
 }
@@ -31,7 +37,7 @@ has serialized => (
 		require B::Deparse;
 		my $core = B::Deparse->new('-sCi0')->coderef2text($self->code);
 		$core =~ s/ \A { ( .* ) } \z /$1/msx;
-		$core =~ s/ \A \n? (.*?) ;? \n? \z /{ $1 }/mx;
+		$core =~ s/ \A \n? (.*?) ;? \n? \z /$1/mx;
 		return $core;
 	},
 	predicate => '_has_serialized',
