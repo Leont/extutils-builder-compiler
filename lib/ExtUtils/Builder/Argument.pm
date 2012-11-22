@@ -3,7 +3,6 @@ package ExtUtils::Builder::Argument;
 use Moo;
 
 use Carp 'croak';
-use ExtUtils::Helpers qw/split_like_shell/;
 
 has ranking => (
 	is      => 'rw',
@@ -14,7 +13,6 @@ has ranking => (
 has value => (
 	is       => 'rw',
 	isa      => sub { croak 'value must be an array or a string: ' if ref($_[0]) ne 'ARRAY' },
-	coerce   => sub { return ref $_[0] ? $_[0] : [ split_like_shell($_[0]) ] },
 	required => 1,
 );
 

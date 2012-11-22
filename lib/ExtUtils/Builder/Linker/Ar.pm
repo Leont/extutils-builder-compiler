@@ -14,7 +14,7 @@ sub _build_export {
 
 has static_args => (
 	is => 'ro',
-	default => sub { 'cr' },
+	default => sub { ['cr'] },
 );
 
 has _library_dirs => (
