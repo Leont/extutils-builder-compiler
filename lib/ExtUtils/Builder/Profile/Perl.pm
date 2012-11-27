@@ -6,17 +6,24 @@ use warnings FATAL => 'all';
 use ExtUtils::Helpers qw/split_like_shell/;
 use File::Spec::Functions qw/catdir/;
 
+sub _get_var {
+	my ($config, $opts, $key) = @_;
+	return delete $opts->{$key} || [ split_like_shell($config->get($key)) ];
+}
+
 sub process_compiler {
 	my ($class, $compiler, $config, $opts) = @_;
 	$compiler->add_include_dirs([ catdir($config->get('archlibexp'), 'CORE') ], ranking => sub { $_[0] + 1 });
-	$compiler->add_argument(ranking => 60, value => delete $opts->{ccflags} || [ split_like_shell($config->get('ccflags')) ]);
-	$compiler->add_argument(ranking => 65, value => delete $opts->{optimize} || [ split_like_shell($config->get('optimize'))]);
+	$compiler->add_argument(ranking => 60, value => _get_var($config, $opts, 'ccflags'));
+	$compiler->add_argument(ranking => 65, value => _get_var($config, $opts, 'optimize'));
 	return;
 }
 
+my $rpath_regex = qr/ ( (?<! \w ) (?: -Wl,-R | -Wl,-rpath | -R\ ? ) \S+ ) /x;
+
 sub process_linker {
-	my ($class, $linker, $config) = @_;
-	$linker->add_argument(ranking => 60, value => [ split_like_shell($config->get('ldflags')) ]);
+	my ($class, $linker, $config, $opts) = @_;
+	$linker->add_argument(ranking => 60, value => _get_var($config, $opts, 'ldflags'));
 	if ($linker->export eq 'some') {
 		$linker->add_option_filter(sub {
 			my ($self, $from, $to, %opts) = @_;
@@ -27,10 +34,11 @@ sub process_linker {
 	if ($linker->type eq 'executable' or $linker->type eq 'shared-library') {
 		$linker->add_libraries(['perl']);
 		$linker->add_library_dirs([ catdir($config->get('archlibexp'), 'CORE')]);
-		$linker->add_argument(ranking => 80, value => [ split_like_shell($config->get('perllibs')) ]);
+		$linker->add_argument(ranking => 80, value => _get_var($config, $opts, 'perllibs'));
 	}
-	if ($linker->type eq 'executable' && $config->get('ccdlflags') =~ / ( (?<! \w ) (?: -Wl,-R | -Wl,-rpath | -R\  ) .+ ) /x) {
-		$linker->add_argument(ranking => 40, value => [$1]);
+	if ($linker->type eq 'executable') {
+		my $rpath = $opts->{rpath} || [ split_like_shell($config->get('ccdlflags') =~ $rpath_regex) ];
+		$linker->add_argument(ranking => 40, value => $rpath) if @{$rpath};
 	}
 	return;
 }
