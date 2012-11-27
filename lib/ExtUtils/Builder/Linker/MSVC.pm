@@ -5,23 +5,11 @@ use Moo;
 use ExtUtils::Builder::Argument;
 use ExtUtils::Builder::Action::Command;
 
-with 'ExtUtils::Builder::Role::Linker::Shared';
+with map { "ExtUtils::Builder::Role::Linker::$_" } qw/COFF Shared/;
 
 has '+command' => (
 	default => sub { 'link' },
 );
-
-my %export_for = (
-	executable => 'none',
-	'static-library' => 'all',
-	'shared-library' => 'some',
-	'loadable-object' => 'some',
-);
-
-sub _build_export {
-	my $self = shift;
-	return $export_for{ $self->type };
-}
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;
