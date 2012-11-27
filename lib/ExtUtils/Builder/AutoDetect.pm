@@ -94,6 +94,7 @@ sub _get_linker {
 		$self->_is_gcc($ld, $opts) ?
 		$os eq 'MSWin32' ? 'GCC::PE' : 'GCC::ELF' :
 		$os eq 'hpux' ? 'HP' :
+		$os eq 'aix' ? 'XCOFF' :
 		is_os_type('Unix', $os) ? 'ELF' :
 		$os eq 'MSWin32' ? 'MSVC' :
 		croak 'Linking is not supported yet on your platform';
