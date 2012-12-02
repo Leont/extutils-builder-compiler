@@ -94,7 +94,6 @@ sub _get_linker {
 		$os eq 'darwin' ? ('GCC::Mach', $cc) :
 		$self->_is_gcc($ld, $opts) ?
 		$os eq 'MSWin32' ? ('GCC::PE', $cc) : ('GCC::ELF', $cc) :
-		$os eq 'hpux' ? ('HP', $ld) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
 		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
 		$os eq 'MSWin32' ? ('MSVC', $ld) :
