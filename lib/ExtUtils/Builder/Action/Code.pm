@@ -2,7 +2,7 @@ package ExtUtils::Builder::Action::Code;
 
 use Moo;
 
-with 'ExtUtils::Builder::Role::Action';
+with 'ExtUtils::Builder::Role::Action::Logging';
 
 use Carp ();
 use Module::Load ();
@@ -75,7 +75,7 @@ sub serialize {
 	} : '@ARGV';
 	my $perl = _get_perl(%opts);
 	my @modules = map { "-M$_" } @{ $self->_modules };
-	return ($perl, @modules, '-e', "(sub { $serialized })->($args)");
+	return [ $perl, @modules, '-e', "(sub { $serialized })->($args)" ];
 }
 
 1;

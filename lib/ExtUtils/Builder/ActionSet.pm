@@ -2,7 +2,7 @@ package ExtUtils::Builder::ActionSet;
 
 use Moo;
 
-use Carp 'croak';
+with 'ExtUtils::Builder::Role::Action';
 
 has _actions => (
 	is       => 'ro',
@@ -17,15 +17,18 @@ sub BUILDARGS {
 
 sub execute {
 	my ($self, %opts) = @_;
-	for my $action (@{ $self->_actions }) {
-		$action->execute(%opts);
-	}
+	$_->execute(%opts) for $self->flatten;
 	return;
 }
 
 sub serialize {
 	my ($self, %opts) = @_;
-	return map { [ $_->serialize(%opts) ] } @{ $self->_actions };
+	return map { $_->serialize(%opts) } $self->flatten;
 }
+
+around flatten => sub {
+	my ($orig, $self) = @_;
+	return @{ $self->_actions };
+};
 
 1;
