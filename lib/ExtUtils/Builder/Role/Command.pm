@@ -8,9 +8,28 @@ use Package::Variant
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::ActionSet;
+use ExtUtils::Builder::Dependency;
+
+use Carp ();
+
+my %converter_for = (
+	single   => sub {
+		my ($source, $target, %opts) = @_;
+		return ( $target, [ $source, @{ $opts{dependencies} || [] } ]);
+	},
+	multiple => sub {
+		my ($source, $target, %opts) = @_;
+		return ( $target, [ @{$source}, @{ $opts{dependencies} || [] } ]);
+	},
+);
 
 sub make_variant {
 	my ($class, $target_package, %arguments) = @_;
+
+	my $method = $arguments{method} || Carp::croak('No method name given');
+	my $policy_name = $arguments{source} || Carp::croak('No source type given');
+	my $policy = ref $policy_name ? $policy_name : $converter_for{$policy_name};
+	Carp::croak("Unknown policy '$policy_name'") if not $policy;
 
 	has command => (
 		is => 'ro',
@@ -26,18 +45,12 @@ sub make_variant {
 		init_arg => 'arguments',
 	);
 
-	install 'arguments' => sub {
+	install arguments => sub {
 		my $self = shift;
 		return @{ $self->_arguments };
 	};
 
 	install $_ => sub {} for qw/pre_action post_action/;
-	install 'make_action' => sub {
-		my ($self, @args) = @_;
-		use sort 'stable';
-		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
-		return ExtUtils::Builder::Action::Command->new(command => [ @{ $self->command }, @argv ]);
-	};
 
 	has _option_filters => (
 		is => 'ro',
@@ -48,10 +61,17 @@ sub make_variant {
 		push @{ $self->_option_filters }, $filter;
 		return;
 	};
-	install $arguments{method}, sub {
+
+	install $method, sub {
 		my ($self, @args) = @_;
 		@args = $self->$_(@args) for @{ $self->_option_filters };
-		return ExtUtils::Builder::ActionSet->new($self->pre_action(@args), $self->make_action(@args), $self->post_action(@args));
+		use sort 'stable';
+		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
+		my $main = ExtUtils::Builder::Action::Command->new(command => [ @{ $self->command }, @argv ]);
+		my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
+		my $action = @actions > 1 ? ExtUtils::Builder::ActionSet->new(@actions) : $main;
+		my ($target, $sources) = $policy->(@args);
+		return ExtUtils::Builder::Dependency->new(target => $target, sources => $sources, action => $action);
 	};
 
 	install add_argument => sub {

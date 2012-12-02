@@ -3,7 +3,7 @@ package ExtUtils::Builder::Role::Compiler;
 use Moo::Role;
 use ExtUtils::Builder::Role::Command;
 
-with Command(method => 'compile'), 'ExtUtils::Builder::Role::Toolchain';
+with Command(method => 'compile', source => 'single'), 'ExtUtils::Builder::Role::Toolchain';
 
 requires qw/add_include_dirs add_defines language_flags compile_flags/;
 
