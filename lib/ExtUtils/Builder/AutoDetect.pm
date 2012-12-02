@@ -87,19 +87,19 @@ sub _get_linker {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
 	my %args = _filter_args($opts, qw/type export langage/);
+	my $cc = $self->_get_opt($opts, 'cc');
 	my $ld = $self->_get_opt($opts, 'ld');
-	my $module =
-		$args{type} eq 'static-library' ? 'Ar' :
-		$os eq 'darwin' ? 'GCC::Mach' :
+	my ($module, $link, %opts) =
+		$args{type} eq 'static-library' ? ('Ar', $self->_get_opt($opts, 'ar')) :
+		$os eq 'darwin' ? ('GCC::Mach', $cc) :
 		$self->_is_gcc($ld, $opts) ?
-		$os eq 'MSWin32' ? 'GCC::PE' : 'GCC::ELF' :
-		$os eq 'hpux' ? 'HP' :
-		$os eq 'aix' ? 'XCOFF' :
-		is_os_type('Unix', $os) ? 'ELF' :
-		$os eq 'MSWin32' ? 'MSVC' :
+		$os eq 'MSWin32' ? ('GCC::PE', $cc) : ('GCC::ELF', $cc) :
+		$os eq 'hpux' ? ('HP', $ld) :
+		$os eq 'aix' ? ('XCOFF', $cc) :
+		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
+		$os eq 'MSWin32' ? ('MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
-	%args = (%args, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) if $module eq 'ELF';
-	return $self->_make_command("Linker::$module", $ld, %args);
+	return $self->_make_command("Linker::$module", $link, %opts, %args);
 }
 
 sub get_linker {
@@ -109,8 +109,6 @@ sub get_linker {
 		my $profile_module = "ExtUtils::Builder::Profile::$profile";
 		load($profile_module);
 		$profile_module->process_linker($linker, $self->config, %opts);
-	}
-	if (defined(my $shared = $opts{shared})) {
 	}
 	if (my $library_dirs = delete $opts{library_dirs}) {
 		$linker->add_library_dirs($library_dirs);

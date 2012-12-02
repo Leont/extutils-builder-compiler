@@ -24,7 +24,7 @@ around pre_action => sub {
 		push @ret, ExtUtils::Builder::Action::Code->new(
 			code => sub { ExtUtils::Mksymlists::Mksymlists(@_) },
 			serialized => 'ExtUtils::Mksymlists::Mksymlists(@_)',
-			message => join(' ', "prelink $to", %args),
+			message => join(' ', 'prelink', $to, %args),
 			modules => [ 'ExtUtils::Mksymlists' ],
 			arguments => \%args,
 		);
