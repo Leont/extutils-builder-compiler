@@ -1,4 +1,4 @@
-package ExtUtils::Builder::ActionSet;
+package ExtUtils::Builder::Action::Composite;
 
 use Moo;
 
