@@ -14,7 +14,12 @@ around linker_flags => sub {
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
 		my $basename = $opts{basename} || File::Basename::basename($to);
-		push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ "-bE:$basename.exp" ]);
+		if ($self->export eq 'some') {
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ "-bE:$basename.exp" ]);
+		}
+		elsif ($self->export eq 'all') {
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ '-bexpall' ]);
+		}
 	}
 	return @ret;
 };
