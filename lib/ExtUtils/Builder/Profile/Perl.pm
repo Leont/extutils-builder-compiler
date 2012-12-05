@@ -32,7 +32,9 @@ sub process_linker {
 		});
 	}
 	if ($linker->type eq 'executable' or $linker->type eq 'shared-library') {
-		$linker->add_libraries(['perl']);
+		my ($libperl, $so) = map { $opts->{$_} || $config->get($_) } qw/libperl so/;
+		my ($lib) = $libperl =~ / \A (?:lib)? ( perl \w* ) \. $so \z /msx;
+		$linker->add_libraries([$lib]);
 		$linker->add_library_dirs([ catdir($config->get('archlibexp'), 'CORE')]);
 		$linker->add_argument(ranking => 80, value => _get_var($config, $opts, 'perllibs'));
 	}
