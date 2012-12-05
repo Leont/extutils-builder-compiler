@@ -11,7 +11,7 @@ has code => (
 	is => 'lazy',
 	default => sub {
 		my $self = shift;
-		return eval sprintf 'sub { %s }', $self->serialized;
+		return eval(sprintf 'sub { %s }', $self->serialized) || Carp::croak("Couldn't evaluate serialized: $@");
 	},
 	predicate => '_has_code',
 );
@@ -24,7 +24,7 @@ has message => (
 sub execute {
 	my ($self, %opts) = @_;
 	Module::Load::load($_) for @{ $self->_modules };
-	($opts{logger} || $self->logger)->($self->message) if $self->_has_message && not $opts{quiet};
+	($opts{logger} || $self->logger)->($self->message) if $self->_has_message && !$opts{quiet};
 	$self->code->(%{ $self->arguments }, %opts);
 	return;
 }
@@ -46,6 +46,7 @@ has serialized => (
 sub BUILD {
 	my $self = shift;
 	Carp::croak('Need to define at least one of code or serialized') if !$self->_has_code && !$self->_has_serialized;
+	return;
 }
 
 has arguments => (

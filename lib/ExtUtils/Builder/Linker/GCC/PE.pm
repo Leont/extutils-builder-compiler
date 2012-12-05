@@ -24,7 +24,7 @@ around linker_flags => sub {
 		push @ret, ExtUtils::Builder::Argument->new(ranking => 85, value => [ '-Wl,--export-all-symbols' ]);
 	}
 	elsif ($self->export eq 'some') {
-		my $export_file = $opts{export_file} || ($opts{basename} || File::Basename::basename($to)).".def";
+		my $export_file = $opts{export_file} || ($opts{basename} || File::Basename::basename($to)).'.def';
 		push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ $export_file ])
 	}
 	return @ret;
