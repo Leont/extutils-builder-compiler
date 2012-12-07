@@ -18,7 +18,10 @@ around linker_flags => sub {
 			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ "-bE:$basename.exp" ]);
 		}
 		elsif ($self->export eq 'all') {
-			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ '-bexpall' ]);
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ '-bexpfull' ]);
+		}
+		if (!$self->autoimport) {
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ '-bnoautoimp' ]);
 		}
 	}
 	return @ret;

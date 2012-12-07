@@ -4,6 +4,11 @@ use Moo::Role;# 1.000007
 
 #with 'ExtUtils::Builder::Role::Linker::Shared';
 
+has autoimport => (
+	is => 'ro',
+	default => sub { 1 },
+);
+
 my %export_for = (
 	executable => 'none',
 	'static-library' => 'all',
