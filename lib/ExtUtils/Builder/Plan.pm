@@ -1,18 +1,18 @@
-package ExtUtils::Builder::Dependency;
+package ExtUtils::Builder::Plan;
 
 use Moo;
 
-with 'ExtUtils::Builder::Role::Action::Delegated';
+with 'ExtUtils::Builder::Role::Action::Composite';
 
 has target => (
 	is       => 'ro',
 	required => 1,
 );
 
-has _sources => (
+has _dependencies => (
 	is       => 'ro',
 	required => 1,
-	init_arg => 'sources',
+	init_arg => 'dependencies',
 );
 
 sub sources {

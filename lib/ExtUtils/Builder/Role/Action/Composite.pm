@@ -1,6 +1,6 @@
-package ExtUtils::Builder::Action::Composite;
+package ExtUtils::Builder::Role::Action::Composite;
 
-use Moo;
+use Moo::Role;
 
 with 'ExtUtils::Builder::Role::Action';
 

@@ -7,8 +7,7 @@ use Package::Variant
 	subs => [ qw/has/ ];
 
 use ExtUtils::Builder::Action::Command;
-use ExtUtils::Builder::Action::Composite;
-use ExtUtils::Builder::Dependency;
+use ExtUtils::Builder::Plan;
 
 use Carp ();
 
@@ -69,9 +68,8 @@ sub make_variant {
 		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
 		my $main = ExtUtils::Builder::Action::Command->new(command => [ @{ $self->command }, @argv ]);
 		my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
-		my $action = @actions > 1 ? ExtUtils::Builder::Action::Composite->new(actions => \@actions) : $main;
-		my ($target, $sources) = $policy->(@args);
-		return ExtUtils::Builder::Dependency->new(target => $target, sources => $sources, action => $action);
+		my ($target, $deps) = $policy->(@args);
+		return ExtUtils::Builder::Plan->new(target => $target, dependencies => $deps, actions => \@actions);
 	};
 
 	install add_argument => sub {
