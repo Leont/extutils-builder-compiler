@@ -7,7 +7,7 @@ with 'ExtUtils::Builder::Role::Compiler';
 use ExtUtils::Builder::Argument;
 
 has '+command' => (
-	default => sub { 'cl' },
+	default => sub { ['cl'] },
 );
 
 sub add_include_dirs {

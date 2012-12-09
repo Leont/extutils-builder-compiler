@@ -5,7 +5,7 @@ use Moo;
 extends 'ExtUtils::Builder::Compiler::Unixy';
 
 has '+command' => (
-	default => sub { 'gcc' },
+	default => sub { ['gcc'] },
 );
 
 has '+cccdlflags' => (

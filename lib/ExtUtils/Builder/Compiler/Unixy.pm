@@ -7,7 +7,7 @@ with 'ExtUtils::Builder::Role::Compiler';
 use ExtUtils::Builder::Argument;
 
 has '+command' => (
-	default => sub { 'cc' },
+	default => sub { ['cc'] },
 );
 
 has pic => (

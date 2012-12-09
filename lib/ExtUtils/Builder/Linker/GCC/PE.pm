@@ -8,7 +8,7 @@ use File::Basename ();
 use ExtUtils::Builder::Argument;
 
 has '+command' => (
-	default => sub { 'gcc' },
+	default => sub { ['gcc'] },
 );
 
 around linker_flags => sub {

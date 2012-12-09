@@ -5,7 +5,7 @@ use Moo;
 extends 'ExtUtils::Builder::Linker::ELF';
 
 has '+command' => (
-	default => sub { 'gcc' },
+	default => sub { ['gcc'] },
 );
 
 has '+ccdlflags' => (
