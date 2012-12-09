@@ -5,7 +5,7 @@ use Moo;
 use Carp 'croak';
 use ExtUtils::Config;
 use ExtUtils::Helpers 'split_like_shell';
-use Module::Load;
+use Module::Runtime qw/require_module/;
 use Perl::OSType 'is_os_type';
 
 has config => (
@@ -28,7 +28,7 @@ sub _split_opt {
 sub _make_command {
 	my ($self, $shortname, $command, %options) = @_;
 	my $module = "ExtUtils::Builder::$shortname";
-	load($module);
+	require_module($module);
 	my @command = ref $command ? @{$command} : split_like_shell($command);
 	return $module->new(command => \@command, %options);
 }
@@ -57,7 +57,7 @@ sub get_compiler {
 	my $compiler = $self->_get_compiler(\%opts);
 	if (my $profile = delete $opts{profile}) {
 		my $profile_module = "ExtUtils::Builder::Profile::$profile";
-		load($profile_module);
+		require_module($profile_module);
 		$profile_module->process_compiler($compiler, $self->config, \%opts);
 	}
 	if (my $include_dirs = delete $opts{include_dirs}) {
@@ -106,7 +106,7 @@ sub get_linker {
 	my $linker = $self->_get_linker(\%opts);
 	if (my $profile = delete $opts{profile}) {
 		my $profile_module = "ExtUtils::Builder::Profile::$profile";
-		load($profile_module);
+		require_module($profile_module);
 		$profile_module->process_linker($linker, $self->config, %opts);
 	}
 	if (my $library_dirs = delete $opts{library_dirs}) {

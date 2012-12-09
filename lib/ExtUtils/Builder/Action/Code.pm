@@ -5,7 +5,7 @@ use Moo;
 with 'ExtUtils::Builder::Role::Action::Logging';
 
 use Carp ();
-use Module::Load ();
+use Module::Runtime ();
 
 has code => (
 	is => 'lazy',
@@ -23,7 +23,7 @@ has message => (
 
 sub execute {
 	my ($self, %opts) = @_;
-	Module::Load::load($_) for @{ $self->_modules };
+	Module::Runtime::require_module($_) for @{ $self->_modules };
 	($opts{logger} || $self->logger)->($self->message) if $self->_has_message && !$opts{quiet};
 	$self->code->(%{ $self->arguments }, %opts);
 	return;
