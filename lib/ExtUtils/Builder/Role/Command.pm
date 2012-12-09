@@ -12,6 +12,10 @@ use ExtUtils::Builder::Plan;
 use Carp ();
 
 my %converter_for = (
+	none     => sub {
+		my ($source, $target, %opts) = @_;
+		return ( $target, [ @{ $opts{dependencies} || [] } ]);
+	},
 	single   => sub {
 		my ($source, $target, %opts) = @_;
 		return ( $target, [ $source, @{ $opts{dependencies} || [] } ]);
