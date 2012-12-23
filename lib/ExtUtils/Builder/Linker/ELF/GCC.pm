@@ -1,8 +1,8 @@
-package ExtUtils::Builder::Linker::GCC::ELF;
+package ExtUtils::Builder::Linker::ELF::GCC;
 
 use Moo;
 
-extends 'ExtUtils::Builder::Linker::ELF';
+extends 'ExtUtils::Builder::Linker::ELF::Any';
 
 has '+command' => (
 	default => sub { ['gcc'] },

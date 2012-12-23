@@ -91,9 +91,9 @@ sub _get_linker {
 	my $ld = $self->_get_opt($opts, 'ld');
 	my ($module, $link, %opts) =
 		$args{type} eq 'static-library' ? ('Ar', $self->_get_opt($opts, 'ar')) :
-		$os eq 'darwin' ? ('GCC::Mach', $cc) :
+		$os eq 'darwin' ? ('Mach::GCC', $cc) :
 		$self->_is_gcc($ld, $opts) ?
-		$os eq 'MSWin32' ? ('GCC::PE', $cc) : ('GCC::ELF', $cc) :
+		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $cc) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
 		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
 		$os eq 'MSWin32' ? ('MSVC', $ld) :

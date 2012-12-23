@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Linker::ELF;
+package ExtUtils::Builder::Linker::ELF::Any;
 
 use Moo;
 
