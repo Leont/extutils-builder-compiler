@@ -13,16 +13,16 @@ use Carp ();
 
 my %converter_for = (
 	none     => sub {
-		my ($source, $target, %opts) = @_;
-		return ( $target, [ @{ $opts{dependencies} || [] } ]);
+		my ($target, %opts) = @_;
+		return ( $target, [ @{ $opts{dependencies} || [] } ], \%opts);
 	},
 	single   => sub {
 		my ($source, $target, %opts) = @_;
-		return ( $target, [ $source, @{ $opts{dependencies} || [] } ]);
+		return ( $target, [ $source, @{ $opts{dependencies} || [] } ], \%opts);
 	},
 	multiple => sub {
 		my ($source, $target, %opts) = @_;
-		return ( $target, [ @{$source}, @{ $opts{dependencies} || [] } ]);
+		return ( $target, [ @{$source}, @{ $opts{dependencies} || [] } ], \%opts);
 	},
 );
 
