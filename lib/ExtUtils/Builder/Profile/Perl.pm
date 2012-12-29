@@ -12,7 +12,8 @@ sub _get_var {
 }
 
 sub process_compiler {
-	my ($class, $compiler, $config, $opts) = @_;
+	my ($class, $compiler, $opts) = @_;
+	my $config = delete $opts->{config};
 	$compiler->add_include_dirs([ catdir($config->get('archlibexp'), 'CORE') ], ranking => sub { $_[0] + 1 });
 	$compiler->add_argument(ranking => 60, value => _get_var($config, $opts, 'ccflags'));
 	$compiler->add_argument(ranking => 65, value => _get_var($config, $opts, 'optimize'));
@@ -22,7 +23,8 @@ sub process_compiler {
 my $rpath_regex = qr/ ( (?<! \w ) (?: -Wl,-R | -Wl,-rpath | -R\ ? ) \S+ ) /x;
 
 sub process_linker {
-	my ($class, $linker, $config, $opts) = @_;
+	my ($class, $linker, $opts) = @_;
+	my $config = delete $opts->{config};
 	$linker->add_argument(ranking => 60, value => _get_var($config, $opts, 'ldflags'));
 	if ($linker->export eq 'some') {
 		$linker->add_option_filter(sub {

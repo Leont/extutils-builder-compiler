@@ -16,7 +16,7 @@ use IPC::System::Simple qw/capturex/;
 my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
 
 my $b = ExtUtils::Builder::AutoDetect->new;
-my $c = $b->get_compiler(profile => 'Perl', type => 'executable');
+my $c = $b->get_compiler(profile => '@Perl', type => 'executable');
 
 my $source_file = catfile('t', 'executable.c');
 {
@@ -55,7 +55,7 @@ ok(-e $object_file, "object file $object_file has been created");
 
 my $exe_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . $Config{exe_ext});
 
-my $l = $b->get_linker(profile => 'Perl', type => 'executable');
+my $l = $b->get_linker(profile => '@Perl', type => 'executable');
 ok($l, "get_linker");
 
 $l->link([$object_file], $exe_file)->execute(logger => \&note, quiet => $quiet);

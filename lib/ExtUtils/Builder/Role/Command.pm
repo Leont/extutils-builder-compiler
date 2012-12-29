@@ -10,6 +10,7 @@ use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Plan;
 
 use Carp ();
+use Module::Runtime ();
 
 my %converter_for = (
 	none     => sub {
@@ -87,6 +88,16 @@ sub make_variant {
 		return $baseline if not defined $override;
 		return (ref($override) eq 'CODE') ? $override->($baseline) : $override;
 	};
+
+	if ($arguments{profile_method}) {
+		my $profile_method = $arguments{profile_method};
+		install load_profile => sub {
+			my ($self, $module, $arguments) = @_;
+			$module =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+			Module::Runtime::require_module($module);
+			$module->$profile_method($self, $arguments);
+		};
+	}
 	return;
 }
 

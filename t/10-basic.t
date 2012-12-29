@@ -16,7 +16,7 @@ my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
 my $b = ExtUtils::Builder::AutoDetect->new;
 ok($b, "created EU::Builder object");
 
-my $c = $b->get_compiler(profile => 'Perl', type => 'loadable-object');
+my $c = $b->get_compiler(profile => '@Perl', type => 'loadable-object');
 ok($c, "get_compiler");
 
 my $source_file = File::Spec->catfile('t', 'compilet.c');
@@ -70,7 +70,7 @@ ok(-e $object_file, "object file $object_file has been created");
 
 my $lib_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . ".$Config{dlext}");
 
-my $l = $b->get_linker(profile => 'Perl', type => 'loadable-object');
+my $l = $b->get_linker(profile => '@Perl', type => 'loadable-object');
 ok($l, "get_linker");
 
 $l->link([$object_file], $lib_file)->execute(logger => \&note, quiet => $quiet);
