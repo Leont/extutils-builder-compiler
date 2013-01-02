@@ -4,7 +4,7 @@ use Moo;
 
 with 'ExtUtils::Builder::Role::Linker::Unixy';
 
-has '+command' => (
+has '+ld' => (
 	lazy => 1,
 	default => sub { [ qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/] },
 );

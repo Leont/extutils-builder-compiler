@@ -4,7 +4,7 @@ use Moo;
 
 extends 'ExtUtils::Builder::Compiler::Unixy';
 
-has '+command' => (
+has '+cc' => (
 	default => sub { ['gcc'] },
 );
 

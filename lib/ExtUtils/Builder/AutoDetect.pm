@@ -26,11 +26,11 @@ sub _split_opt {
 }
 
 sub _make_command {
-	my ($self, $shortname, $command, %options) = @_;
+	my ($self, $shortname, $argument, $command, %options) = @_;
 	my $module = "ExtUtils::Builder::$shortname";
 	require_module($module);
 	my @command = ref $command ? @{$command} : split_like_shell($command);
-	return $module->new(command => \@command, %options);
+	return $module->new($argument => \@command, %options);
 }
 
 sub _is_gcc {
@@ -49,7 +49,7 @@ sub _get_compiler {
 	my $cc = $self->_get_opt($opts, 'cc');
 	my $module = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix', $os) ? 'Unixy' : is_os_type('Windows', $os) ? 'MSVC' : croak 'Your platform is not supported yet';
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
-	return $self->_make_command("Compiler::$module", $cc, %args);
+	return $self->_make_command("Compiler::$module", cc => $cc, %args);
 }
 
 sub get_compiler {
@@ -96,7 +96,7 @@ sub _get_linker {
 		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
 		$os eq 'MSWin32' ? ('MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
-	return $self->_make_command("Linker::$module", $link, %opts, %args);
+	return $self->_make_command("Linker::$module", ld => $link, %opts, %args);
 }
 
 sub get_linker {

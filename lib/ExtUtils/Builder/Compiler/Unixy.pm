@@ -6,7 +6,7 @@ with 'ExtUtils::Builder::Role::Compiler';
 
 use ExtUtils::Builder::Argument;
 
-has '+command' => (
+has '+cc' => (
 	default => sub { ['cc'] },
 );
 
@@ -14,7 +14,7 @@ has pic => (
 	is => 'ro',
 	default => sub {
 		my $self = shift;
-		return ($self->type eq 'shared-library' || $self->type eq 'loadable-object') && @{ $self->cccdlflags };
+		return +($self->type eq 'shared-library' || $self->type eq 'loadable-object') && @{ $self->cccdlflags };
 	},
 	lazy => 1,
 );

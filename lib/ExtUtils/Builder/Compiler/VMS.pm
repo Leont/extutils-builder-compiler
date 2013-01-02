@@ -7,7 +7,7 @@ with 'ExtUtils::Builder::Role::Compiler';
 use Carp ();
 use ExtUtils::Builder::Argument;
 
-has '+command' => (
+has '+cc' => (
 	default => sub { ['CC/DECC'] },
 );
 

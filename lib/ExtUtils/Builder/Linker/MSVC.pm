@@ -7,7 +7,7 @@ use ExtUtils::Builder::Action::Command;
 
 with map { "ExtUtils::Builder::Role::Linker::$_" } qw/COFF Shared/;
 
-has '+command' => (
+has '+ld' => (
 	default => sub { ['link'] },
 );
 

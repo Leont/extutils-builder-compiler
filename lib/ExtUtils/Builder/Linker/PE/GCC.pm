@@ -7,7 +7,7 @@ with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::U
 use File::Basename ();
 use ExtUtils::Builder::Argument;
 
-has '+command' => (
+has '+ld' => (
 	default => sub { ['gcc'] },
 );
 

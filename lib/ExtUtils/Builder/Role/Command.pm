@@ -34,8 +34,9 @@ sub make_variant {
 	my $policy_name = $arguments{source} || Carp::croak('No source type given');
 	my $policy = ref $policy_name ? $policy_name : $converter_for{$policy_name};
 	Carp::croak("Unknown policy '$policy_name'") if not $policy;
+	my $command = $arguments{name} || 'command';
 
-	has command => (
+	has $command => (
 		is => 'ro',
 		required => 1,
 		coerce => sub {
@@ -71,7 +72,7 @@ sub make_variant {
 		@args = $self->$_(@args) for @{ $self->_option_filters };
 		use sort 'stable';
 		my @argv = map { @{ $_->value } } sort { $a->ranking <=> $b->ranking } $self->arguments(@args);
-		my $main = ExtUtils::Builder::Action::Command->new(command => [ @{ $self->command }, @argv ]);
+		my $main = ExtUtils::Builder::Action::Command->new(command => [ @{ $self->$command }, @argv ]);
 		my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
 		my ($target, $deps) = $policy->(@args);
 		return ExtUtils::Builder::Plan->new(target => $target, dependencies => $deps, actions => \@actions);

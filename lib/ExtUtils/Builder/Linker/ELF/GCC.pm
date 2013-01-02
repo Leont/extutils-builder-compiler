@@ -4,7 +4,7 @@ use Moo;
 
 extends 'ExtUtils::Builder::Linker::ELF::Any';
 
-has '+command' => (
+has '+ld' => (
 	default => sub { ['gcc'] },
 );
 

@@ -6,7 +6,7 @@ with 'ExtUtils::Builder::Role::Compiler';
 
 use ExtUtils::Builder::Argument;
 
-has '+command' => (
+has '+cc' => (
 	default => sub { ['cl'] },
 );
 
