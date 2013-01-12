@@ -4,6 +4,15 @@ use Moo::Role;
 
 with 'ExtUtils::Builder::Role::Action';
 
+sub _build_preference_map {
+	return {
+		flatten => 3,
+		execute => 2,
+		command => 1,
+		code    => 0,
+	};
+}
+
 has _actions => (
 	is       => 'ro',
 	required => 1,
@@ -17,9 +26,14 @@ sub execute {
 	return;
 }
 
-sub serialize {
+sub to_code {
 	my ($self, %opts) = @_;
-	return map { $_->serialize(%opts) } $self->flatten;
+	return map { $_->to_code(%opts) } $self->flatten;
+}
+
+sub to_command {
+	my ($self, %opts) = @_;
+	return map { $_->to_command(%opts) } $self->flatten;
 }
 
 around flatten => sub {

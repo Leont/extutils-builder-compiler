@@ -2,29 +2,40 @@ package ExtUtils::Builder::Action::Code;
 
 use Moo;
 
-with 'ExtUtils::Builder::Role::Action::Logging';
+with 'ExtUtils::Builder::Role::Action';
 
 use Carp ();
 use Module::Runtime ();
 
+sub _build_preference_map {
+	return {
+		execute => 3,
+		code => 2,
+		command => 1,
+		flatten => 0
+	};
+}
+
+my %code_cache;
 has code => (
 	is => 'lazy',
 	default => sub {
 		my $self = shift;
-		return eval(sprintf 'sub { %s }', $self->serialized) || Carp::croak("Couldn't evaluate serialized: $@");
+		my $code = $self->to_code(skip_loading => 1);
+		return $code_cache{$code} ||= eval($code) || Carp::croak("Couldn't evaluate serialized: $@");
 	},
 	predicate => '_has_code',
 );
 
 has message => (
 	is => 'ro',
-	predicate => '_has_message'
+	predicate => '_has_message',
 );
 
 sub execute {
 	my ($self, %opts) = @_;
 	Module::Runtime::require_module($_) for @{ $self->_modules };
-	($opts{logger} || $self->logger)->($self->message) if $self->_has_message && !$opts{quiet};
+	$opts{logger}->($self->message) if $opts{logger} && !$opts{quiet} && $self->_has_message;
 	$self->code->(%{ $self->arguments }, %opts);
 	return;
 }
@@ -49,6 +60,12 @@ sub BUILD {
 	return;
 }
 
+sub to_code {
+	my ($self, %opts) = @_;
+	my $modules = $opts{skip_loading} ? '' : join '', map { "require $_; " } @{ $self->_modules };
+	return sprintf 'sub { %s%s }', $modules, $self->serialized;
+}
+
 has arguments => (
 	is => 'ro',
 	default => sub { {} },
@@ -67,16 +84,16 @@ sub _get_perl {
 	return Devel::FindPerl::find_perl_interpreter($opts{config});
 }
 
-sub serialize {
+sub to_command {
 	my ($self, %opts) = @_;
-	my $serialized = $self->serialized;
-	my $args = %{ $self->arguments } ? do { 
+	my $serialized = $self->to_code(skip_loading => 1);
+	my $args = %{ $self->arguments } ? do {
 		require Data::Dumper;
 		sprintf '%%{ %s }, @ARGV', Data::Dumper->new([ $self->arguments ])->Terse(1)->Indent(0)->Dump;
 	} : '@ARGV';
 	my $perl = _get_perl(%opts);
 	my @modules = map { "-M$_" } @{ $self->_modules };
-	return [ $perl, @modules, '-e', "(sub { $serialized })->($args)" ];
+	return [ $perl, @modules, '-e', "($serialized)->($args)" ];
 }
 
 1;
