@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Linker::MSVC;
+package ExtUtils::Builder::Linker::PE::MSVC;
 
 use Moo;
 

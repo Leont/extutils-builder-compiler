@@ -94,7 +94,7 @@ sub _get_linker {
 		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $cc) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
 		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
-		$os eq 'MSWin32' ? ('MSVC', $ld) :
+		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
 	return $self->_make_command("Linker::$module", ld => $link, %opts, %args);
 }
