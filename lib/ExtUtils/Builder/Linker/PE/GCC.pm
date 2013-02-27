@@ -15,6 +15,9 @@ around linker_flags => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig($from, $to, %opts);
 	push @ret, ExtUtils::Builder::Argument->new(ranking => 85, value => [ '-Wl,--enable-auto-image-base' ]);
+	if ($self->type eq 'shared-library' or $self->type eq 'loadable-object') {
+		push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => [ '--shared' ]);
+	}
 	if ($self->autoimport) {
 		push @ret, ExtUtils::Builder::Argument->new(ranking => 85, value => [ '-Wl,--enable-auto-import' ]);
 	}
