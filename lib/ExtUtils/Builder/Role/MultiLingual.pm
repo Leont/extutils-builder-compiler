@@ -4,7 +4,7 @@ use Moo::Role;
 
 has language => (
 	is       => 'ro',
-	default  => sub { 'C' },
+	required => 1,
 );
 
 1;

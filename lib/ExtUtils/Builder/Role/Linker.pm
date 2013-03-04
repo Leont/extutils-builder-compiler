@@ -4,7 +4,7 @@ use Moo::Role;
 
 use ExtUtils::Builder::Role::Command;
 
-with Command(method => 'link', source => 'multiple', profile_method => 'process_linker', name => 'ld'), 'ExtUtils::Builder::Role::Toolchain';
+with Command(method => 'link', source => 'multiple', profile_method => 'process_linker', name => 'ld'), 'ExtUtils::Builder::Role::Binary';
 
 requires qw/add_library_dirs add_libraries linker_flags/;
 

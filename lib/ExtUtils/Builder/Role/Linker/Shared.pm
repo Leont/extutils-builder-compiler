@@ -32,12 +32,4 @@ around pre_action => sub {
 	return @ret;
 };
 
-around arguments => sub {
-	my ($orig, $self, $from, $to, %opts) = @_;
-	return ($self->$orig($from, $to, %opts), $self->language_flags(%opts));
-};
-
-sub language_flags {
-}
-
 1;

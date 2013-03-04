@@ -72,8 +72,5 @@ sub compile_flags {
 	return ExtUtils::Builder::Argument->new(ranking => 75, value => [ "/obj=$to", $from ]);
 }
 
-sub language_flags {
-}
-
 1;
 

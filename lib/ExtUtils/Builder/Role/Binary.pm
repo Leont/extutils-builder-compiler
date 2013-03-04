@@ -1,8 +1,6 @@
-package ExtUtils::Builder::Role::Toolchain;
+package ExtUtils::Builder::Role::Binary;
 
 use Moo::Role;
-
-with 'ExtUtils::Builder::Role::MultiLingual';
 
 use Carp qw//;
 

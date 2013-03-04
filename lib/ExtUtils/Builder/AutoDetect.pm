@@ -47,9 +47,9 @@ sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
 	my $cc = $self->_get_opt($opts, 'cc');
-	my $module = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix', $os) ? 'Unixy' : is_os_type('Windows', $os) ? 'MSVC' : croak 'Your platform is not supported yet';
+	my ($module, %extra) = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix', $os) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
-	return $self->_make_command("Compiler::$module", cc => $cc, %args);
+	return $self->_make_command("Compiler::$module", cc => $cc, %args, %extra);
 }
 
 sub get_compiler {
@@ -84,7 +84,7 @@ sub _lddlflags {
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
-	my %args = _filter_args($opts, qw/type export langage/);
+	my %args = _filter_args($opts, qw/type export language/);
 	my $cc = $self->_get_opt($opts, 'cc');
 	my $ld = $self->_get_opt($opts, 'ld');
 	my ($module, $link, %opts) =

@@ -46,9 +46,4 @@ sub compile_flags {
 		$self->pic ? ExtUtils::Builder::Argument->new(ranking => 45, value => $self->cccdlflags) : ();
 }
 
-sub language_flags {
-	my $self = shift;
-	return $self->language eq 'C++' ? ExtUtils::Builder::Argument->new(ranking => 10, value => [qw/-x c++/]) : ();
-}
-
 1;

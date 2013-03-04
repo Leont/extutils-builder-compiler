@@ -23,19 +23,5 @@ sub linker_flags {
 	return ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ])
 }
 
-has cpp_flags => (
-	is => 'rw',
-	default => sub {
-		return [ '-lstdc++' ];
-	},
-);
-
-around 'language_flags' => sub {
-	my ($orig, $self, %opts) = @_;
-	my @ret = $self->$orig(%opts);
-	push @ret, ExtUtils::Builder::Argument->new(ranking => 76, value => $self->cpp_flags) if $self->language eq 'C++';
-	return @ret;
-};
-
 1;
 

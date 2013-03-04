@@ -2,7 +2,7 @@ package ExtUtils::Builder::Compiler::MSVC;
 
 use Moo;
 
-with 'ExtUtils::Builder::Role::Compiler';
+with qw/ExtUtils::Builder::Role::Compiler ExtUtils::Builder::Role::MultiLingual/;
 
 use ExtUtils::Builder::Argument;
 
@@ -25,15 +25,14 @@ sub add_defines {
 	return;
 }
 
-sub language_flags {
-	my $self = shift;
-	return $self->language eq 'C++' ? ExtUtils::Builder::Argument->new(ranking => 10, value => [qw{/TP /EHsc}]) : ();
-}
-
 sub compile_flags {
 	my ($self, $from, $to) = @_;
 
-	return map { ExtUtils::Builder::Argument->new($_) } { ranking => 5, value => [ '/NOLOGO' ] }, { ranking => 75, value => [ "/Fo$to", '/c', $from ]};
+	my @ret;
+	push @ret, ExtUtils::Builder::Argument->new(ranking => 5,  value => ['/NOLOGO']);
+	push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => [qw{/TP /EHsc}]) if $self->language eq 'C++';
+	push @ret, ExtUtils::Builder::Argument->new(ranking => 75, value => [ "/Fo$to", '/c', $from ]);
+	return @ret;
 }
 
 1;
