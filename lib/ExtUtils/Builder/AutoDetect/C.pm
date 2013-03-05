@@ -1,4 +1,4 @@
-package ExtUtils::Builder::AutoDetect;
+package ExtUtils::Builder::AutoDetect::C;
 
 use Moo;
 

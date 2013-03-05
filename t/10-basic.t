@@ -6,14 +6,14 @@ use warnings;
 use Test::More 0.89;
 
 use Config;
-use ExtUtils::Builder::AutoDetect;
+use ExtUtils::Builder::AutoDetect::C;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
 
 # TEST does not like extraneous output
 my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
 
-my $b = ExtUtils::Builder::AutoDetect->new;
+my $b = ExtUtils::Builder::AutoDetect::C->new;
 ok($b, "created EU::Builder object");
 
 my $c = $b->get_compiler(profile => '@Perl', type => 'loadable-object');
