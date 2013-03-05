@@ -49,12 +49,13 @@ sub _get_compiler {
 	my $cc = $self->_get_opt($opts, 'cc');
 	my ($module, %extra) = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix', $os) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
-	return $self->_make_command("Compiler::$module", cc => $cc, %args, %extra);
+	return ("Compiler::$module", cc => $cc, %args, %extra);
 }
 
 sub get_compiler {
 	my ($self, %opts) = @_;
-	my $compiler = $self->_get_compiler(\%opts);
+	my ($package, %arguments) = $self->_get_compiler(\%opts);
+	my $compiler = $self->_make_command($package, %arguments);
 	if (my $profile = delete $opts{profile}) {
 		$compiler->load_profile($profile, { %opts, config => $self->config });
 	}
@@ -96,12 +97,13 @@ sub _get_linker {
 		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
 		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
-	return $self->_make_command("Linker::$module", ld => $link, %opts, %args);
+	return ("Linker::$module", ld => $link, %opts, %args);
 }
 
 sub get_linker {
 	my ($self, %opts) = @_;
-	my $linker = $self->_get_linker(\%opts);
+	my ($package, %arguments) = $self->_get_linker(\%opts);
+	my $linker = $self->_make_command($package, %arguments);
 	if (my $profile = delete $opts{profile}) {
 		$linker->load_profile($profile, { %opts, config => $self->config });
 	}
