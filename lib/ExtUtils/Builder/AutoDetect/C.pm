@@ -35,7 +35,7 @@ sub _make_command {
 
 sub _is_gcc {
 	my ($self, $cc, $opts) = @_;
-	return $self->_get_opt($opts, 'gccversion') || $cc =~ / ^ gcc /ix;
+	return $self->_get_opt($opts, 'gccversion') || $cc =~ / ^ g(?: cc | [+]{2} ) /ix;
 }
 
 sub _filter_args {
