@@ -12,9 +12,9 @@ sub _build_cc {
 }
 
 has _include_dirs => (
-	is => 'ro',
+	is       => 'ro',
 	init_arg => undef,
-	default => sub { [] },
+	default  => sub { [] },
 );
 
 sub add_include_dirs {
@@ -24,9 +24,9 @@ sub add_include_dirs {
 }
 
 has _defines => (
-	is => 'ro',
+	is       => 'ro',
 	init_arg => undef,
-	default => sub { [] },
+	default  => sub { [] },
 );
 
 sub add_defines {

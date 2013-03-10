@@ -54,8 +54,7 @@ sub _get_compiler {
 
 sub get_compiler {
 	my ($self, %opts) = @_;
-	my ($package, %arguments) = $self->_get_compiler(\%opts);
-	my $compiler = $self->_make_command($package, %arguments);
+	my $compiler = $self->_make_command($self->_get_compiler(\%opts));
 	if (my $profile = delete $opts{profile}) {
 		$compiler->load_profile($profile, { %opts, config => $self->config });
 	}
@@ -78,7 +77,7 @@ sub _lddlflags {
 	my $lddlflags = $self->config->get('lddlflags');
 	my $optimize = $self->_get_opt($opts, 'optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
-	my %ldflags = map { ( $_ => 1 ) } @{ $self->_split_opt($opts, 'ldflags') };
+	my %ldflags = map { ($_ => 1) } @{ $self->_split_opt($opts, 'ldflags') };
 	return [ grep { not $ldflags{$_} } split_like_shell($lddlflags) ];
 }
 
@@ -102,8 +101,7 @@ sub _get_linker {
 
 sub get_linker {
 	my ($self, %opts) = @_;
-	my ($package, %arguments) = $self->_get_linker(\%opts);
-	my $linker = $self->_make_command($package, %arguments);
+	my $linker = $self->_make_command($self->_get_linker(\%opts));
 	if (my $profile = delete $opts{profile}) {
 		$linker->load_profile($profile, { %opts, config => $self->config });
 	}

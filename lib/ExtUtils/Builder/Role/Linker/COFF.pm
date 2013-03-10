@@ -1,18 +1,18 @@
 package ExtUtils::Builder::Role::Linker::COFF;
 
-use Moo::Role;# 1.000007
+use Moo::Role;    # 1.000007
 
 #with 'ExtUtils::Builder::Role::Linker::Shared';
 
 has autoimport => (
-	is => 'ro',
+	is      => 'ro',
 	default => sub { 1 },
 );
 
 my %export_for = (
-	executable => 'none',
-	'static-library' => 'all',
-	'shared-library' => 'some',
+	executable        => 'none',
+	'static-library'  => 'all',
+	'shared-library'  => 'some',
 	'loadable-object' => 'some',
 );
 

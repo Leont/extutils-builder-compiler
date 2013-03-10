@@ -4,13 +4,13 @@ use Moo;
 
 with 'ExtUtils::Builder::Role::Action';
 
-use Carp ();
+use Carp            ();
 use Module::Runtime ();
 
 sub _build_preference_map {
 	return {
 		execute => 3,
-		code => 2,
+		code    => 2,
 		command => 1,
 		flatten => 0
 	};
@@ -18,17 +18,17 @@ sub _build_preference_map {
 
 my %code_cache;
 has code => (
-	is => 'lazy',
-	default => sub {
+	is        => 'lazy',
+	predicate => '_has_code',
+	default   => sub {
 		my $self = shift;
 		my $code = $self->to_code(skip_loading => 1);
 		return $code_cache{$code} ||= eval($code) || Carp::croak("Couldn't evaluate serialized: $@");
 	},
-	predicate => '_has_code',
 );
 
 has message => (
-	is => 'ro',
+	is        => 'ro',
 	predicate => '_has_message',
 );
 
@@ -41,8 +41,9 @@ sub execute {
 }
 
 has serialized => (
-	is => 'lazy',
-	default => sub {
+	is        => 'lazy',
+	predicate => '_has_serialized',
+	default   => sub {
 		my $self = shift;
 
 		require B::Deparse;
@@ -51,7 +52,6 @@ has serialized => (
 		$core =~ s/ \A \n? (.*?) ;? \n? \z /$1/mx;
 		return $core;
 	},
-	predicate => '_has_serialized',
 );
 
 sub BUILD {
@@ -67,14 +67,14 @@ sub to_code {
 }
 
 has arguments => (
-	is => 'ro',
+	is      => 'ro',
 	default => sub { {} },
 );
 
 has _modules => (
-	is => 'ro',
+	is       => 'ro',
 	init_arg => 'modules',
-	default => sub { [] },
+	default  => sub { [] },
 );
 
 sub _get_perl {

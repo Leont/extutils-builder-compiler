@@ -20,7 +20,7 @@ sub add_libraries {
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
-	return ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ])
+	return ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]);
 }
 
 1;

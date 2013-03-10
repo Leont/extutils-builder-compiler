@@ -17,13 +17,13 @@ sub _build_export {
 }
 
 has static_args => (
-	is => 'ro',
+	is      => 'ro',
 	default => sub { ['cr'] },
 );
 
 has _library_dirs => (
-	is => 'ro',
-	default => sub { [] },
+	is       => 'ro',
+	default  => sub { [] },
 	init_arg => undef,
 );
 
@@ -34,8 +34,8 @@ sub add_library_dirs {
 }
 
 has _libraries => (
-	is => 'ro',
-	default => sub { [] },
+	is       => 'ro',
+	default  => sub { [] },
 	init_arg => undef,
 );
 

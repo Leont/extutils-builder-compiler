@@ -11,12 +11,12 @@ sub _build_ld {
 }
 
 has ccdlflags => (
-	is => 'ro',
+	is       => 'ro',
 	required => 1,
 );
 
 has lddlflags => (
-	is => 'ro',
+	is       => 'ro',
 	required => 1,
 );
 

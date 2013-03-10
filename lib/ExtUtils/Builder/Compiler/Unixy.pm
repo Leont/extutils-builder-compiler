@@ -11,16 +11,15 @@ sub _build_cc {
 }
 
 has pic => (
-	is => 'ro',
+	is      => 'lazy',
 	default => sub {
 		my $self = shift;
 		return +($self->type eq 'shared-library' || $self->type eq 'loadable-object') && @{ $self->cccdlflags };
 	},
-	lazy => 1,
 );
 
 has cccdlflags => (
-	is => 'ro',
+	is       => 'ro',
 	required => 1,
 );
 

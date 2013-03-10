@@ -5,7 +5,7 @@ use Moo;
 with 'ExtUtils::Builder::Role::Linker::Unixy';
 
 sub _build_ld {
-	return [ qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/];
+	return [qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/];
 }
 
 sub _build_export {
@@ -13,8 +13,8 @@ sub _build_export {
 }
 
 my %flag_for = (
-	'loadable-object' => [ qw/-bundle -undefined dynamic_lookup/ ],
-	'shared-library' => [ '-dynamiclib' ],
+	'loadable-object' => [qw/-bundle -undefined dynamic_lookup/],
+	'shared-library'  => ['-dynamiclib'],
 );
 
 around 'linker_flags' => sub {

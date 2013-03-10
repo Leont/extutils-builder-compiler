@@ -10,7 +10,7 @@ sub _build_preference_map {
 	return {
 		command => 3,
 		execute => 2,
-		code => 1,
+		code    => 1,
 		flatten => 0
 	};
 }

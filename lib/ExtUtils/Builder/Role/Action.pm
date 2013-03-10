@@ -10,8 +10,8 @@ my %valid_preference = map { $_ => 1 } qw/code command flatten/;
 my $error = 'preference must be one of ' . join ', ', keys %valid_preference;
 
 has _preference_map => (
-	is => 'ro',
-	builder => '_build_preference_map',
+	is       => 'ro',
+	builder  => '_build_preference_map',
 	init_arg => undef,
 );
 

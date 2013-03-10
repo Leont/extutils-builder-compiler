@@ -17,15 +17,15 @@ around linker_flags => sub {
 	my @ret = $self->$orig($from, $to, %opts);
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
-		my $basename = $opts{basename} || File::Basename::basename($to);
 		if ($self->export eq 'some') {
-			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ "-bE:$basename.exp" ]);
+			my $basename = $opts{basename} || File::Basename::basename($to);
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => ["-bE:$basename.exp"]);
 		}
 		elsif ($self->export eq 'all') {
-			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ '-bexpfull' ]);
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => ['-bexpfull']);
 		}
 		if (!$self->autoimport) {
-			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => [ '-bnoautoimp' ]);
+			push @ret, ExtUtils::Builder::Argument->new(ranking => 20, value => ['-bnoautoimp']);
 		}
 	}
 	return @ret;

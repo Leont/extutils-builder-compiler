@@ -17,7 +17,9 @@ has _actions => (
 	is       => 'ro',
 	required => 1,
 	init_arg => 'actions',
-	coerce   => sub { [ map { $_->flatten } @{ $_[0] } ] },
+	coerce   => sub {
+		return [ map { $_->flatten } @{ $_[0] } ];
+	},
 );
 
 sub execute {

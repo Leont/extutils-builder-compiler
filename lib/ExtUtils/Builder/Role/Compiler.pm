@@ -13,7 +13,7 @@ requires qw/add_include_dirs add_defines compile_flags _build_cc/;
 has cc => (
 	is      => 'ro',
 	builder => '_build_cc',
-	coerce => sub {
+	coerce  => sub {
 		return ref $_[0] ? $_[0] : [ $_[0] ];
 	},
 );

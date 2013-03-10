@@ -19,7 +19,7 @@ sub process_compiler {
 	my ($class, $compiler, $opts) = @_;
 	my $config = delete $opts->{config};
 	my $incdir = catdir(_get_var($config, $opts, 'archlibexp'), 'CORE');
-	$compiler->add_include_dirs([ $incdir ], ranking => sub { $_[0] + 1 });
+	$compiler->add_include_dirs([$incdir], ranking => sub { $_[0] + 1 });
 	$compiler->add_argument(ranking => 60, value => _split_var($config, $opts, 'ccflags'));
 	$compiler->add_argument(ranking => 65, value => _split_var($config, $opts, 'optimize'));
 	return;
@@ -41,14 +41,15 @@ sub process_linker {
 	if ($linker->type eq 'executable' or $linker->type eq 'shared-library') {
 		if (_get_var($config, $opts, 'osname') eq 'MSWin32') {
 			$linker->add_argument(_get_var($config, $opts, 'libperl'));
-		} else {
+		}
+		else {
 			my ($libperl, $libext, $so) = map { _get_var($config, $opts, $_) } qw/libperl lib_ext so/;
 			my ($lib) = $libperl =~ / \A (?:lib)? ( perl \w* ) (?: \. $so | $libext) \b /msx;
 			$linker->add_libraries([$lib]);
 		}
 
 		my $libdir = catdir(_get_var($config, $opts, 'archlibexp'), 'CORE');
-		$linker->add_library_dirs([ $libdir ]);
+		$linker->add_library_dirs([$libdir]);
 		$linker->add_argument(ranking => 80, value => _split_var($config, $opts, 'perllibs'));
 	}
 	if ($linker->type eq 'executable') {
