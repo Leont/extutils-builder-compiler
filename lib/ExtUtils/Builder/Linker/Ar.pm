@@ -8,6 +8,10 @@ use ExtUtils::Builder::Role::Command;
 
 with 'ExtUtils::Builder::Role::Linker';
 
+sub _build_ld {
+	return ['ar'];
+}
+
 sub _build_export {
 	return 'all';
 }

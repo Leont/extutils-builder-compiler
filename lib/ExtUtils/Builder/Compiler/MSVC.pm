@@ -6,9 +6,9 @@ with qw/ExtUtils::Builder::Role::Compiler ExtUtils::Builder::Role::MultiLingual/
 
 use ExtUtils::Builder::Argument;
 
-has '+cc' => (
-	default => sub { ['cl'] },
-);
+sub _build_cc {
+	return ['cl'];
+}
 
 sub add_include_dirs {
 	my ($self, $dirs, %opts) = @_;

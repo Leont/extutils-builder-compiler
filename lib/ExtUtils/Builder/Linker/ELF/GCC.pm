@@ -4,9 +4,9 @@ use Moo;
 
 extends 'ExtUtils::Builder::Linker::ELF::Any';
 
-has '+ld' => (
-	default => sub { ['gcc'] },
-);
+sub _build_ld {
+	return ['gcc'];
+}
 
 has '+ccdlflags' => (
 	default => sub { ['-Wl,-E'] },

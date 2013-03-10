@@ -7,9 +7,9 @@ with 'ExtUtils::Builder::Role::Compiler';
 use Carp ();
 use ExtUtils::Builder::Argument;
 
-has '+cc' => (
-	default => sub { ['CC/DECC'] },
-);
+sub _build_cc {
+	return ['CC/DECC'];
+}
 
 has _include_dirs => (
 	is => 'ro',
@@ -58,11 +58,11 @@ around 'add_argument' => sub {
 	return;
 };
 
-around 'arguments' => sub {
-	my ($orig, $self, @arguments) = @_;
-	my @ret = $self->$orig(@arguments);
+around collect_arguments => sub {
+	my ($orig, $self, @args) = @_;
+	my @ret = $self->$orig(@args);
 	push @ret, ExtUtils::Builder::Arguments(ranking => 30, value => $self->_include_dirs) if @{ $self->_include_dirs };
-	push @ret, ExtUtils::Builder::Arguments(ranking => 40, value => $self->_defines) if @{ $self->_defines };
+	push @ret, ExtUtils::Builder::Arguments(ranking => 40, value => $self->_defines)      if @{ $self->_defines };
 	return @ret;
 };
 

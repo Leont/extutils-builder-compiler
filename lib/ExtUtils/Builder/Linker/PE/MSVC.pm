@@ -7,9 +7,9 @@ use ExtUtils::Builder::Action::Command;
 
 with map { "ExtUtils::Builder::Role::Linker::$_" } qw/COFF Shared/;
 
-has '+ld' => (
-	default => sub { ['link'] },
-);
+sub _build_ld {
+	return ['link'];
+}
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;

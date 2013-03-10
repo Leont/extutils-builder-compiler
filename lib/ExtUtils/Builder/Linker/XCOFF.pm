@@ -8,6 +8,10 @@ with map { "ExtUtils::Builder::Role::Linker::$_" } qw/COFF Unixy/;
 
 use File::Basename ();
 
+sub _build_ld {
+	return ['ld'];
+}
+
 around linker_flags => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig($from, $to, %opts);

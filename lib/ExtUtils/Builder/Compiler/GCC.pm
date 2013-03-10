@@ -4,9 +4,9 @@ use Moo;
 
 extends 'ExtUtils::Builder::Compiler::Unixy';
 
-has '+cc' => (
-	default => sub { ['gcc'] },
-);
+sub _build_cc {
+	return ['gcc'];
+}
 
 has '+cccdlflags' => (
 	default => sub { ['-fPIC'] },

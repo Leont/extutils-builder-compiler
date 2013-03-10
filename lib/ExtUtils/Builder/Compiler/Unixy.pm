@@ -6,9 +6,9 @@ with 'ExtUtils::Builder::Role::Compiler';
 
 use ExtUtils::Builder::Argument;
 
-has '+cc' => (
-	default => sub { ['cc'] },
-);
+sub _build_cc {
+	return ['cc'];
+}
 
 has pic => (
 	is => 'ro',

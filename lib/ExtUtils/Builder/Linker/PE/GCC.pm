@@ -7,9 +7,9 @@ with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::U
 use File::Basename ();
 use ExtUtils::Builder::Argument;
 
-has '+ld' => (
-	default => sub { ['gcc'] },
-);
+sub _build_ld {
+	return ['gcc'];
+}
 
 around linker_flags => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;

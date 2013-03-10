@@ -6,6 +6,10 @@ use ExtUtils::Builder::Argument;
 
 with 'ExtUtils::Builder::Role::Linker::Unixy';
 
+sub _build_ld {
+	return ['cc'];
+}
+
 has ccdlflags => (
 	is => 'ro',
 	required => 1,
