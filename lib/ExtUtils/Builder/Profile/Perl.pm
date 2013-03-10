@@ -1,7 +1,6 @@
 package ExtUtils::Builder::Profile::Perl;
 
-use strict;
-use warnings FATAL => 'all';
+use strictures;
 
 use ExtUtils::Helpers qw/split_like_shell/;
 use File::Spec::Functions qw/catdir/;
