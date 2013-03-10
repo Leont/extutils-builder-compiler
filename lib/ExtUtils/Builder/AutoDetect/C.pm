@@ -47,7 +47,7 @@ sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
 	my $cc = $self->_get_opt($opts, 'cc');
-	my ($module, %extra) = $self->_is_gcc($cc, $opts) ? 'GCC' : is_os_type('Unix', $os) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
+	my ($module, %extra) = is_os_type('Unix', $os) || $self->_is_gcc($cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
 	return ("Compiler::$module", cc => $cc, %args, %extra);
 }
