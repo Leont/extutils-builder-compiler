@@ -4,7 +4,7 @@ use Moo;
 
 use ExtUtils::Builder::Argument;
 
-with map { "ExtUtils::Builder::Role::Linker::$_" } qw/COFF Unixy/;
+with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::Unixy/;
 
 use File::Basename ();
 

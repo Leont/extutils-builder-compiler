@@ -5,7 +5,7 @@ use Moo;
 use ExtUtils::Builder::Argument;
 use ExtUtils::Builder::Action::Command;
 
-with map { "ExtUtils::Builder::Role::Linker::$_" } qw/COFF Shared/;
+with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::Shared/;
 
 sub _build_ld {
 	return ['link'];
