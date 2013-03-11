@@ -23,10 +23,16 @@ has export => (
 
 requires qw/_build_ld _build_export/;
 
-has ld => (
-	is      => 'ro',
-	builder => '_build_ld',
+has _ld => (
+	is       => 'ro',
+	init_arg => 'ld',
+	builder  => '_build_ld',
 );
+
+sub ld {
+	my $self = shift;
+	return @{ $self->_ld };
+}
 
 around collect_arguments => sub {
 	my ($orig, $self, @args) = @_;
@@ -52,7 +58,7 @@ sub link {
 	@args = $self->$_(@args) for @{ $self->_option_filters };
 	my ($from, $to, %opts) = @args;
 	my @argv    = $self->arguments(@args);
-	my $main    = ExtUtils::Builder::Action::Command->new(command => [ @{ $self->ld }, @argv ]);
+	my $main    = ExtUtils::Builder::Action::Command->new(command => [ $self->ld, @argv ]);
 	my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
 	my $deps    = [ @{$from}, @{ $opts{dependencies} || [] } ];
 	return ExtUtils::Builder::Plan->new(target => $to, dependencies => $deps, actions => \@actions);
