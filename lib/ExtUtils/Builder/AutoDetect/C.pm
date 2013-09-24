@@ -3,7 +3,7 @@ package ExtUtils::Builder::AutoDetect::C;
 use Moo;
 
 use Carp 'croak';
-use ExtUtils::Config;
+use ExtUtils::Config 0.007;
 use ExtUtils::Helpers 'split_like_shell';
 use Module::Runtime qw/require_module/;
 use Perl::OSType 'is_os_type';
