@@ -6,7 +6,7 @@ with 'ExtUtils::Builder::Role::Action';
 
 use IPC::System::Simple qw/systemx capturex/;
 
-sub _build_preference_map {
+sub _preference_map {
 	return {
 		command => 3,
 		execute => 2,

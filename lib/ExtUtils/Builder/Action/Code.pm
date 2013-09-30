@@ -7,7 +7,7 @@ with 'ExtUtils::Builder::Role::Action';
 use Carp            ();
 use Module::Runtime ();
 
-sub _build_preference_map {
+sub _preference_map {
 	return {
 		execute => 3,
 		code    => 2,

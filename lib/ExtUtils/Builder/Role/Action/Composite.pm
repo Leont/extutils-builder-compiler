@@ -4,7 +4,7 @@ use Moo::Role;
 
 with 'ExtUtils::Builder::Role::Action';
 
-sub _build_preference_map {
+sub _preference_map {
 	return {
 		flatten => 3,
 		execute => 2,
