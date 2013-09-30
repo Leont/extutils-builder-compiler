@@ -61,8 +61,8 @@ around 'add_argument' => sub {
 around collect_arguments => sub {
 	my ($orig, $self, @args) = @_;
 	my @ret = $self->$orig(@args);
-	push @ret, ExtUtils::Builder::Arguments(ranking => 30, value => $self->_include_dirs) if @{ $self->_include_dirs };
-	push @ret, ExtUtils::Builder::Arguments(ranking => 40, value => $self->_defines)      if @{ $self->_defines };
+	push @ret, ExtUtils::Builder::Argument(ranking => 30, value => $self->_include_dirs) if @{ $self->_include_dirs };
+	push @ret, ExtUtils::Builder::Argument(ranking => 40, value => $self->_defines)      if @{ $self->_defines };
 	return @ret;
 };
 
