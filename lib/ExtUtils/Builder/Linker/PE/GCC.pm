@@ -2,7 +2,7 @@ package ExtUtils::Builder::Linker::PE::GCC;
 
 use Moo;
 
-with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::Unixy/;
+with qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
 
 use File::Basename ();
 use ExtUtils::Builder::Argument;

@@ -5,7 +5,7 @@ use Moo;
 use ExtUtils::Builder::Argument;
 use ExtUtils::Builder::Action::Command;
 
-with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::Shared/;
+with qw/ExtUtils::Builder::Role::Linker::Shared ExtUtils::Builder::Role::Linker::COFF/;
 
 sub _build_ld {
 	return ['link'];

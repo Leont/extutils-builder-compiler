@@ -1,8 +1,8 @@
 package ExtUtils::Builder::Role::Linker::COFF;
 
-use Moo::Role;    # 1.000007
+use Moo::Role 1.000000;
 
-#with 'ExtUtils::Builder::Role::Linker::Shared';
+with 'ExtUtils::Builder::Role::Linker::Shared';
 
 has autoimport => (
 	is      => 'ro',

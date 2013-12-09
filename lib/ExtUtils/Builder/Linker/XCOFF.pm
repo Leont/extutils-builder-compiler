@@ -4,7 +4,7 @@ use Moo;
 
 use ExtUtils::Builder::Argument;
 
-with qw/ExtUtils::Builder::Role::Linker::COFF ExtUtils::Builder::Role::Linker::Unixy/;
+with qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
 
 use File::Basename ();
 

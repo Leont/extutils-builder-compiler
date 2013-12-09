@@ -4,7 +4,6 @@ use Moo;
 
 use Carp ();
 use ExtUtils::Builder::Argument;
-use ExtUtils::Builder::Role::Command;
 
 with 'ExtUtils::Builder::Role::Linker';
 
