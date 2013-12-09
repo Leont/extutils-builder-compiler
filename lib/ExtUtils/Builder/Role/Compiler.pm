@@ -5,7 +5,7 @@ use Moo::Role;
 with qw/ExtUtils::Builder::Role::Command ExtUtils::Builder::Role::Binary/;
 
 use ExtUtils::Builder::Action::Command;
-use ExtUtils::Builder::Plan;
+use ExtUtils::Builder::Node;
 use Module::Runtime ();
 
 requires qw/add_include_dirs add_defines compile_flags _build_cc/;
@@ -34,7 +34,7 @@ sub compile {
 	my @argv = $self->arguments($from, $to, %opts);
 	my $main = ExtUtils::Builder::Action::Command->new(command => [ $self->cc, @argv ]);
 	my $deps = [ $from, @{ $opts{dependencies} || [] } ];
-	return ExtUtils::Builder::Plan->new(target => $to, dependencies => $deps, actions => [$main]);
+	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => [$main]);
 }
 
 sub load_profile {

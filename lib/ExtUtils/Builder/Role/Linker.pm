@@ -5,7 +5,7 @@ use Moo::Role;
 with qw/ExtUtils::Builder::Role::Command ExtUtils::Builder::Role::Binary/;
 
 use ExtUtils::Builder::Action::Command;
-use ExtUtils::Builder::Plan;
+use ExtUtils::Builder::Node;
 use Module::Runtime ();
 
 requires qw/add_library_dirs add_libraries linker_flags/;
@@ -61,7 +61,7 @@ sub link {
 	my $main    = ExtUtils::Builder::Action::Command->new(command => [ $self->ld, @argv ]);
 	my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
 	my $deps    = [ @{$from}, @{ $opts{dependencies} || [] } ];
-	return ExtUtils::Builder::Plan->new(target => $to, dependencies => $deps, actions => \@actions);
+	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => \@actions);
 }
 
 sub load_profile {
