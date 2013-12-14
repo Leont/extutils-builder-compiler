@@ -21,12 +21,12 @@ around pre_action => sub {
 	my @ret = $self->$orig(%opts);
 	if ($self->export eq 'some') {
 		my %args = map { $key_for{$_} => $opts{$_} } grep { exists $key_for{$_} } keys %opts;
-		push @ret, ExtUtils::Builder::Action::Code->new(
-			code       => sub { ExtUtils::Mksymlists::Mksymlists(@_) },
-			serialized => 'ExtUtils::Mksymlists::Mksymlists(@_)',
-			message    => join(' ', 'prelink', $to, %args),
-			modules    => [ 'ExtUtils::Mksymlists' ],
-			arguments  => \%args,
+		push @ret, ExtUtils::Builder::Action::Function->new(
+			module    => 'ExtUtils::Mksymlists',
+			function  => 'Mksymlists',
+			message   => join(' ', 'prelink', $to, %args),
+			arguments => \%args,
+			exports   => 1,
 		);
 	}
 	return @ret;
