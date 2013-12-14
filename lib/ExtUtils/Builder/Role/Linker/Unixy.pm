@@ -4,7 +4,7 @@ use Moo::Role;
 
 use ExtUtils::Builder::Argument;
 
-with 'ExtUtils::Builder::Role::Linker::Shared';
+with 'ExtUtils::Builder::Role::Linker';
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;

@@ -5,6 +5,7 @@ use Moo::Role;
 with qw/ExtUtils::Builder::Role::Command ExtUtils::Builder::Role::Binary/;
 
 use ExtUtils::Builder::Action::Command;
+use ExtUtils::Builder::Action::Code;
 use ExtUtils::Builder::Node;
 use Module::Runtime ();
 
@@ -50,7 +51,29 @@ sub add_option_filter {
 	return;
 }
 
-sub pre_action  { }
+my %key_for = (
+	dl_vars      => 'DL_VARS',
+	dl_funcs     => 'DL_FUNCS',
+	dl_func_list => 'FUNCLIST',
+	dl_imports   => 'IMPORTS',
+	dl_name      => 'NAME',
+	dl_base      => 'DLBASE',
+	dl_file      => 'FILE',
+);
+sub pre_action  {
+	my ($self, $from, $to, %opts) = @_;
+	if ($self->export eq 'some') {
+		my %args = map { $key_for{$_} => $opts{$_} } grep { exists $key_for{$_} } keys %opts;
+		return ExtUtils::Builder::Action::Function->new(
+			module    => 'ExtUtils::Mksymlists',
+			function  => 'Mksymlists',
+			message   => join(' ', 'prelink', $to, %args),
+			arguments => \%args,
+			exports   => 1,
+		);
+	}
+	return;
+}
 sub post_action { }
 
 sub link {
