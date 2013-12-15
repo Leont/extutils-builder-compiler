@@ -17,12 +17,11 @@ my %flag_for = (
 	'shared-library'  => ['-dynamiclib'],
 );
 
-around 'linker_flags' => sub {
-	my ($orig, $self, $from, $to, %opts) = @_;
-	my @ret = $self->$orig($from, $to, %opts);
-	push @ret, ExtUtils::Builder::Argument->new(rank => 10, value => $flag_for{ $self->type }) if $flag_for{ $self->type };
-	return @ret;
-};
+sub BUILD {
+	my $self = shift;
+	$self->add_argument(rank => 10, value => $flag_for{ $self->type }) if $flag_for{ $self->type };
+	return;
+}
 
 sub add_runtime_path {
 	my ($self, $dirs, %opts) = @_;

@@ -5,7 +5,6 @@ use Moo;
 with 'ExtUtils::Builder::Role::Compiler';
 
 use Carp ();
-use ExtUtils::Builder::Argument;
 
 sub _build_cc {
 	return ['CC/DECC'];
@@ -61,15 +60,15 @@ around 'add_argument' => sub {
 around collect_arguments => sub {
 	my ($orig, $self, @args) = @_;
 	my @ret = $self->$orig(@args);
-	push @ret, ExtUtils::Builder::Argument(ranking => 30, value => $self->_include_dirs) if @{ $self->_include_dirs };
-	push @ret, ExtUtils::Builder::Argument(ranking => 40, value => $self->_defines)      if @{ $self->_defines };
+	push @ret, $self->new_argument(ranking => 30, value => $self->_include_dirs) if @{ $self->_include_dirs };
+	push @ret, $self->new_argument(ranking => 40, value => $self->_defines)      if @{ $self->_defines };
 	return @ret;
 };
 
 sub compile_flags {
 	my ($self, $from, $to) = @_;
 
-	return ExtUtils::Builder::Argument->new(ranking => 75, value => [ "/obj=$to", $from ]);
+	return $self->new_argument(ranking => 75, value => [ "/obj=$to", $from ]);
 }
 
 1;

@@ -2,7 +2,7 @@ package ExtUtils::Builder::Role::Compiler;
 
 use Moo::Role;
 
-with qw/ExtUtils::Builder::Role::Command ExtUtils::Builder::Role::Binary/;
+with qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Node;

@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Role::Command;
+package ExtUtils::Builder::Role::ArgumentCollector;
 
 use Moo::Role;
 
@@ -11,8 +11,13 @@ has _arguments => (
 
 sub add_argument {
 	my ($self, %arguments) = @_;
-	push @{ $self->_arguments }, ExtUtils::Builder::Argument->new(%arguments);
+	push @{ $self->_arguments }, $self->new_argument(%arguments);
 	return;
+}
+
+sub new_argument {
+	my ($self, %args) = @_;
+	return ExtUtils::Builder::Argument->new(%args);
 }
 
 sub collect_arguments {

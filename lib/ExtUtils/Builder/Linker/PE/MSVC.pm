@@ -2,7 +2,6 @@ package ExtUtils::Builder::Linker::PE::MSVC;
 
 use Moo;
 
-use ExtUtils::Builder::Argument;
 use ExtUtils::Builder::Action::Command;
 
 with qw/ExtUtils::Builder::Role::Linker ExtUtils::Builder::Role::Linker::COFF/;
@@ -24,14 +23,19 @@ sub add_libraries {
 	return;
 }
 
+sub BUILD {
+	my $self = shift;
+	my $type = $self->type;
+	$self->add_argument(ranking =>  5, value => ['/nologo']);
+	$self->add_argument(ranking => 10, value => ['/dll']) if $type eq 'shared-library' or $type eq 'loadable-object';
+	return;
+}
+
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
 	my @ret;
-	my $type = $self->type;
-	push @ret, ExtUtils::Builder::Argument->new(ranking =>  5, value => ['/nologo']);
-	push @ret, ExtUtils::Builder::Argument->new(ranking => 10, value => ['/dll']) if $type eq 'shared-library' or $type eq 'loadable-object';
-	push @ret, ExtUtils::Builder::Argument->new(ranking => 50, value => [ @{$from} ]);
-	push @ret, ExtUtils::Builder::Argument->new(ranking => 80, value => ["/OUT:$to"]);
+	push @ret, $self->new_argument(ranking => 50, value => [ @{$from} ]);
+	push @ret, $self->new_argument(ranking => 80, value => ["/OUT:$to"]);
 	# map_file, implib, def_file?…
 	return @ret;
 }

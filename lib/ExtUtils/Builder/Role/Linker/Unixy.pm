@@ -2,8 +2,6 @@ package ExtUtils::Builder::Role::Linker::Unixy;
 
 use Moo::Role;
 
-use ExtUtils::Builder::Argument;
-
 with 'ExtUtils::Builder::Role::Linker';
 
 sub add_library_dirs {
@@ -20,7 +18,7 @@ sub add_libraries {
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
-	return ExtUtils::Builder::Argument->new(ranking => 50, value => [ '-o' => $to, @{$from} ]);
+	return $self->new_argument(ranking => 50, value => [ '-o' => $to, @{$from} ]);
 }
 
 1;

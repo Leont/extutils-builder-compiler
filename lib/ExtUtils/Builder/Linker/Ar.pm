@@ -3,7 +3,6 @@ package ExtUtils::Builder::Linker::Ar;
 use Moo;
 
 use Carp ();
-use ExtUtils::Builder::Argument;
 
 with 'ExtUtils::Builder::Role::Linker';
 
@@ -19,6 +18,12 @@ has static_args => (
 	is      => 'ro',
 	default => sub { ['cr'] },
 );
+
+sub BUILD {
+	my $self = shift;
+	$self->add_argument(ranking =>  0, value => $self->static_args);
+	return;
+}
 
 has _library_dirs => (
 	is       => 'ro',
@@ -48,9 +53,8 @@ sub add_libraries {
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
 	return (
-		ExtUtils::Builder::Argument->new(ranking =>  0, value => $self->static_args),
-		ExtUtils::Builder::Argument->new(ranking => 10, value => [ $to ]),
-		ExtUtils::Builder::Argument->new(ranking => 75, value => [ @{$from} ]),
+		$self->new_argument(ranking => 10, value => [ $to ]),
+		$self->new_argument(ranking => 75, value => [ @{$from} ]),
 	);
 }
 

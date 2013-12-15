@@ -4,8 +4,6 @@ use Moo;
 
 with 'ExtUtils::Builder::Role::Compiler';
 
-use ExtUtils::Builder::Argument;
-
 sub _build_cc {
 	return ['cc'];
 }
@@ -22,6 +20,12 @@ has cccdlflags => (
 	is       => 'ro',
 	required => 1,
 );
+
+sub BUILD {
+	my $self = shift;
+	$self->add_argument(ranking => 45, value => $self->cccdlflags) if $self->pic;
+	return;
+}
 
 sub add_include_dirs {
 	my ($self, $dirs, %opts) = @_;
@@ -40,9 +44,7 @@ sub add_defines {
 
 sub compile_flags {
 	my ($self, $from, $to) = @_;
-	return
-		ExtUtils::Builder::Argument->new(ranking => 75, value => [ '-o' => $to, '-c', $from ]),
-		$self->pic ? ExtUtils::Builder::Argument->new(ranking => 45, value => $self->cccdlflags) : ();
+	return $self->new_argument(ranking => 75, value => [ '-o' => $to, '-c', $from ]);
 }
 
 1;
