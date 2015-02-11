@@ -2,8 +2,6 @@ package ExtUtils::Builder::Role::ArgumentCollector;
 
 use Moo::Role;
 
-use ExtUtils::Builder::Argument;
-
 has _arguments => (
 	is      => 'ro',
 	default => sub { [] },
@@ -17,7 +15,7 @@ sub add_argument {
 
 sub new_argument {
 	my ($self, %args) = @_;
-	return ExtUtils::Builder::Argument->new(%args);
+	return [ $args{ranking} || 50, $args{value} ];
 }
 
 sub collect_arguments {
@@ -28,7 +26,7 @@ sub collect_arguments {
 sub arguments {
 	my ($self, @args) = @_;
 	use sort 'stable';
-	return map { $_->value } sort { $a->ranking <=> $b->ranking } $self->collect_arguments(@args);
+	return map { @{ $_->[1] } } sort { $a->[0] <=> $b->[0] } $self->collect_arguments(@args);
 }
 
 sub fix_ranking {
