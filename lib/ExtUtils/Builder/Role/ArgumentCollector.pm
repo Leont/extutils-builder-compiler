@@ -9,6 +9,7 @@ has _arguments => (
 
 sub add_argument {
 	my ($self, %arguments) = @_;
+	$arguments{ranking} = $self->fix_ranking(delete @arguments{qw/ranking fix/});
 	push @{ $self->_arguments }, $self->new_argument(%arguments);
 	return;
 }
