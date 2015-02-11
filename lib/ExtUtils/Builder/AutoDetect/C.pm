@@ -49,7 +49,7 @@ sub _get_compiler {
 	my $cc = $self->_get_opt($opts, 'cc');
 	my ($module, %extra) = is_os_type('Unix', $os) || $self->_is_gcc($cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
-	return ("Compiler::$module", cc => $cc, %args, %extra);
+	return ("Compiler::$module", cc => $cc, %extra, %args);
 }
 
 sub get_compiler {
@@ -114,7 +114,7 @@ sub get_linker {
 	if (my $extra_args = delete $opts{extra_args}) {
 		$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
 	}
-	croak 'Unkown options: ' . join ',', keys %opts if keys %opts;
+	croak 'Unknown options: ' . join ',', keys %opts if keys %opts;
 	return $linker;
 }
 
