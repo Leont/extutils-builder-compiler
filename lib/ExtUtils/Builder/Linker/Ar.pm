@@ -19,43 +19,20 @@ has static_args => (
 	default => sub { ['cr'] },
 );
 
-sub BUILD {
-	my $self = shift;
-	$self->add_argument(ranking =>  0, value => $self->static_args);
-	return;
-}
-
-has _library_dirs => (
-	is       => 'ro',
-	default  => sub { [] },
-	init_arg => undef,
-);
-
-sub add_library_dirs {
-	my ($self, $dirs, %opts) = @_;
-	push @{ $self->_library_dirs }, @{$dirs};
-	return;
-}
-
-has _libraries => (
-	is       => 'ro',
-	default  => sub { [] },
-	init_arg => undef,
-);
-
-sub add_libraries {
-	my ($self, $libs, %opts) = @_;
+override 'add_libraries' => sub {
+	my ($orig, $self, $libs, %opts) = @_;
 	Carp::croak 'Can\'t add libraries to static link yet' if @{$libs};
 	push @{ $self->_libraries }, @{$libs};
 	return;
-}
+};
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;
-	return (
-		$self->new_argument(ranking => 10, value => [ $to ]),
-		$self->new_argument(ranking => 75, value => [ @{$from} ]),
-	);
+	my @ret;
+	push @ret, $self->new_argument(ranking =>  0, value => $self->static_args);
+	push @ret, $self->new_argument(ranking => 10, value => [ $to ]),
+	push @ret, $self->new_argument(ranking => 75, value => [ @{$from} ]),
+	return @ret;
 }
 
 1;

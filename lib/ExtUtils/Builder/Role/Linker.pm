@@ -40,6 +40,40 @@ around collect_arguments => sub {
 	return ($self->$orig, $self->linker_flags(@args));
 };
 
+has _library_dirs => (
+	is => 'ro',
+	default => sub { [] },
+	init_arg => undef,
+);
+
+sub add_library_dirs {
+	my ($self, $dirs, %opts) = @_;
+	my $ranking = $self->fix_ranking($self->default_libdir_ranking, $opts{ranking});
+	push @{ $self->_library_dirs }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
+	return;
+}
+
+sub default_libdir_ranking {
+	return 30;
+}
+
+has _libraries => (
+	is => 'ro',
+	default => sub { [] },
+	init_arg => undef,
+);
+
+sub add_libraries {
+	my ($self, $dirs, %opts) = @_;
+	my $ranking = $self->fix_ranking($self->default_library_ranking, $opts{ranking});
+	push @{ $self->_libraries }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
+	return;
+}
+
+sub default_library_ranking {
+	return 75;
+}
+
 has _option_filters => (
 	is      => 'ro',
 	default => sub { [] },
