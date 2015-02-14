@@ -8,7 +8,7 @@ use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Node;
 use Module::Runtime ();
 
-requires qw/add_include_dirs add_defines compile_flags _build_cc/;
+requires qw/compile_flags _build_cc/;
 
 has _cc => (
 	is       => 'ro',
@@ -22,6 +22,40 @@ has _cc => (
 sub cc {
 	my $self = shift;
 	return @{ $self->_cc };
+}
+
+has _include_dirs => (
+	is => 'ro',
+	default => sub { [] },
+	init_arg => undef,
+);
+
+sub add_include_dirs {
+	my ($self, $dirs, %opts) = @_;
+	my $ranking = $self->fix_ranking($self->default_include_ranking, $opts{ranking});
+	push @{ $self->_include_dirs }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
+	return;
+}
+
+sub default_include_ranking {
+	return 30;
+}
+
+has _defines => (
+	is => 'ro',
+	default => sub { [] },
+	init_arg => undef,
+);
+
+sub add_defines {
+	my ($self, $defines, %opts) = @_;
+	my $ranking = $self->fix_ranking($self->default_define_ranking, $opts{ranking});
+	push @{ $self->_defines }, map { { key => $_, ranking => $ranking, value => $defines->{$_} } } keys %{ $defines };
+	return;
+}
+
+sub default_define_ranking {
+	return 40;
 }
 
 around collect_arguments => sub {

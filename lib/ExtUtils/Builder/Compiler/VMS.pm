@@ -10,32 +10,6 @@ sub _build_cc {
 	return ['CC/DECC'];
 }
 
-has _include_dirs => (
-	is       => 'ro',
-	init_arg => undef,
-	default  => sub { [] },
-);
-
-sub add_include_dirs {
-	my ($self, $dirs, %opts) = @_;
-	push @{ $self->_include_dirs }, @{$dirs};
-	return;
-}
-
-has _defines => (
-	is       => 'ro',
-	init_arg => undef,
-	default  => sub { [] },
-);
-
-sub add_defines {
-	my ($self, $defines, %opts) = @_;
-	for my $key (keys %{$defines}) {
-		push @{ $self->_defines }, defined $defines->{$key} ? $defines->{$key} ne '' ? qq/"$key=$defines->{$key}"/ : qq{"$key"} : Carp::croak("Can't undefine '$key'");
-	}
-	return;
-}
-
 # The VMS compiler can only have one define and one include qualifier, so we need to juggle here
 
 around 'add_argument' => sub {
@@ -57,18 +31,16 @@ around 'add_argument' => sub {
 	return;
 };
 
-around collect_arguments => sub {
-	my ($orig, $self, @args) = @_;
-	my @ret = $self->$orig(@args);
-	push @ret, $self->new_argument(ranking => 30, value => $self->_include_dirs) if @{ $self->_include_dirs };
-	push @ret, $self->new_argument(ranking => 40, value => $self->_defines)      if @{ $self->_defines };
-	return @ret;
-};
-
 sub compile_flags {
 	my ($self, $from, $to) = @_;
 
-	return $self->new_argument(ranking => 75, value => [ "/obj=$to", $from ]);
+	my @ret;
+	my @include_dirs = map { $_->{value} } @{ $self->_include_dirs };
+	my @defines = map { defined $_->{value} ? $_->{value} ne '' ? qq/"$_->{key}=$_->{value}"/ : qq{"$_->{key}"} : Carp::croak("Can't undefine '$key'") } @{ $self->_defines };
+	push @ret, $self->new_argument(ranking => 30, value => [ '/include=' . join ',', @include_dirs) if @include_dirs;
+	push @ret, $self->new_argument(ranking => 40, value => [ '/define=' . join ',', @defines)     if @defines;
+	push @ret, $self->new_argument(ranking => 75, value => [ "/obj=$to", $from ]);
+	return @ret;
 }
 
 1;
