@@ -10,17 +10,11 @@ sub _build_ld {
 	return ['ld'];
 }
 
-sub BUILD {
-	my $self = shift;
-	if (!$self->autoimport) {
-		$self->add_argument(ranking => 20, value => ['-bnoautoimp']);
-	}
-	return;
-}
-
 around linker_flags => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig($from, $to, %opts);
+	push @ret, $self->new_argument(ranking => 20, value => ['-bnoautoimp']) if !$self->autoimport;
+
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
 		if ($self->export eq 'some') {

@@ -10,21 +10,18 @@ sub _build_ld {
 	return ['gcc'];
 }
 
-sub BUILD {
-	my $self = shift;
-	$self->add_argument(ranking => 85, value => ['-Wl,--enable-auto-image-base']);
-	if ($self->type eq 'shared-library' or $self->type eq 'loadable-object') {
-		$self->add_argument(ranking => 10, value => ['--shared']);
-	}
-	if ($self->autoimport) {
-		$self->add_argument(ranking => 85, value => ['-Wl,--enable-auto-import']);
-	}
-	return;
-}
-
 around linker_flags => sub {
 	my ($orig, $self, $from, $to, %opts) = @_;
 	my @ret = $self->$orig($from, $to, %opts);
+
+	push @ret, $self->new_argument(ranking => 85, value => ['-Wl,--enable-auto-image-base']);
+	if ($self->type eq 'shared-library' or $self->type eq 'loadable-object') {
+		push @ret, $self->new_argument(ranking => 10, value => ['--shared']);
+	}
+	if ($self->autoimport) {
+		push @ret, $self->new_argument(ranking => 85, value => ['-Wl,--enable-auto-import']);
+	}
+
 	if ($self->export eq 'all') {
 		push @ret, $self->new_arguments(ranking => 85, value => ['-Wl,--export-all-symbols']);
 	}

@@ -17,11 +17,12 @@ my %flag_for = (
 	'shared-library'  => ['-dynamiclib'],
 );
 
-sub BUILD {
-	my $self = shift;
-	$self->add_argument(rank => 10, value => $flag_for{ $self->type }) if $flag_for{ $self->type };
-	return;
-}
+override linker_flags => sub {
+	my ($orig, $self, %args) = @_;
+	my @ret = $self->$orig(%args);
+	push @ret, $self->new_argument(rank => 10, value => $flag_for{ $self->type }) if $flag_for{ $self->type };
+	return @ret;
+};
 
 sub add_runtime_path {
 	my ($self, $dirs, %opts) = @_;

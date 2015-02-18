@@ -23,19 +23,21 @@ sub _build_export {
 	return $self->type eq 'executable' ? 'none' : 'all';
 }
 
-sub BUILD {
-	my $self = shift;
+override linker_flags => sub {
+	my ($orig, $self, %args) = @_;
+	my @ret = $self->$orig(%args);
+
 	my $type = $self->type;
 	if ($type eq 'shared-library' or $type eq 'loadable-object') {
-		$self->add_argument(ranking => 10, value => $self->lddlflags);
+		push @ret, $self->new_argument(ranking => 10, value => $self->lddlflags);
 	}
 	elsif ($type eq 'executable') {
-		$self->add_argument(ranking => 10, value => $self->ccdlflags) if $self->export eq 'all';
+		push @ret, $self->new_argument(ranking => 10, value => $self->ccdlflags) if $self->export eq 'all';
 	}
 	else {
 		croak("Unknown linkage type $type");
 	}
-	return;
-}
+	return @ret;
+};
 
 1;
