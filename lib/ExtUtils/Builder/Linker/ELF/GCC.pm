@@ -1,20 +1,18 @@
 package ExtUtils::Builder::Linker::ELF::GCC;
 
-use Moo;
+use strict;
+use warnings;
 
-extends 'ExtUtils::Builder::Linker::ELF::Any';
+use parent 'ExtUtils::Builder::Linker::ELF::Any';
 
-sub _build_ld {
-	return ['gcc'];
+sub _init {
+	my ($self, %args) = @_;
+	$args{ld} ||= 'gcc';
+	$args{ccdlflags} ||= ['-Wl,-E'];
+	$args{lddlflags} ||= ['-shared'];
+	$self->SUPER::_init(%args);
+	return;
 }
-
-has '+ccdlflags' => (
-	default => sub { ['-Wl,-E'] },
-);
-
-has '+lddlflags' => (
-	default => sub { ['-shared'] }
-);
 
 sub add_runtime_path {
 	my ($self, $dirs, %opts) = @_;

@@ -1,10 +1,19 @@
 package ExtUtils::Builder::Role::MultiLingual;
 
-use Moo::Role;
+use strict;
+use warnings;
 
-has language => (
-	is       => 'ro',
-	required => 1,
-);
+use Carp ();
+
+sub _init {
+	my ($self, %args) = @_;
+	$self->{language} = $args{language} or Carp::croak('language missing');
+	return;
+}
+
+sub language {
+	my $self = shift;
+	return $self->{language};
+}
 
 1;

@@ -1,16 +1,24 @@
 package ExtUtils::Builder::Role::Binary;
 
-use Moo::Role;
+use strict;
+use warnings;
 
 use Carp qw//;
 
 my %allowed_types = map { ($_ => 1) } qw/shared-library static-library loadable-object executable/;
 
-has type => (
-	is       => 'ro',
-	required => 1,
-	isa      => sub { defined $_[0] and $allowed_types{ $_[0] } or Carp::confess((defined $_[0] ? $_[0] : 'undef') . ' is not an allowed linkage type') },
-);
+sub _init {
+	my ($self, %args) = @_;
+	my $type = $args{type} or Carp::croak('No type given');
+	$allowed_types{$type} or Carp::croak("$type is not an allowed linkage type");
+	$self->{type} = $type;
+	return;
+}
+
+sub type {
+	my $self = shift;
+	return $self->{type};
+}
 
 1;
 

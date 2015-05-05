@@ -1,55 +1,63 @@
 package ExtUtils::Builder::Role::Linker;
 
-use Moo::Role;
-
-with qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
+use parent qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Action::Code;
 use ExtUtils::Builder::Node;
 use Module::Runtime ();
 
-requires qw/add_library_dirs add_libraries linker_flags/;
-
 use Carp ();
 
 my %allowed_export = map { $_ => 1 } qw/none some all/;
 
-has export => (
-	is  => 'lazy',
-	isa => sub {
-		Carp::croak("$_[0] is not an allowed export value") if not $allowed_export{ $_[0] };
-	},
-);
+sub new {
+	my ($class, %args) = @_;
+	my $self = bless {}, $class;
+	$self->_init(%args);
+	return $self;
+}
 
-requires qw/_build_ld _build_export/;
+sub _init {
+	my ($self, %args) = @_;
+	$self->ExtUtils::Builder::Role::ArgumentCollector::_init(%args);
+	$self->ExtUtils::Builder::Role::Binary::_init(%args);
 
-has _ld => (
-	is       => 'ro',
-	init_arg => 'ld',
-	builder  => '_build_ld',
-);
+	my $export = $args{export};
+	Carp::croak("'$export' is not an allowed export value") if not $allowed_export{$export};
+	$self->{export} = $export;
+
+	$self->{ld} = $args{ld};
+	$self->{library_dirs} = [];
+	$self->{libraries} = [];
+	$self->{option_filters} = [];
+
+	return;
+}
+
+sub add_library_dirs;
+sub add_libraries;
+sub linker_flags;
+
+sub export {
+	my $self = shift;
+	return $self->{export};
+}
 
 sub ld {
 	my $self = shift;
-	return @{ $self->_ld };
+	return @{ $self->{ld} };
 }
 
-around collect_arguments => sub {
-	my ($orig, $self, @args) = @_;
-	return ($self->$orig, $self->linker_flags(@args));
-};
-
-has _library_dirs => (
-	is => 'ro',
-	default => sub { [] },
-	init_arg => undef,
-);
+sub collect_arguments {
+	my ($self, @args) = @_;
+	return ($self->SUPER::collect_arguments(@args), $self->linker_flags(@args));
+}
 
 sub add_library_dirs {
 	my ($self, $dirs, %opts) = @_;
 	my $ranking = $self->fix_ranking($self->default_libdir_ranking, $opts{ranking});
-	push @{ $self->_library_dirs }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
+	push @{ $self->{library_dirs} }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
 	return;
 }
 
@@ -57,16 +65,10 @@ sub default_libdir_ranking {
 	return 30;
 }
 
-has _libraries => (
-	is => 'ro',
-	default => sub { [] },
-	init_arg => undef,
-);
-
 sub add_libraries {
 	my ($self, $dirs, %opts) = @_;
 	my $ranking = $self->fix_ranking($self->default_library_ranking, $opts{ranking});
-	push @{ $self->_libraries }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
+	push @{ $self->{libraries} }, map { { ranking => $ranking, value => $_ } } @{ $dirs };
 	return;
 }
 
@@ -74,14 +76,9 @@ sub default_library_ranking {
 	return 75;
 }
 
-has _option_filters => (
-	is      => 'ro',
-	default => sub { [] },
-);
-
 sub add_option_filter {
 	my ($self, $filter) = @_;
-	push @{ $self->_option_filters }, $filter;
+	push @{ $self->{option_filters} }, $filter;
 	return;
 }
 
@@ -112,7 +109,7 @@ sub post_action { }
 
 sub link {
 	my ($self, @args) = @_;
-	@args = $self->$_(@args) for @{ $self->_option_filters };
+	@args = $self->$_(@args) for @{ $self->{option_filters} };
 	my ($from, $to, %opts) = @args;
 	my @argv    = $self->arguments(@args);
 	my $main    = ExtUtils::Builder::Action::Command->new(command => [ $self->ld, @argv ]);

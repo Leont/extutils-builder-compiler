@@ -1,26 +1,23 @@
 package ExtUtils::Builder::Linker::Ar;
 
-use Moo;
+use strict;
+use warnings;
 
 use Carp ();
 
-with 'ExtUtils::Builder::Role::Linker';
+use parent 'ExtUtils::Builder::Role::Linker';
 
-sub _build_ld {
-	return ['ar'];
+sub _init {
+	my ($self, %args) = @_;
+	$args{ld} ||= ['ar'];
+	$args{export} ||= 'all';
+	$self->SUPER::_init(%args);
+	$self->{static_args} = $args{static_args} || ['cr'];
+	return;
 }
 
-sub _build_export {
-	return 'all';
-}
-
-has static_args => (
-	is      => 'ro',
-	default => sub { ['cr'] },
-);
-
-override 'add_libraries' => sub {
-	my ($orig, $self, $libs, %opts) = @_;
+sub add_libraries {
+	my ($self, $libs, %opts) = @_;
 	Carp::croak 'Can\'t add libraries to static link yet' if @{$libs};
 	push @{ $self->_libraries }, @{$libs};
 	return;

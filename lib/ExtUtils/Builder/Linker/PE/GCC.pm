@@ -1,18 +1,23 @@
 package ExtUtils::Builder::Linker::PE::GCC;
 
-use Moo;
+use strict;
+use warnings;
 
-with qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
+use parent qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
 
 use File::Basename ();
 
-sub _build_ld {
-	return ['gcc'];
+sub _init {
+	my ($self, %args) = @_;
+	$args{ld} ||= ['gcc'];
+	$self->ExtUtils::Builder::Role::Linker::Unixy::_init(%args);
+	$self->ExtUtils::Builder::Role::Linker::COFF::_init(%args);
+	return;
 }
 
-around linker_flags => sub {
-	my ($orig, $self, $from, $to, %opts) = @_;
-	my @ret = $self->$orig($from, $to, %opts);
+sub linker_flags {
+	my ($self, $from, $to, %opts) = @_;
+	my @ret = $self->SUPER::linker_flags($from, $to, %opts);
 
 	push @ret, $self->new_argument(ranking => 85, value => ['-Wl,--enable-auto-image-base']);
 	if ($self->type eq 'shared-library' or $self->type eq 'loadable-object') {
@@ -30,6 +35,6 @@ around linker_flags => sub {
 		push @ret, $self->new_argument(ranking => 20, value => [$export_file]);
 	}
 	return @ret;
-};
+}
 
 1;

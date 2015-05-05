@@ -1,6 +1,7 @@
 package ExtUtils::Builder;
 
-use strictures;
+use strict;
+use warnings;
 
 1;
 

@@ -1,15 +1,16 @@
 package ExtUtils::Builder::Linker::Mach::GCC;
 
-use Moo;
+use strict;
+use warnings;
 
-with 'ExtUtils::Builder::Role::Linker::Unixy';
+use parent 'ExtUtils::Builder::Role::Linker::Unixy';
 
-sub _build_ld {
-	return [qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/];
-}
-
-sub _build_export {
-	return 'all';
+sub _init {
+	my ($self, %args) = @_;
+	$args{ld} ||= [qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/];
+	$args{export} ||= 'all';
+	$self->SUPER::_init(%args);
+	return;
 }
 
 my %flag_for = (
@@ -17,12 +18,12 @@ my %flag_for = (
 	'shared-library'  => ['-dynamiclib'],
 );
 
-override linker_flags => sub {
-	my ($orig, $self, %args) = @_;
-	my @ret = $self->$orig(%args);
+sub linker_flags {
+	my ($self, %args) = @_;
+	my @ret = $self->SUPER::linker_flags(%args);
 	push @ret, $self->new_argument(rank => 10, value => $flag_for{ $self->type }) if $flag_for{ $self->type };
 	return @ret;
-};
+}
 
 sub add_runtime_path {
 	my ($self, $dirs, %opts) = @_;

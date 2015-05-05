@@ -1,6 +1,7 @@
 package ExtUtils::Builder::AutoDetect::C;
 
-use Moo;
+use strict;
+use warnings;
 
 use Carp 'croak';
 use ExtUtils::Config 0.007;
@@ -8,10 +9,17 @@ use ExtUtils::Helpers 'split_like_shell';
 use Module::Runtime qw/require_module/;
 use Perl::OSType 'is_os_type';
 
-has config => (
-	is      => 'ro',
-	default => sub { ExtUtils::Config->new },
-);
+sub new {
+	my ($class, %args) = @_;
+	return bless {
+		config => $args{config} || ExtUtils::Config->new,
+	}, $class;
+}
+
+sub config {
+	my $self = shift;
+	return $self->{config}
+}
 
 sub _get_opt {
 	my ($self, $opts, $name) = @_;

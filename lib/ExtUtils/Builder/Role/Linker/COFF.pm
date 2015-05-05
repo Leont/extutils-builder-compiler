@@ -1,13 +1,9 @@
 package ExtUtils::Builder::Role::Linker::COFF;
 
-use Moo::Role 1.000000;
+use strict;
+use warnings;
 
-with 'ExtUtils::Builder::Role::Linker';
-
-has autoimport => (
-	is      => 'ro',
-	default => sub { 1 },
-);
+use parent 'ExtUtils::Builder::Role::Linker';
 
 my %export_for = (
 	executable        => 'none',
@@ -16,9 +12,17 @@ my %export_for = (
 	'loadable-object' => 'some',
 );
 
-sub _build_export {
+sub _init {
+	my ($self, %args) = @_;
+	$args{export} ||= $export_for{ $args{type} };
+	$self->SUPER::_init(%args);
+	$self->{autoimport} = defined $args{autoimport} ? $args{autoimport} : 1;
+	return;
+}
+
+sub autoimport {
 	my $self = shift;
-	return $export_for{ $self->type };
+	return $self->{autoimport};
 }
 
 1;

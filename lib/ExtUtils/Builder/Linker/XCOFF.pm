@@ -1,18 +1,23 @@
 package ExtUtils::Builder::Linker::XCOFF;
 
-use Moo;
+use strict;
+use warnings;
 
-with qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
+use parent qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
 
 use File::Basename ();
 
-sub _build_ld {
-	return ['ld'];
+sub _init {
+	my ($self, %args) = @_;
+	$args{ld} ||= ['ld'];
+	$self->ExtUtils::Builder::Role::Linker::Unixy::_init(%args);
+	$self->ExtUtils::Builder::Role::Linker::COFF::_init(%args);
+	return;
 }
 
-around linker_flags => sub {
-	my ($orig, $self, $from, $to, %opts) = @_;
-	my @ret = $self->$orig($from, $to, %opts);
+sub linker_flags {
+	my ($self, $from, $to, %opts) = @_;
+	my @ret = $self->SUPER::linker_flags($from, $to, %opts);
 	push @ret, $self->new_argument(ranking => 20, value => ['-bnoautoimp']) if !$self->autoimport;
 
 	my $type = $self->type;
@@ -26,6 +31,6 @@ around linker_flags => sub {
 		}
 	}
 	return @ret;
-};
+}
 
 1;

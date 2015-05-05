@@ -1,16 +1,18 @@
 package ExtUtils::Builder::Role::ArgumentCollector;
 
-use Moo::Role;
+use strict;
+use warnings;
 
-has _arguments => (
-	is      => 'ro',
-	default => sub { [] },
-);
+sub _init {
+	my ($self, %args) = @_;
+	$self->{arguments} = $args{arguments} || [];
+	return;
+}
 
 sub add_argument {
 	my ($self, %arguments) = @_;
 	$arguments{ranking} = $self->fix_ranking(delete @arguments{qw/ranking fix/});
-	push @{ $self->_arguments }, $self->new_argument(%arguments);
+	push @{ $self->{arguments} }, $self->new_argument(%arguments);
 	return;
 }
 
@@ -21,7 +23,7 @@ sub new_argument {
 
 sub collect_arguments {
 	my $self = shift;
-	return @{ $self->_arguments };
+	return @{ $self->{arguments} };
 }
 
 sub arguments {
