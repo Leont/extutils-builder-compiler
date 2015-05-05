@@ -4,7 +4,9 @@ use strict;
 use warnings;
 
 use Test::More 0.89;
-use Test::Differences;
+BEGIN {
+	*eq_or_diff = eval { require Test::Differences } ? \&Test::Differences::eq_or_diff : \&Test::More::is_deeply;
+}
 
 use ExtUtils::Builder::Linker::ELF::Any;
 
