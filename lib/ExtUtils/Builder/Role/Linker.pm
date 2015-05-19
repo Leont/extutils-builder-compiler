@@ -99,7 +99,7 @@ sub pre_action  {
 			module    => 'ExtUtils::Mksymlists',
 			function  => 'Mksymlists',
 			message   => join(' ', 'prelink', $to, %args),
-			arguments => \%args,
+			arguments => [ %args ],
 			exports   => 1,
 		);
 	}
