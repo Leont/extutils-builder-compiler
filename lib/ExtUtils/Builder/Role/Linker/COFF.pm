@@ -3,7 +3,7 @@ package ExtUtils::Builder::Role::Linker::COFF;
 use strict;
 use warnings;
 
-use parent 'ExtUtils::Builder::Role::Linker';
+use base 'ExtUtils::Builder::Role::Linker';
 
 my %export_for = (
 	executable        => 'none',

@@ -3,7 +3,7 @@ package ExtUtils::Builder::Role::Linker::Unixy;
 use strict;
 use warnings;
 
-use parent 'ExtUtils::Builder::Role::Linker';
+use base 'ExtUtils::Builder::Role::Linker';
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;

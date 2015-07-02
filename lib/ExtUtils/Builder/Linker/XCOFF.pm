@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker::XCOFF;
 use strict;
 use warnings;
 
-use parent qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
+use base qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
 
 use File::Basename ();
 

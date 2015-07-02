@@ -7,7 +7,7 @@ use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Node;
 use Module::Runtime ();
 
-use parent qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
+use base qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
 
 sub new {
 	my ($class, %args) = @_;

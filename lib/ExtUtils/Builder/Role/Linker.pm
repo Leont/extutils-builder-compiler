@@ -1,6 +1,6 @@
 package ExtUtils::Builder::Role::Linker;
 
-use parent qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
+use base qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Action::Code;

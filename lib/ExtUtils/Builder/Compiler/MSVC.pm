@@ -3,7 +3,7 @@ package ExtUtils::Builder::Compiler::MSVC;
 use strict;
 use warnings;
 
-use parent qw/ExtUtils::Builder::Role::Compiler ExtUtils::Builder::Role::MultiLingual/;
+use base qw/ExtUtils::Builder::Role::Compiler ExtUtils::Builder::Role::MultiLingual/;
 
 sub _init {
 	my ($self, %args) = @_;

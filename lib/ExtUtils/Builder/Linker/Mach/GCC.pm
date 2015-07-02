@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker::Mach::GCC;
 use strict;
 use warnings;
 
-use parent 'ExtUtils::Builder::Role::Linker::Unixy';
+use base 'ExtUtils::Builder::Role::Linker::Unixy';
 
 sub _init {
 	my ($self, %args) = @_;
