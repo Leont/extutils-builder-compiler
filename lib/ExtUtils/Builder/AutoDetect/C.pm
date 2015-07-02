@@ -63,7 +63,9 @@ sub get_compiler {
 	my ($self, %opts) = @_;
 	my $compiler = $self->_make_command($self->_get_compiler(\%opts));
 	if (my $profile = delete $opts{profile}) {
-		$compiler->load_profile($profile, { %opts, config => $self->config });
+		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+		require_module($profile);
+		$profile->process_compiler($compiler, { %opts, config => $self->config });
 	}
 	if (my $include_dirs = delete $opts{include_dirs}) {
 		$compiler->add_include_dirs($include_dirs);
@@ -110,7 +112,9 @@ sub get_linker {
 	my ($self, %opts) = @_;
 	my $linker = $self->_make_command($self->_get_linker(\%opts));
 	if (my $profile = delete $opts{profile}) {
-		$linker->load_profile($profile, { %opts, config => $self->config });
+		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+		require_module($profile);
+		$profile->process_linker($linker, { %opts, config => $self->config });
 	}
 	if (my $library_dirs = delete $opts{library_dirs}) {
 		$linker->add_library_dirs($library_dirs);

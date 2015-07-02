@@ -5,7 +5,6 @@ use base qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Action::Code;
 use ExtUtils::Builder::Node;
-use Module::Runtime ();
 
 use Carp ();
 
@@ -116,13 +115,6 @@ sub link {
 	my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
 	my $deps    = [ @{$from}, @{ $opts{dependencies} || [] } ];
 	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => \@actions);
-}
-
-sub load_profile {
-	my ($self, $module, $arguments) = @_;
-	$module =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-	Module::Runtime::require_module($module);
-	return $module->process_linker($self, $arguments);
 }
 
 1;

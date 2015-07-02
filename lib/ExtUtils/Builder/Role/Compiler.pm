@@ -5,7 +5,6 @@ use warnings;
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Node;
-use Module::Runtime ();
 
 use base qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
 
@@ -69,13 +68,6 @@ sub compile {
 	my $main = ExtUtils::Builder::Action::Command->new(command => [ $self->cc, @argv ]);
 	my $deps = [ $from, @{ $opts{dependencies} || [] } ];
 	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => [$main]);
-}
-
-sub load_profile {
-	my ($self, $module, $arguments) = @_;
-	$module =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-	Module::Runtime::require_module($module);
-	return $module->process_compiler($self, $arguments);
 }
 
 1;
