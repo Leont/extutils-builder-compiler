@@ -5,7 +5,6 @@ use warnings;
 
 use Carp 'croak';
 use ExtUtils::Helpers 'split_like_shell';
-use Module::Runtime qw/require_module/;
 use Perl::OSType 'is_os_type';
 
 sub new {
@@ -58,6 +57,14 @@ sub _get_compiler {
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
 	return ("Compiler::$module", cc => $cc, %extra, %args);
 }
+
+sub require_module {
+	my $module = shift;
+	(my $filename = "$module.pm") =~ s{::}{/}g;
+	require $filename;
+	return $module;
+}
+
 
 sub get_compiler {
 	my ($self, %opts) = @_;
