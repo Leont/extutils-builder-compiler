@@ -19,15 +19,14 @@ sub config {
 	return $self->{config}
 }
 
-sub _get_opt {
-	my ($self, $opts, $name) = @_;
-	return delete $opts->{$name} if defined $opts and defined $opts->{$name};
+sub _get_conf {
+	my ($self, $name) = @_;
 	return $self->config->get($name);
 }
 
-sub _split_opt {
-	my ($self, $opts, $name) = @_;
-	my $ret = _get_opt($self, $opts, $name);
+sub _split_conf {
+	my ($self, $name) = @_;
+	my $ret = _get_conf($self, $name);
 	return ref($ret) ? $ret : [ split_like_shell($ret) ];
 }
 
@@ -41,7 +40,7 @@ sub _make_command {
 
 sub _is_gcc {
 	my ($self, $cc, $opts) = @_;
-	return $self->_get_opt($opts, 'gccversion') || $cc =~ / ^ g(?: cc | [+]{2} ) /ix;
+	return $self->_get_conf('gccversion') || $cc =~ / ^ g(?: cc | [+]{2} ) /ix;
 }
 
 sub _filter_args {
@@ -52,9 +51,9 @@ sub _filter_args {
 sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
-	my $cc = $self->_get_opt($opts, 'cc');
+	my $cc = $self->_get_conf('cc');
 	my ($module, %extra) = is_os_type('Unix', $os) || $self->_is_gcc($cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
-	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_opt($opts, 'cccdlflags'));
+	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_conf('cccdlflags'));
 	return ("Compiler::$module", cc => $cc, %extra, %args);
 }
 
@@ -91,9 +90,9 @@ sub _lddlflags {
 	my ($self, $opts) = @_;
 	return delete $opts->{lddlflags} if defined $opts->{lddlflags};
 	my $lddlflags = $self->config->get('lddlflags');
-	my $optimize = $self->_get_opt($opts, 'optimize');
+	my $optimize = $self->_get_conf('optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
-	my %ldflags = map { ($_ => 1) } @{ $self->_split_opt($opts, 'ldflags') };
+	my %ldflags = map { ($_ => 1) } @{ $self->_split_conf('ldflags') };
 	return [ grep { not $ldflags{$_} } split_like_shell($lddlflags) ];
 }
 
@@ -101,15 +100,15 @@ sub _get_linker {
 	my ($self, $opts) = @_;
 	my $os = delete $opts->{osname} || $^O;
 	my %args = _filter_args($opts, qw/type export language/);
-	my $cc = $self->_get_opt($opts, 'cc');
-	my $ld = $self->_get_opt($opts, 'ld');
+	my $cc = $self->_get_conf('cc');
+	my $ld = $self->_get_conf('ld');
 	my ($module, $link, %opts) =
-		$args{type} eq 'static-library' ? ('Ar', $self->_get_opt($opts, 'ar')) :
+		$args{type} eq 'static-library' ? ('Ar', $self->_get_conf('ar')) :
 		$os eq 'darwin' ? ('Mach::GCC', $cc) :
 		$self->_is_gcc($ld, $opts) ?
 		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $cc) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
-		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_opt($opts, 'ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
+		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_conf('ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
 		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
 	return ("Linker::$module", ld => $link, %opts, %args);
