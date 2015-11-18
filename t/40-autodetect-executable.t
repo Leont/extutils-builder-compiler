@@ -8,12 +8,21 @@ use Test::More 0.89;
 use Config;
 use ExtUtils::Builder::AutoDetect::C;
 use ExtUtils::Embed qw/ldopts/;
+use IPC::Open2 qw/open2/;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
-use IPC::System::Simple qw/capturex/;
 
 # TEST does not like extraneous output
 my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
+
+sub capturex {
+	local @ENV{qw/PATH IFS CDPATH ENV BASH_ENV/};
+	my $pid = open2(my($in, $out), @_);
+	binmode $in, ':crlf' if $^O eq 'MSWin32';
+	my $ret = do { local $/; <$in> };
+	waitpid $pid, 0;
+	return $ret;
+}
 
 my $b = ExtUtils::Builder::AutoDetect::C->new;
 my $c = $b->get_compiler(profile => '@Perl', type => 'executable');
