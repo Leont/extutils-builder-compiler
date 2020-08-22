@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 use Carp 'croak';
-use ExtUtils::Helpers 'split_like_shell';
 use Perl::OSType 'is_os_type';
+use Text::ParseWords 'shellwords';
 
 sub new {
 	my ($class, %args) = @_;
@@ -27,14 +27,14 @@ sub _get_conf {
 sub _split_conf {
 	my ($self, $name) = @_;
 	my $ret = _get_conf($self, $name);
-	return ref($ret) ? $ret : [ split_like_shell($ret) ];
+	return ref($ret) ? $ret : [ shellwords($ret) ];
 }
 
 sub _make_command {
 	my ($self, $shortname, $argument, $command, %options) = @_;
 	my $module = "ExtUtils::Builder::$shortname";
 	require_module($module);
-	my @command = ref $command ? @{$command} : split_like_shell($command);
+	my @command = ref $command ? @{$command} : shellwords($command);
 	return $module->new($argument => \@command, %options);
 }
 
@@ -93,7 +93,7 @@ sub _lddlflags {
 	my $optimize = $self->_get_conf('optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
 	my %ldflags = map { ($_ => 1) } @{ $self->_split_conf('ldflags') };
-	return [ grep { not $ldflags{$_} } split_like_shell($lddlflags) ];
+	return [ grep { not $ldflags{$_} } shellwords($lddlflags) ];
 }
 
 sub _get_linker {
