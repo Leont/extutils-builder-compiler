@@ -72,3 +72,4 @@ sub compile {
 
 1;
 
+# ABSTRACT: Portable compilation

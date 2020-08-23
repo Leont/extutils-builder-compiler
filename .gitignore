@@ -4,4 +4,4 @@
 *.swo
 *.tdy
 *.tar.gz
-ExtUtils-Builder-*
+ExtUtils-Builder-Compiler-*
