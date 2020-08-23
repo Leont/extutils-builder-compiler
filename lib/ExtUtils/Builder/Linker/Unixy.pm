@@ -1,9 +1,9 @@
-package ExtUtils::Builder::Role::Linker::Unixy;
+package ExtUtils::Builder::Linker::Unixy;
 
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Role::Linker';
+use base 'ExtUtils::Builder::Linker';
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;

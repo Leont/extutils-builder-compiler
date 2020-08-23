@@ -5,7 +5,7 @@ use warnings;
 
 use Carp ();
 
-use base 'ExtUtils::Builder::Role::Linker';
+use base 'ExtUtils::Builder::Linker';
 
 sub _init {
 	my ($self, %args) = @_;

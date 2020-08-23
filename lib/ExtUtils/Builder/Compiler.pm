@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Role::Compiler;
+package ExtUtils::Builder::Compiler;
 
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ use warnings;
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Node;
 
-use base qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
+use base qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 sub new {
 	my ($class, %args) = @_;
@@ -23,8 +23,8 @@ sub new {
 
 sub _init {
 	my ($self, %args) = @_;
-	$self->ExtUtils::Builder::Role::ArgumentCollector::_init(%args);
-	$self->ExtUtils::Builder::Role::Binary::_init(%args);
+	$self->ExtUtils::Builder::ArgumentCollector::_init(%args);
+	$self->ExtUtils::Builder::Binary::_init(%args);
 	return;
 }
 

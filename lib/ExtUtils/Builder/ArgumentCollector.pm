@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Role::ArgumentCollector;
+package ExtUtils::Builder::ArgumentCollector;
 
 use strict;
 use warnings;

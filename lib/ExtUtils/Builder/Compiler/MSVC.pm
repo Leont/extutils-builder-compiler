@@ -3,13 +3,13 @@ package ExtUtils::Builder::Compiler::MSVC;
 use strict;
 use warnings;
 
-use base qw/ExtUtils::Builder::Role::Compiler ExtUtils::Builder::Role::MultiLingual/;
+use base qw/ExtUtils::Builder::Compiler ExtUtils::Builder::MultiLingual/;
 
 sub _init {
 	my ($self, %args) = @_;
 	$args{cc} ||= ['cl'];
-	$self->ExtUtils::Builder::Role::Compiler::_init(%args);
-	$self->ExtUtils::Builder::Role::MultiLingual::_init(%args);
+	$self->ExtUtils::Builder::Compiler::_init(%args);
+	$self->ExtUtils::Builder::MultiLingual::_init(%args);
 	return;
 }
 

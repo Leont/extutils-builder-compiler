@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Role::Binary;
+package ExtUtils::Builder::Binary;
 
 use strict;
 use warnings;

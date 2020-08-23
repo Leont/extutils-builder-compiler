@@ -1,6 +1,6 @@
-package ExtUtils::Builder::Role::Linker;
+package ExtUtils::Builder::Linker;
 
-use base qw/ExtUtils::Builder::Role::ArgumentCollector ExtUtils::Builder::Role::Binary/;
+use base qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Action::Code;
@@ -19,8 +19,8 @@ sub new {
 
 sub _init {
 	my ($self, %args) = @_;
-	$self->ExtUtils::Builder::Role::ArgumentCollector::_init(%args);
-	$self->ExtUtils::Builder::Role::Binary::_init(%args);
+	$self->ExtUtils::Builder::ArgumentCollector::_init(%args);
+	$self->ExtUtils::Builder::Binary::_init(%args);
 
 	my $export = $args{export};
 	Carp::croak("'$export' is not an allowed export value") if not $allowed_export{$export};

@@ -1,9 +1,9 @@
-package ExtUtils::Builder::Role::Linker::COFF;
+package ExtUtils::Builder::Linker::COFF;
 
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Role::Linker';
+use base 'ExtUtils::Builder::Linker';
 
 my %export_for = (
 	executable        => 'none',

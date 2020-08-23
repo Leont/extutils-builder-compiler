@@ -5,13 +5,13 @@ use warnings;
 
 use ExtUtils::Builder::Action::Command;
 
-use base qw/ExtUtils::Builder::Role::Linker ExtUtils::Builder::Role::Linker::COFF/;
+use base qw/ExtUtils::Builder::Linker ExtUtils::Builder::Linker::COFF/;
 
 sub _init {
 	my ($self, %args) = @_;
 	$args{ld} ||= ['link'];
-	$self->ExtUtils::Builder::Role::Linker::_init(%args);
-	$self->ExtUtils::Builder::Role::Linker::COFF::_init(%args);
+	$self->ExtUtils::Builder::Linker::_init(%args);
+	$self->ExtUtils::Builder::Linker::COFF::_init(%args);
 	return;
 }
 

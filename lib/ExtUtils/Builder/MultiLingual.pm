@@ -1,4 +1,4 @@
-package ExtUtils::Builder::Role::MultiLingual;
+package ExtUtils::Builder::MultiLingual;
 
 use strict;
 use warnings;

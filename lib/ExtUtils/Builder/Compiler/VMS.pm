@@ -3,7 +3,7 @@ package ExtUtils::Builder::Compiler::VMS;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Role::Compiler';
+use base 'ExtUtils::Builder::Compiler';
 
 use Carp ();
 

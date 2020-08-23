@@ -3,15 +3,15 @@ package ExtUtils::Builder::Linker::XCOFF;
 use strict;
 use warnings;
 
-use base qw/ExtUtils::Builder::Role::Linker::Unixy ExtUtils::Builder::Role::Linker::COFF/;
+use base qw/ExtUtils::Builder::Linker::Unixy ExtUtils::Builder::Linker::COFF/;
 
 use File::Basename ();
 
 sub _init {
 	my ($self, %args) = @_;
 	$args{ld} ||= ['ld'];
-	$self->ExtUtils::Builder::Role::Linker::Unixy::_init(%args);
-	$self->ExtUtils::Builder::Role::Linker::COFF::_init(%args);
+	$self->ExtUtils::Builder::Linker::Unixy::_init(%args);
+	$self->ExtUtils::Builder::Linker::COFF::_init(%args);
 	return;
 }
 

@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker::ELF::Any;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Role::Linker::Unixy';
+use base 'ExtUtils::Builder::Linker::Unixy';
 
 sub _init {
 	my ($self, %args) = @_;
