@@ -4,13 +4,14 @@ use strict;
 use warnings;
 
 use Carp 'croak';
+use ExtUtils::Config 0.007;
 use Perl::OSType 'is_os_type';
 use Text::ParseWords 'shellwords';
 
 sub new {
 	my ($class, %args) = @_;
 	return bless {
-		config => $args{config} || 'ExtUtils::Builder::AutoDetect::C::Config',
+		config  => $args{config} || ExtUtils::Config->new,
 	}, $class;
 }
 
@@ -133,15 +134,6 @@ sub get_linker {
 	}
 	croak 'Unknown options: ' . join ',', keys %opts if keys %opts;
 	return $linker;
-}
-
-package ExtUtils::Builder::AutoDetect::C::Config;
-
-use Config;
-
-sub get {
-	my (undef, $name) = @_;
-	return $Config{$name};
 }
 
 1;
