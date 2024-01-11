@@ -73,3 +73,15 @@ sub compile {
 1;
 
 # ABSTRACT: Portable compilation
+
+=method new(%options)
+
+=over 4
+
+=back
+
+=method add_include_dirs($dirs, %options)
+
+=method add_defines($defines, %options)
+
+=method compile($source, $target, %options)

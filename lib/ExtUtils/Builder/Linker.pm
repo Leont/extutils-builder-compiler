@@ -34,10 +34,6 @@ sub _init {
 	return;
 }
 
-sub add_library_dirs;
-sub add_libraries;
-sub linker_flags;
-
 sub export {
 	my $self = shift;
 	return $self->{export};
@@ -118,4 +114,27 @@ sub link {
 }
 
 1;
+
+=method new
+
+=over 4
+
+=item type
+
+This must be either C<executable>, C<shared-library>, C<loadable-object> or C<static-library>.
+
+=item libraries
+
+=item library_dirs
+
+=item export
+
+=back
+
+=method add_library_dirs
+
+=method add_libraries
+
+=method link($source, $target, %options)
+
 

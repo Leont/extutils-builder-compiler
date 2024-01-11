@@ -39,3 +39,13 @@ sub fix_ranking {
 }
 
 1;
+
+__END__
+
+#ABSTRACT: Helper role for argument collecting classes
+
+=pod
+
+=head1 DESCRIPTION
+
+This is a helper role for classes that collect arguments for their command. Classes that use this include ExtUtils::Builder::Compiler and ExtUtils::Builder::Linker

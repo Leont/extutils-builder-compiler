@@ -22,3 +22,4 @@ sub type {
 
 1;
 
+# ABSTRACT: Helper role for classes producing binary objects

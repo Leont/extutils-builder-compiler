@@ -29,3 +29,5 @@ sub compile_flags {
 }
 
 1;
+
+#ABSTRACT: Class for compiling with a unix compiler

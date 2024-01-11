@@ -138,3 +138,52 @@ sub get_linker {
 
 1;
 
+#ABSTRACT: compiler configuration, derived from perl's configuration
+
+=head1 SYNOPSIS
+
+ my $planner = ExtUtils::Builder::Planner->new;
+ my $auto = ExtUtils::Builder::AutoDetect::C->new(planner => $planner, config => $config);
+ my $compiler = $auto->get_compiler(profile => 'Perl', type => 'loadable-object');
+ $compiler->compile('foo.c', 'foo.o');
+ my $linker = $auto->get_linker(profile => 'Perl', type => 'loadable-object');
+ $linker->link([ 'foo.o' ], 'foo.so');
+ my $plan = $planner->plan;
+
+=head1 DESCRIPTION
+
+=method new(%options)
+
+=over 4
+
+=item config
+
+=back
+
+=method get_compiler(%options)
+
+=over 4
+
+=item profile
+
+=item include_dirs
+
+=item define
+
+=item extra_args
+
+=back
+
+=method get_linker(%options)
+
+=over 4
+
+=item profile
+
+=item libraries
+
+=item library_dirs
+
+=item extra_args
+
+=back
