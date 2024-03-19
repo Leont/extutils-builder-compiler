@@ -46,12 +46,12 @@ sub _is_gcc {
 
 sub _filter_args {
 	my ($opts, @names) = @_;
-	return map { $_ => delete $opts->{$_} } grep { exists $opts->{$_} } @names;
+	return map { $_ => $opts->{$_} } grep { exists $opts->{$_} } @names;
 }
 
 sub _get_compiler {
 	my ($self, $opts) = @_;
-	my $os = delete $opts->{osname} || $^O;
+	my $os = $opts->{osname} || $^O;
 	my $cc = $self->_get_conf('cc');
 	my ($module, %extra) = is_os_type('Unix', $os) || $self->_is_gcc($cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
 	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_conf('cccdlflags'));
@@ -69,37 +69,36 @@ sub require_module {
 sub get_compiler {
 	my ($self, %opts) = @_;
 	my $compiler = $self->_make_command($self->_get_compiler(\%opts));
-	if (my $profile = delete $opts{profile}) {
+	if (my $profile = $opts{profile}) {
 		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
 		require_module($profile);
 		$profile->process_compiler($compiler, { %opts, config => $self->config });
 	}
-	if (my $include_dirs = delete $opts{include_dirs}) {
+	if (my $include_dirs = $opts{include_dirs}) {
 		$compiler->add_include_dirs($include_dirs);
 	}
-	if (my $defines = delete $opts{define}) {
+	if (my $defines = $opts{define}) {
 		$compiler->add_defines($defines);
 	}
-	if (my $extra = delete $opts{extra_args}) {
+	if (my $extra = $opts{extra_args}) {
 		$compiler->add_argument(value => $extra);
 	}
-	croak 'Unkown options: ' . join ',', keys %opts if keys %opts;
 	return $compiler;
 }
 
 sub _lddlflags {
 	my ($self, $opts) = @_;
-	return delete $opts->{lddlflags} if defined $opts->{lddlflags};
+	return $opts->{lddlflags} if defined $opts->{lddlflags};
 	my $lddlflags = $self->config->get('lddlflags');
 	my $optimize = $self->_get_conf('optimize');
-	$lddlflags =~ s/ ?\Q$optimize// if not delete $self->{auto_optimize};
+	$lddlflags =~ s/ ?\Q$optimize// if not $self->{auto_optimize};
 	my %ldflags = map { ($_ => 1) } @{ $self->_split_conf('ldflags') };
 	return [ grep { not $ldflags{$_} } shellwords($lddlflags) ];
 }
 
 sub _get_linker {
 	my ($self, $opts) = @_;
-	my $os = delete $opts->{osname} || $^O;
+	my $os = $opts->{osname} || $^O;
 	my %args = _filter_args($opts, qw/type export language/);
 	my $cc = $self->_get_conf('cc');
 	my $ld = $self->_get_conf('ld');
@@ -118,21 +117,20 @@ sub _get_linker {
 sub get_linker {
 	my ($self, %opts) = @_;
 	my $linker = $self->_make_command($self->_get_linker(\%opts));
-	if (my $profile = delete $opts{profile}) {
+	if (my $profile = $opts{profile}) {
 		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
 		require_module($profile);
 		$profile->process_linker($linker, { %opts, config => $self->config });
 	}
-	if (my $library_dirs = delete $opts{library_dirs}) {
+	if (my $library_dirs = $opts{library_dirs}) {
 		$linker->add_library_dirs($library_dirs);
 	}
-	if (my $libraries = delete $opts{libraries}) {
+	if (my $libraries = $opts{libraries}) {
 		$linker->add_libraries($libraries);
 	}
-	if (my $extra_args = delete $opts{extra_args}) {
+	if (my $extra_args = $opts{extra_args}) {
 		$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
 	}
-	croak 'Unknown options: ' . join ',', keys %opts if keys %opts;
 	return $linker;
 }
 
