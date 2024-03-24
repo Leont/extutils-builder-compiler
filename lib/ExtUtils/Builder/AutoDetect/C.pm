@@ -70,14 +70,16 @@ sub get_compiler {
 	return $compiler;
 }
 
-sub _lddlflags {
+sub _unix_flags {
 	my ($self, $opts) = @_;
 	return $opts->{lddlflags} if defined $opts->{lddlflags};
 	my $lddlflags = $opts->{config}->get('lddlflags');
 	my $optimize = $opts->{config}->get('optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not $self->{auto_optimize};
 	my %ldflags = map { ($_ => 1) } _split_conf($opts->{config}, 'ldflags');
-	return [ grep { not $ldflags{$_} } shellwords($lddlflags) ];
+	my @lddlflags = grep { not $ldflags{$_} } shellwords($lddlflags);
+	my @cc = _split_conf($opts->{config}, 'ccdlflags');
+	return (cc => \@cc, ldd_flags => \@lddlflags )
 }
 
 sub _get_linker {
@@ -92,7 +94,7 @@ sub _get_linker {
 		_is_gcc($opts->{config}, $ld, $opts) ?
 		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $cc) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
-		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => [ _split_conf($opts->{config}, 'ccdlflags') ], lddlflags => $self->_lddlflags($opts)) :
+		is_os_type('Unix', $os) ? ('ELF', $cc, $self->_unix_flags($opts)) :
 		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
 	return ("Linker::$module", ld => $link, %opts, %args);
