@@ -8,27 +8,9 @@ use ExtUtils::Config 0.007;
 use Perl::OSType 'is_os_type';
 use Text::ParseWords 'shellwords';
 
-sub new {
-	my ($class, %args) = @_;
-	return bless {
-		config  => $args{config} || ExtUtils::Config->new,
-	}, $class;
-}
-
-sub config {
-	my $self = shift;
-	return $self->{config}
-}
-
-sub _get_conf {
-	my ($self, $name) = @_;
-	return $self->config->get($name);
-}
-
 sub _split_conf {
-	my ($self, $name) = @_;
-	my $ret = _get_conf($self, $name);
-	return ref($ret) ? $ret : [ shellwords($ret) ];
+	my ($config, $name) = @_;
+	return shellwords($config->get($name));
 }
 
 sub _make_command {
@@ -40,8 +22,8 @@ sub _make_command {
 }
 
 sub _is_gcc {
-	my ($self, $cc, $opts) = @_;
-	return $self->_get_conf('gccversion') || $cc =~ / ^ g(?: cc | [+]{2} ) /ix;
+	my ($config, $cc, $opts) = @_;
+	return $config->get('gccversion') || $cc =~ / ^ g(?: cc | [+]{2} ) /ix;
 }
 
 sub _filter_args {
@@ -51,10 +33,11 @@ sub _filter_args {
 
 sub _get_compiler {
 	my ($self, $opts) = @_;
-	my $os = $opts->{osname} || $^O;
-	my $cc = $self->_get_conf('cc');
-	my ($module, %extra) = is_os_type('Unix', $os) || $self->_is_gcc($cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
-	my %args = (_filter_args($opts, qw/language type/), cccdlflags => $self->_split_conf('cccdlflags'));
+	my $os = $opts->{config}->get('osname');
+	my $cc = $opts->{config}->get('cc');
+	my ($module, %extra) = is_os_type('Unix', $os) || _is_gcc($opts->{config}, $cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
+	my %args = _filter_args($opts, qw/language type/);
+	$args{cccdlflags} = [ _split_conf($opts->{config}, 'cccdlflags') ];
 	return ("Compiler::$module", cc => $cc, %extra, %args);
 }
 
@@ -65,14 +48,15 @@ sub require_module {
 	return $module;
 }
 
-
 sub get_compiler {
 	my ($self, %opts) = @_;
+
+	$opts{config} ||= ExtUtils::Config->new;
 	my $compiler = $self->_make_command($self->_get_compiler(\%opts));
-	if (my $profile = $opts{profile}) {
+	if (my $profile = delete $opts{profile}) {
 		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
 		require_module($profile);
-		$profile->process_compiler($compiler, { %opts, config => $self->config });
+		$profile->process_compiler($compiler, \%opts);
 	}
 	if (my $include_dirs = $opts{include_dirs}) {
 		$compiler->add_include_dirs($include_dirs);
@@ -89,26 +73,26 @@ sub get_compiler {
 sub _lddlflags {
 	my ($self, $opts) = @_;
 	return $opts->{lddlflags} if defined $opts->{lddlflags};
-	my $lddlflags = $self->config->get('lddlflags');
-	my $optimize = $self->_get_conf('optimize');
+	my $lddlflags = $opts->{config}->get('lddlflags');
+	my $optimize = $opts->{config}->get('optimize');
 	$lddlflags =~ s/ ?\Q$optimize// if not $self->{auto_optimize};
-	my %ldflags = map { ($_ => 1) } @{ $self->_split_conf('ldflags') };
+	my %ldflags = map { ($_ => 1) } _split_conf($opts->{config}, 'ldflags');
 	return [ grep { not $ldflags{$_} } shellwords($lddlflags) ];
 }
 
 sub _get_linker {
 	my ($self, $opts) = @_;
-	my $os = $opts->{osname} || $^O;
+	my $os = $opts->{config}->get('osname');
 	my %args = _filter_args($opts, qw/type export language/);
-	my $cc = $self->_get_conf('cc');
-	my $ld = $self->_get_conf('ld');
+	my $cc = $opts->{config}->get('cc');
+	my $ld = $opts->{config}->get('ld');
 	my ($module, $link, %opts) =
-		$args{type} eq 'static-library' ? ('Ar', $self->_get_conf('ar')) :
+		$args{type} eq 'static-library' ? ('Ar', $opts->{config}->get('ar')) :
 		$os eq 'darwin' ? ('Mach::GCC', $cc) :
-		$self->_is_gcc($ld, $opts) ?
+		_is_gcc($opts->{config}, $ld, $opts) ?
 		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $cc) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
-		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => $self->_split_conf('ccdlflags'), lddlflags => $self->_lddlflags($opts)) :
+		is_os_type('Unix', $os) ? ('ELF', $cc, ccdlflags => [ _split_conf($opts->{config}, 'ccdlflags') ], lddlflags => $self->_lddlflags($opts)) :
 		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
 	return ("Linker::$module", ld => $link, %opts, %args);
@@ -116,11 +100,12 @@ sub _get_linker {
 
 sub get_linker {
 	my ($self, %opts) = @_;
+	$opts{config} ||= ExtUtils::Config->new;
 	my $linker = $self->_make_command($self->_get_linker(\%opts));
-	if (my $profile = $opts{profile}) {
+	if (my $profile = delete $opts{profile}) {
 		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
 		require_module($profile);
-		$profile->process_linker($linker, { %opts, config => $self->config });
+		$profile->process_linker($linker, \%opts);
 	}
 	if (my $library_dirs = $opts{library_dirs}) {
 		$linker->add_library_dirs($library_dirs);
@@ -141,7 +126,7 @@ sub get_linker {
 =head1 SYNOPSIS
 
  my $planner = ExtUtils::Builder::Planner->new;
- my $auto = ExtUtils::Builder::AutoDetect::C->new(planner => $planner, config => $config);
+ my $auto = ExtUtils::Builder::AutoDetect::C;
  my $compiler = $auto->get_compiler(profile => 'Perl', type => 'loadable-object');
  $compiler->compile('foo.c', 'foo.o');
  my $linker = $auto->get_linker(profile => 'Perl', type => 'loadable-object');
@@ -149,14 +134,6 @@ sub get_linker {
  my $plan = $planner->plan;
 
 =head1 DESCRIPTION
-
-=method new(%options)
-
-=over 4
-
-=item config
-
-=back
 
 =method get_compiler(%options)
 

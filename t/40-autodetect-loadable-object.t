@@ -13,7 +13,7 @@ use File::Spec::Functions qw/catfile/;
 # TEST does not like extraneous output
 my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
 
-my $b = ExtUtils::Builder::AutoDetect::C->new;
+my $b = 'ExtUtils::Builder::AutoDetect::C';
 ok($b, "created EU::Builder object");
 
 my $c = $b->get_compiler(profile => '@Perl', type => 'loadable-object');

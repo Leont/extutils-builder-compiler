@@ -24,7 +24,7 @@ sub capturex {
 	return $ret;
 }
 
-my $b = ExtUtils::Builder::AutoDetect::C->new;
+my $b = 'ExtUtils::Builder::AutoDetect::C';
 my $c = $b->get_compiler(profile => '@Perl', type => 'executable');
 
 my $source_file = catfile('t', 'executable.c');
@@ -37,7 +37,6 @@ my $source_file = catfile('t', 'executable.c');
 
 static PerlInterpreter* my_perl;
 
-#line 33
 int main(int argc, char **argv, char **env) {
 	PERL_SYS_INIT3(&argc,&argv,&env);
 	my_perl = perl_alloc();
