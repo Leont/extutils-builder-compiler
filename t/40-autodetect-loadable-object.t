@@ -6,18 +6,14 @@ use warnings;
 use Test::More 0.89;
 
 use Config;
-use ExtUtils::Builder::AutoDetect::C;
+use ExtUtils::Builder::Planner;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
 
-# TEST does not like extraneous output
-my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
-
-my $b = 'ExtUtils::Builder::AutoDetect::C';
-ok($b, "created EU::Builder object");
-
-my $c = $b->get_compiler(profile => '@Perl', type => 'loadable-object');
-ok($c, "get_compiler");
+my $planner = ExtUtils::Builder::Planner->new;
+$planner->load_module('ExtUtils::Builder::AutoDetect::C',
+	profile => '@Perl', type => 'loadable-object',
+);
 
 my $source_file = File::Spec->catfile('t', 'compilet.c');
 {
@@ -63,18 +59,18 @@ END
 ok(-e $source_file, "source file '$source_file' created");
 
 my $object_file = catfile(dirname($source_file), basename($source_file, '.c') . $Config{obj_ext});
-
-$c->compile($source_file, $object_file)->execute(logger => \&note, quiet => $quiet);
-
-ok(-e $object_file, "object file $object_file has been created");
+$planner->compile($source_file, $object_file);
 
 my $lib_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . ".$Config{dlext}");
+$planner->link([$object_file], $lib_file);
 
-my $l = $b->get_linker(profile => '@Perl', type => 'loadable-object');
-ok($l, "get_linker");
+$planner->add_roots($lib_file);
+my $plan = $planner->plan;
+ok $plan;
 
-$l->link([$object_file], $lib_file)->execute(logger => \&note, quiet => $quiet);
+ok eval { $plan->execute(logger => \&note); 1 } or diag "Got exception: $@";
 
+ok(-e $object_file, "object file $object_file has been created");
 ok(-e $lib_file, "lib file $lib_file has been created");
 
 require DynaLoader;

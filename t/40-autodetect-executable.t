@@ -6,14 +6,10 @@ use warnings;
 use Test::More 0.89;
 
 use Config;
-use ExtUtils::Builder::AutoDetect::C;
-use ExtUtils::Embed qw/ldopts/;
+use ExtUtils::Builder::Planner;
 use IPC::Open2 qw/open2/;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
-
-# TEST does not like extraneous output
-my $quiet = $ENV{PERL_CORE} && !$ENV{HARNESS_ACTIVE};
 
 sub capturex {
 	local @ENV{qw/PATH IFS CDPATH ENV BASH_ENV/};
@@ -24,8 +20,10 @@ sub capturex {
 	return $ret;
 }
 
-my $b = 'ExtUtils::Builder::AutoDetect::C';
-my $c = $b->get_compiler(profile => '@Perl', type => 'executable');
+my $planner = ExtUtils::Builder::Planner->new;
+$planner->load_module('ExtUtils::Builder::AutoDetect::C',
+	profile => '@Perl', type => 'executable',
+);
 
 my $source_file = catfile('t', 'executable.c');
 {
@@ -57,22 +55,21 @@ END
 ok(-e $source_file, "source file '$source_file' created");
 
 my $object_file = catfile(dirname($source_file), basename($source_file, '.c') . $Config{obj_ext});
-
-$c->compile($source_file, $object_file)->execute(logger => \&note, quiet => $quiet);
-
-ok(-e $object_file, "object file $object_file has been created");
+$planner->compile($source_file, $object_file);
 
 my $exe_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . $Config{exe_ext});
+$planner->link([$object_file], $exe_file);
 
-my $l = $b->get_linker(profile => '@Perl', type => 'executable');
-ok($l, "get_linker");
+$planner->add_roots($exe_file);
+my $plan = $planner->plan;
+ok $plan;
 
-$l->link([$object_file], $exe_file)->execute(logger => \&note, quiet => $quiet);
+ok eval { $plan->execute(logger => \&note); 1 } or diag "Got exception: $@";
 
+ok(-e $object_file, "object file $object_file has been created");
 ok(-e $exe_file, "lib file $exe_file has been created");
 
 my $output = eval { capturex($exe_file, '-e', "print 'Dubrovnik\n'") };
-
 is ($output, "Dubrovnik\n", 'Output is "Dubrovnik"') or diag("Error: $@");
 
 END {

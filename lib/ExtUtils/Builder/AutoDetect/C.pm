@@ -3,6 +3,8 @@ package ExtUtils::Builder::AutoDetect::C;
 use strict;
 use warnings;
 
+use base 'ExtUtils::Builder::Planner::Extension';
+
 use Carp 'croak';
 use ExtUtils::Config 0.007;
 use Perl::OSType 'is_os_type';
@@ -48,26 +50,29 @@ sub require_module {
 	return $module;
 }
 
-sub get_compiler {
-	my ($self, %opts) = @_;
-
-	$opts{config} ||= ExtUtils::Config->new;
-	my $compiler = $self->_make_command($self->_get_compiler(\%opts));
-	if (my $profile = delete $opts{profile}) {
-		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-		require_module($profile);
-		$profile->process_compiler($compiler, \%opts);
-	}
-	if (my $include_dirs = $opts{include_dirs}) {
-		$compiler->add_include_dirs($include_dirs);
-	}
-	if (my $defines = $opts{define}) {
-		$compiler->add_defines($defines);
-	}
-	if (my $extra = $opts{extra_args}) {
-		$compiler->add_argument(value => $extra);
-	}
-	return $compiler;
+sub add_compiler {
+	my ($self, $planner, %opts) = @_;
+	my $as = $opts{as} || 'compile';
+	return $self->add_delegate($planner, $as, sub {
+		my ($from, $to, %extra) = @_;
+		my %args = (%opts, %extra);
+		my $compiler = $self->_make_command($self->_get_compiler(\%args));
+		if (my $profile = $args{profile}) {
+			$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+			require_module($profile);
+			$profile->process_compiler($compiler, \%args);
+		}
+		if (my $include_dirs = $args{include_dirs}) {
+			$compiler->add_include_dirs($include_dirs);
+		}
+		if (my $defines = $args{define}) {
+			$compiler->add_defines($defines);
+		}
+		if (my $extra = $args{extra_args}) {
+			$compiler->add_argument(value => $extra);
+		}
+		$compiler->compile($from, $to, %args)
+	});
 }
 
 sub _unix_flags {
@@ -100,25 +105,44 @@ sub _get_linker {
 	return ("Linker::$module", ld => $link, %opts, %args);
 }
 
-sub get_linker {
-	my ($self, %opts) = @_;
+sub add_linker {
+	my ($self, $planner, %opts) = @_;
+	my $as = $opts{as} || 'link';
+	return $self->add_delegate($planner, $as, sub {
+		my ($from, $to, %extra) = @_;
+		my %args = (%opts, %extra);
+		my $linker = $self->_make_command($self->_get_linker(\%args));
+		if (my $profile = $args{profile}) {
+			$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+			require_module($profile);
+			$profile->process_linker($linker, \%args);
+		}
+		if (my $library_dirs = $args{library_dirs}) {
+			$linker->add_library_dirs($library_dirs);
+		}
+		if (my $libraries = $args{libraries}) {
+			$linker->add_libraries($libraries);
+		}
+		if (my $extra_args = $args{extra_args}) {
+			$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
+		}
+		$linker->link($from, $to, %args)
+	});
+}
+
+sub add_methods {
+	my ($class, $planner, %opts) = @_;
+
 	$opts{config} ||= ExtUtils::Config->new;
-	my $linker = $self->_make_command($self->_get_linker(\%opts));
-	if (my $profile = delete $opts{profile}) {
-		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-		require_module($profile);
-		$profile->process_linker($linker, \%opts);
-	}
-	if (my $library_dirs = $opts{library_dirs}) {
-		$linker->add_library_dirs($library_dirs);
-	}
-	if (my $libraries = $opts{libraries}) {
-		$linker->add_libraries($libraries);
-	}
-	if (my $extra_args = $opts{extra_args}) {
-		$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
-	}
-	return $linker;
+	$opts{type} ||= 'executable';
+
+	my $as_compiler = delete $opts{as_compiler};
+	$class->add_compiler($planner, %opts, as => $as_compiler);
+
+	my $as_linker = delete $opts{as_linker};
+	$class->add_linker($planner, %opts, as => $as_linker);
+
+	return;
 }
 
 1;
@@ -128,39 +152,105 @@ sub get_linker {
 =head1 SYNOPSIS
 
  my $planner = ExtUtils::Builder::Planner->new;
- my $auto = ExtUtils::Builder::AutoDetect::C;
- my $compiler = $auto->get_compiler(profile => 'Perl', type => 'loadable-object');
- $compiler->compile('foo.c', 'foo.o');
- my $linker = $auto->get_linker(profile => 'Perl', type => 'loadable-object');
- $linker->link([ 'foo.o' ], 'foo.so');
+ $planner->load_module('ExtUtils::Builder::AutoDetect::C',
+	profile => '@Perl',
+	type    => 'loadable-object',
+ );
+ $planner->compile('foo.c', 'foo.o', include_dirs => ['.']);
+ $planner->link([ 'foo.o' ], 'foo.so', libraries => ['foo']);
  my $plan = $planner->plan;
+ $plan->execute(targets => ['foo.so']);
 
 =head1 DESCRIPTION
 
-=method get_compiler(%options)
+This module is a L<ExtUtils::Builder::Planner::Extension|ExtUtils::Builder::Planner::Extension> that facilitates compiling object.
+
+=method add_methods(%options)
+
+This adds two delegate methods to the planner, C<compile> and C<link>. It takes named arguments that will be prefixed to the named arguments for all delegate calls. In practice, it's mainly useful with the C<config>, C<profile> and C<type> arguments.
+
+This is usually not called directly, but through L<ExtUtils::Builder::Planner|ExtUtils::Builder::Planner>'s C<load_module> method.
+
+=head1 DELEGATES
+
+=head2 compile($source, $target, %options)
+
+This compiles C<$source> to C<$target>. It takes the following optional arguments:
 
 =over 4
 
-=item profile
+=item type
 
-=item include_dirs
+The type of the final product. This must be one of:
 
-=item define
+=over 4
 
-=item extra_args
+=item * executable
+
+An executable to be run. This is the default.
+
+=item * static-library
+
+A static library to link against.
+
+=item * dynamic-library
+
+A dynamic library to link against.
+
+=item * loadable-object
+
+A loadable extension. On most platforms this is the same as a dynamic library, but some (Mac) make a distinction between these two.
 
 =back
 
-=method get_linker(%options)
+=item config
 
-=over 4
+A Perl configuration to take hints from, must be an C<ExtUtils::Config> compatible object.
 
 =item profile
 
+A profile to be used when compiling and linking. One profile comes with this distribution: C<'@Perl'>, which sets up the appropriate things to compile/link with C<libperl>.
+
+=item include_dirs
+
+A list of directories to add to the include path, e.g. C<['include', '.']>.
+
+=item define
+
+A hash of preprocessor defines, e.g. C<< {DEBUG => 1, HAVE_FEATURE => 0 } >>
+
+=item extra_args
+
+A list of additional arguments to the compiler.
+
+=back
+
+=method link(\@sources, $target, %options)
+
+=over 4
+
+=item type
+
+This works the same as with C<compile>.
+
+=item config
+
+This works the same as with C<compile>.
+
+=item profile
+
+This works the same as with C<compile>.
+
 =item libraries
+
+A list of libraries to link to. E.g. C<['z']>.
 
 =item library_dirs
 
+A list of directories to find libraries in. E.g. C<['/opt/my-app/lib/']>.
+
 =item extra_args
+
+A list of additional arguments to the linker.
 
 =back
