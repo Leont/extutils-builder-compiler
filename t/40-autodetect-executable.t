@@ -61,7 +61,7 @@ my $exe_file = catfile(dirname($source_file), basename($object_file, $Config{obj
 $planner->link([$object_file], $exe_file);
 
 $planner->add_roots($exe_file);
-my $plan = $planner->plan;
+my $plan = $planner->materialize;
 ok $plan;
 
 ok eval { $plan->execute(logger => \&note); 1 } or diag "Got exception: $@";
