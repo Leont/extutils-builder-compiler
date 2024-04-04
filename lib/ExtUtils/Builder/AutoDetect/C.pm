@@ -159,7 +159,7 @@ sub add_methods {
  $planner->compile('foo.c', 'foo.o', include_dirs => ['.']);
  $planner->link([ 'foo.o' ], 'foo.so', libraries => ['foo']);
  my $plan = $planner->materialize;
- $plan->execute(targets => ['foo.so']);
+ $plan->run(['foo.so']);
 
 =head1 DESCRIPTION
 
