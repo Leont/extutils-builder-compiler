@@ -133,7 +133,7 @@ sub add_linker {
 sub add_methods {
 	my ($class, $planner, %opts) = @_;
 
-	$opts{config} ||= ExtUtils::Config->new;
+	$opts{config} ||= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
 	$opts{type} ||= 'executable';
 
 	my $as_compiler = delete $opts{as_compiler};
@@ -168,6 +168,8 @@ This module is a L<ExtUtils::Builder::Planner::Extension|ExtUtils::Builder::Plan
 =method add_methods(%options)
 
 This adds two delegate methods to the planner, C<compile> and C<link>. It takes named arguments that will be prefixed to the named arguments for all delegate calls. In practice, it's mainly useful with the C<config>, C<profile> and C<type> arguments.
+
+If your C<$planner> has a C<config> delegate, that will be used as default value for C<config>.
 
 This is usually not called directly, but through L<ExtUtils::Builder::Planner|ExtUtils::Builder::Planner>'s C<load_module> method.
 
