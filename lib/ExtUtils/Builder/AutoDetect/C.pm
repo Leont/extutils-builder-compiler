@@ -142,6 +142,24 @@ sub add_methods {
 	my $as_linker = delete $opts{as_linker};
 	$class->add_linker($planner, %opts, as => $as_linker);
 
+	my $o = $opts{config}->get('_o');
+	$class->add_helper($planner, 'obj_file', sub {
+		my ($file) = @_;
+		"$file$o";
+	});
+
+	my $dlext = $opts{config}->get('dlext');
+	$class->add_helper($planner, 'loadable_file', sub {
+		my ($file) = @_;
+		"$file.$dlext";
+	});
+
+	my $so = $opts{config}->get('so');
+	$class->add_helper($planner, 'library_file', sub {
+		my ($file) = @_;
+		"$file.$so";
+	});
+
 	return;
 }
 
