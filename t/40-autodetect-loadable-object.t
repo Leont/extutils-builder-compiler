@@ -64,11 +64,10 @@ $planner->compile($source_file, $object_file);
 my $lib_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . ".$Config{dlext}");
 $planner->link([$object_file], $lib_file);
 
-$planner->add_roots($lib_file);
 my $plan = $planner->materialize;
 ok $plan;
 
-ok eval { $plan->execute(logger => \&note); 1 } or diag "Got exception: $@";
+ok eval { $plan->run($lib_file, logger => \&note); 1 } or diag "Got exception: $@";
 
 ok(-e $object_file, "object file $object_file has been created");
 ok(-e $lib_file, "lib file $lib_file has been created");

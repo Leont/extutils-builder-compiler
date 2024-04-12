@@ -60,11 +60,10 @@ $planner->compile($source_file, $object_file);
 my $exe_file = catfile(dirname($source_file), basename($object_file, $Config{obj_ext}) . $Config{exe_ext});
 $planner->link([$object_file], $exe_file);
 
-$planner->add_roots($exe_file);
 my $plan = $planner->materialize;
 ok $plan;
 
-ok eval { $plan->execute(logger => \&note); 1 } or diag "Got exception: $@";
+ok eval { $plan->run($exe_file, logger => \&note); 1 } or diag "Got exception: $@";
 
 ok(-e $object_file, "object file $object_file has been created");
 ok(-e $exe_file, "lib file $exe_file has been created");
