@@ -66,6 +66,12 @@ sub compile {
 	my ($self, $from, $to, %opts) = @_;
 	my @argv = $self->arguments($from, $to, %opts);
 	my $main = ExtUtils::Builder::Action::Command->new(command => [ $self->cc, @argv ]);
+	my @mkdir   = $opts{mkdir} ? ExtUtils::Builder::Action::Function->new(
+		module    => 'File::Path',
+		function  => 'make_path',
+		exports   => 'explicit',
+		arguments => [ File::Basename::dirname($to) ],
+	) : ();
 	my $deps = [ $from, @{ $opts{dependencies} || [] } ];
 	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => [$main]);
 }

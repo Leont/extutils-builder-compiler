@@ -7,6 +7,7 @@ use ExtUtils::Builder::Action::Code;
 use ExtUtils::Builder::Node;
 
 use Carp ();
+use File::Basename 'dirname';
 
 my %allowed_export = map { $_ => 1 } qw/none some all/;
 
@@ -88,9 +89,10 @@ my %key_for = (
 );
 sub pre_action  {
 	my ($self, $from, $to, %opts) = @_;
+	my @result;
 	if ($self->export eq 'some') {
 		my %args = map { $key_for{$_} => $opts{$_} } grep { exists $key_for{$_} } keys %opts;
-		return ExtUtils::Builder::Action::Function->new(
+		push @result, ExtUtils::Builder::Action::Function->new(
 			module    => 'ExtUtils::Mksymlists',
 			function  => 'Mksymlists',
 			message   => join(' ', 'prelink', $to, %args),
@@ -98,7 +100,15 @@ sub pre_action  {
 			exports   => 1,
 		);
 	}
-	return;
+	if ($opts{mkdir}) {
+		push @result, ExtUtils::Builder::Action::Function->new(
+			module    => 'File::Path',
+			function  => 'make_path',
+			exports   => 'explicit',
+			arguments => [ File::Basename::dirname($to) ],
+		);
+	}
+	return @result;
 }
 sub post_action { }
 
