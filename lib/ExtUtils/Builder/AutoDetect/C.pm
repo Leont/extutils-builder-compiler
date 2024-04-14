@@ -65,7 +65,7 @@ sub add_compiler {
 		if (my $include_dirs = $args{include_dirs}) {
 			$compiler->add_include_dirs($include_dirs);
 		}
-		if (my $defines = $args{define}) {
+		if (my $defines = $args{defines}) {
 			$compiler->add_defines($defines);
 		}
 		if (my $extra = $args{extra_args}) {
