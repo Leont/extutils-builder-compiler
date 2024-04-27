@@ -19,8 +19,8 @@ my %flag_for = (
 );
 
 sub linker_flags {
-	my ($self, %args) = @_;
-	my @ret = $self->SUPER::linker_flags(%args);
+	my ($self, $from, $to, %args) = @_;
+	my @ret = $self->SUPER::linker_flags($from, $to, %args);
 	push @ret, $self->new_argument(rank => 10, value => $flag_for{ $self->type }) if $flag_for{ $self->type };
 	return @ret;
 }
