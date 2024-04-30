@@ -45,7 +45,7 @@ sub process_linker {
 		}
 		else {
 			my ($libperl, $libext, $so) = map { _get_var($config, $opts, $_) } qw/libperl lib_ext so/;
-			my ($lib) = $libperl =~ / \A (?:lib)? ( perl \w* ) (?: \. $so | $libext) \b /msx;
+			my ($lib) = $libperl =~ / \A (?:lib)? ( \w* perl \w* ) (?: \. $so | $libext) \b /msx;
 			$linker->add_libraries([$lib]);
 		}
 
