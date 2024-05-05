@@ -28,6 +28,8 @@ sub process_compiler {
 
 my $rpath_regex = qr/ ( (?<! \w ) (?: -Wl,-R | -Wl,-rpath | -R\ ? ) \S+ ) /x;
 
+my %needs_relinking = map { $_ => 1 } qw/MSWin32 cygwin aix VMS/;
+
 sub process_linker {
 	my ($class, $linker, $opts) = @_;
 	my $config = delete $opts->{config};
@@ -39,8 +41,9 @@ sub process_linker {
 			return ($from, $to, %opts);
 		});
 	}
-	if ($linker->type eq 'executable' or $linker->type eq 'shared-library') {
-		if (_get_var($config, $opts, 'osname') eq 'MSWin32') {
+	my $os = _get_var($config, $opts, 'osname');
+	if ($linker->type eq 'executable' or $linker->type eq 'shared-library' or ($linker->type eq 'loadable-object' and $needs_relinking{$os})) {
+		if ($os eq 'MSWin32') {
 			$linker->add_argument(value => _split_var($config, $opts, 'libperl'));
 		}
 		else {
