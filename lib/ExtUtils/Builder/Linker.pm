@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker;
 use base qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 use ExtUtils::Builder::Action::Command;
-use ExtUtils::Builder::Action::Code;
+use ExtUtils::Builder::Action::Function;
 use ExtUtils::Builder::Node;
 
 use Carp ();
