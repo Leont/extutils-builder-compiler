@@ -64,3 +64,15 @@ sub process_linker {
 }
 
 1;
+
+# ABSTRACT: A profile for compiling and linking against perl
+
+=head1 SYNOPSIS
+
+ $planner->load_module('ExtUtils::Builder::AutoDetect::C',
+    profile => '@Perl',
+ );
+
+=head1 DESCRIPTION
+
+This is a profile for compiling against perl, whether you're compiling an XS extension or embedding it into your application.
