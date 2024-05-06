@@ -37,7 +37,7 @@ sub process_linker {
 	if ($linker->export eq 'some') {
 		$linker->add_option_filter(sub {
 			my ($self, $from, $to, %opts) = @_;
-			$opts{dl_name} ||= $opts{module_name};
+			$opts{dl_name} ||= $opts{module_name} if $opts{module_name};
 			return ($from, $to, %opts);
 		});
 	}
