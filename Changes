@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Simplify executable check
 
 0.004     2024-05-14 10:38:55+02:00 Europe/Brussels
           - Set default export value for Linker::PE::GCC
