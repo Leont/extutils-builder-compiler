@@ -44,7 +44,7 @@ sub process_linker {
 	my $os = _get_var($config, $opts, 'osname');
 	if ($linker->type eq 'executable' or $linker->type eq 'shared-library' or ($linker->type eq 'loadable-object' and $needs_relinking{$os})) {
 		if ($os eq 'MSWin32') {
-			$linker->add_argument(value => _split_var($config, $opts, 'libperl'));
+			$linker->add_argument(value => _split_var($config, $opts, 'libperl', ranking => $linker->default_library_ranking - 1));
 		}
 		else {
 			my ($libperl, $libext, $so) = map { _get_var($config, $opts, $_) } qw/libperl lib_ext so/;
