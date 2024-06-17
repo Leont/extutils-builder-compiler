@@ -2,6 +2,7 @@ Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
           - Fix ranking of libperl argument on Windows
+          - Correct initialization of Linker::PE::MSVC
 
 0.005     2024-06-16 18:17:46+02:00 Europe/Brussels
           - Simplify executable check
