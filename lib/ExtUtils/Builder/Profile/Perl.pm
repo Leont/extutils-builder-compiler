@@ -3,8 +3,8 @@ package ExtUtils::Builder::Profile::Perl;
 use strict;
 use warnings;
 
+use ExtUtils::Helpers 0.027 'split_like_shell';
 use File::Spec::Functions qw/catdir/;
-use Text::ParseWords 'shellwords';
 
 sub _get_var {
 	my ($config, $opts, $key) = @_;
@@ -13,7 +13,7 @@ sub _get_var {
 
 sub _split_var {
 	my ($config, $opts, $key) = @_;
-	return delete $opts->{$key} || [ shellwords($config->get($key)) ];
+	return delete $opts->{$key} || [ split_like_shell($config->get($key)) ];
 }
 
 sub process_compiler {
@@ -57,7 +57,7 @@ sub process_linker {
 		$linker->add_argument(ranking => 80, value => _split_var($config, $opts, 'perllibs'));
 	}
 	if ($linker->type eq 'executable') {
-		my $rpath = $opts->{rpath} || [ shellwords($config->get('ccdlflags') =~ $rpath_regex) ];
+		my $rpath = $opts->{rpath} || [ split_like_shell($config->get('ccdlflags') =~ $rpath_regex) ];
 		$linker->add_argument(ranking => 40, value => $rpath) if @{$rpath};
 	}
 	return;
