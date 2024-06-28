@@ -78,16 +78,20 @@ sub compile {
 
 1;
 
-# ABSTRACT: Portable compilation
+# ABSTRACT: An interface around different compilers.
 
-=method new(%options)
+=head1 DESCRIPTION
 
-=over 4
-
-=back
+This is an interface wrapping around different compilers. It's usually not used directly but by a portability layer like L<ExtUtils:Builder::Autodetect::C>.
 
 =method add_include_dirs($dirs, %options)
 
+Add dirs the the include list.
+
 =method add_defines($defines, %options)
 
+Add defines (as a hash) to the define list.
+
 =method compile($source, $target, %options)
+
+Compile a C<$source> to C<$destination>.
