@@ -20,7 +20,7 @@ sub linker_flags {
 	push @ret, $self->new_argument(ranking =>  5, value => ['/nologo']);
 	push @ret, $self->new_argument(ranking => 10, value => ['/dll']) if $self->type eq 'shared-library' or $self->type eq 'loadable-object';
 	push @ret, map { $self->new_argument(ranking => $_->{ranking}, value => [ "/libpath:-L$_->{value}" ]) } @{ $self->{library_dirs} };
-	push @ret, map { $self->new_argument(ranking => $_->{ranking}, value => [ "$_->{value}.lib" ]) } @{ $self->_libraries };
+	push @ret, map { $self->new_argument(ranking => $_->{ranking}, value => [ "$_->{value}.lib" ]) } @{ $self->{libraries} };
 	push @ret, $self->new_argument(ranking => 50, value => [ @{$from} ]);
 	push @ret, $self->new_argument(ranking => 80, value => ["/OUT:$to"]);
 	# map_file, implib, def_file?…

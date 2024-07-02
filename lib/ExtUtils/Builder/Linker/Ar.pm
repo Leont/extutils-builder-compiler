@@ -19,7 +19,6 @@ sub _init {
 sub add_libraries {
 	my ($self, $libs, %opts) = @_;
 	Carp::croak 'Can\'t add libraries to static link yet' if @{$libs};
-	push @{ $self->_libraries }, @{$libs};
 	return;
 };
 
