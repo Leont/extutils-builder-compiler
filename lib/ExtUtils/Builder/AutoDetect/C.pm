@@ -170,7 +170,7 @@ sub add_methods {
 =head1 SYNOPSIS
 
  my $planner = ExtUtils::Builder::Planner->new;
- $planner->load_module('ExtUtils::Builder::AutoDetect::C',
+ $planner->load_module('ExtUtils::Builder::AutoDetect::C', '0.001',
 	profile => '@Perl',
 	type    => 'loadable-object',
  );

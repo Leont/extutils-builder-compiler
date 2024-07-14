@@ -11,7 +11,7 @@ use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
 
 my $planner = ExtUtils::Builder::Planner->new;
-$planner->load_module('ExtUtils::Builder::AutoDetect::C',
+$planner->load_module('ExtUtils::Builder::AutoDetect::C', undef,
 	profile => '@Perl', type => 'loadable-object',
 );
 
