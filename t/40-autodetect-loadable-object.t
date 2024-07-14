@@ -6,7 +6,7 @@ use warnings;
 use Test::More 0.89;
 
 use Config;
-use ExtUtils::Builder::Planner;
+use ExtUtils::Builder::Planner 0.007;
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/catfile/;
 

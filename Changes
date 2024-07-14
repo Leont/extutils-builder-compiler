@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Depend on ExtUtils::Builder 0.007
 
 0.010     2024-07-14 12:55:11+02:00 Europe/Brussels
           - Adapt to version argument in load_module
