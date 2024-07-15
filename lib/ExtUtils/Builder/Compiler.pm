@@ -66,11 +66,13 @@ sub compile {
 	my ($self, $from, $to, %opts) = @_;
 	my @actions ;
 	if ($opts{mkdir}) {
+		my $dirname = File::Basename::dirname($to);
 		push @actions, ExtUtils::Builder::Action::Function->new(
 			module    => 'File::Path',
 			function  => 'make_path',
 			exports   => 'explicit',
-			arguments => [ File::Basename::dirname($to) ],
+			arguments => [ $dirname ],
+			message   => "mkdir $dirname",
 		);
 	}
 	my @argv = $self->arguments($from, $to, %opts);

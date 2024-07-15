@@ -101,11 +101,13 @@ sub pre_action  {
 		);
 	}
 	if ($opts{mkdir}) {
+		my $dirname = File::Basename::dirname($to);
 		push @result, ExtUtils::Builder::Action::Function->new(
 			module    => 'File::Path',
 			function  => 'make_path',
 			exports   => 'explicit',
-			arguments => [ File::Basename::dirname($to) ],
+			arguments => [ $dirname ],
+			message   => "mkdir $dirname",
 		);
 	}
 	return @result;

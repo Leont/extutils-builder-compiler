@@ -18,17 +18,20 @@ sub add_methods {
 
 		my @actions;
 		if ($options{mkdir}) {
+			my $dirname = dirname($destination);
 			push @actions, ExtUtils::Builder::Action::Function->new(
 				module    => 'File::Path',
 				function  => 'make_path',
-				arguments => [ dirname($destination) ],
+				arguments => [ $dirname ],
 				exports   => 'explicit',
+				message   => "mkdir $dirname",
 			);
 		}
 		push @actions, ExtUtils::Builder::Action::Function->new(
 			module    => 'ExtUtils::ParseXS',
 			function  => 'process_file',
 			arguments => [ filename => $source, prototypes => 0, output => $destination ],
+			message   => "parse-xs $source",
 		);
 
 		my @dependencies = @{ $options{dependencies} || [] };
