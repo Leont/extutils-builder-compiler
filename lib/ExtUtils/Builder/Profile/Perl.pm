@@ -20,7 +20,13 @@ sub process_compiler {
 	my ($class, $compiler, $opts) = @_;
 	my $config = delete $opts->{config};
 	my $incdir = catdir(_get_var($config, $opts, 'archlibexp'), 'CORE');
-	$compiler->add_include_dirs([$incdir], ranking => sub { $_[0] + 1 });
+	my $os = _get_var($config, $opts, 'osname');
+	my $osver = _get_var($config, $opts, 'osname');
+	if ($os eq 'darwin' && $^X eq '/usr/bin/perl' && $osver >= 18) {
+		$compiler->add_argument(arguments => [ '-iwithsysroot', $incdir ], ranking => $compiler->default_include_ranking + 1);
+	} else {
+		$compiler->add_include_dirs([$incdir], ranking => sub { $_[0] + 1 });
+	}
 	$compiler->add_argument(ranking => 60, value => _split_var($config, $opts, 'ccflags'));
 	$compiler->add_argument(ranking => 65, value => _split_var($config, $opts, 'optimize'));
 	return;
