@@ -21,9 +21,10 @@ sub process_compiler {
 	my $config = delete $opts->{config};
 	my $incdir = catdir(_get_var($config, $opts, 'archlibexp'), 'CORE');
 	my $os = _get_var($config, $opts, 'osname');
-	my $osver = _get_var($config, $opts, 'osname');
-	if ($os eq 'darwin' && $^X eq '/usr/bin/perl' && $osver >= 18) {
-		$compiler->add_argument(arguments => [ '-iwithsysroot', $incdir ], ranking => $compiler->default_include_ranking + 1);
+	my $osver = _get_var($config, $opts, 'osvers');
+	my ($osmajor) = $osver =~ /^(\d+)/;
+	if ($os eq 'darwin' && $^X eq '/usr/bin/perl' && $osmajor >= 18) {
+		$compiler->add_argument(value => [ '-iwithsysroot', $incdir ], ranking => $compiler->default_include_ranking + 1);
 	} else {
 		$compiler->add_include_dirs([$incdir], ranking => sub { $_[0] + 1 });
 	}
