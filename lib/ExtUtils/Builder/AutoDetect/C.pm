@@ -150,20 +150,23 @@ sub add_methods {
 
 	my $dlext = $opts{config}->get('dlext');
 	$class->add_helper($planner, 'loadable_file', sub {
-		my ($file) = @_;
-		"$file.$dlext";
+		my ($file, $dir) = @_;
+		my $filename = "$file.$dlext";
+		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
 	my $so = $opts{config}->get('so');
 	$class->add_helper($planner, 'library_file', sub {
-		my ($file) = @_;
-		"$file.$so";
+		my ($file, $dir) = @_;
+		my $filename = "$file.$so";
+		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
 	my $exe = $opts{config}->get('_exe');
 	$class->add_helper($planner, 'exe_file', sub {
-		my ($file) = @_;
-		"$file$exe";
+		my ($file, $dir) = @_;
+		my $filename = "$file$exe";
+		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
 	return;
