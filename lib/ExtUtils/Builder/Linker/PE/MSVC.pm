@@ -28,11 +28,10 @@ sub linker_flags {
 }
 
 sub post_action {
-	# XXX Conditional command?
 	my ($self, $from, $to, %opts) = @_;
 	my @ret = $self->SUPER::post_action(%opts);
 	my $manifest = $opts{manifest} || "$to.manifest";
-	push @ret, ExtUtils::Builder::Action::Command->new(command => [ 'if', 'exist', $manifest, 'mt', '-nologo', $manifest, "-outputresource:$to;2" ]);
+	push @ret, ExtUtils::Builder::Action::Command->new(command => [ 'if', 'exist', $manifest, 'mt', '-nologo', '-manifest', $manifest, "-outputresource:$to;2" ]);
 	return @ret;
 }
 
