@@ -160,6 +160,12 @@ sub add_methods {
 		"$file.$so";
 	});
 
+	my $exe = $opts{config}->get('_exe');
+	$class->add_helper($planner, 'exe_file', sub {
+		my ($file) = @_;
+		"$file$exe";
+	});
+
 	return;
 }
 
