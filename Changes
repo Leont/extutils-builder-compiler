@@ -1,6 +1,8 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+
+0.015     2024-07-20 15:18:22+02:00 Europe/Brussels
           - Add exe_file helper to EU::B::Autodetect::C
           - Add missing argument in MSCV manifesting
           - Add directories to loadable_file/library_file/exe_file
