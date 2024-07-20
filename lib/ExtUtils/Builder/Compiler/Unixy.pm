@@ -3,7 +3,7 @@ package ExtUtils::Builder::Compiler::Unixy;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Compiler';
+use parent 'ExtUtils::Builder::Compiler';
 
 sub _init {
 	my ($self, %args) = @_;

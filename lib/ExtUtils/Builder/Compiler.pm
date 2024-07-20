@@ -6,7 +6,7 @@ use warnings;
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Node;
 
-use base qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
+use parent qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 sub new {
 	my ($class, %args) = @_;

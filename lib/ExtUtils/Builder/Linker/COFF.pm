@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker::COFF;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Linker';
+use parent 'ExtUtils::Builder::Linker';
 
 my %export_for = (
 	executable        => 'none',

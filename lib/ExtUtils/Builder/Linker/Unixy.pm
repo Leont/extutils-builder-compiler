@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker::Unixy;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Linker';
+use parent 'ExtUtils::Builder::Linker';
 
 sub linker_flags {
 	my ($self, $from, $to, %opts) = @_;

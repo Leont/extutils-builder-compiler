@@ -3,7 +3,7 @@ package ExtUtils::Builder::AutoDetect::C;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Planner::Extension';
+use parent 'ExtUtils::Builder::Planner::Extension';
 
 use Carp 'croak';
 use ExtUtils::Config 0.007;

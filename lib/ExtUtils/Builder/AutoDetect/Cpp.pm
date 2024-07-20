@@ -3,7 +3,7 @@ package ExtUtils::Builder::AutoDetect::Cpp;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::AutoDetect::C';
+use parent 'ExtUtils::Builder::AutoDetect::C';
 
 sub _get_compiler {
 	my ($self, $opts) = @_;

@@ -1,6 +1,6 @@
 package ExtUtils::Builder::Linker;
 
-use base qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
+use parent qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 use ExtUtils::Builder::Action::Command;
 use ExtUtils::Builder::Action::Function;

@@ -5,7 +5,7 @@ use warnings;
 
 use ExtUtils::Builder::Action::Command;
 
-use base qw/ExtUtils::Builder::Linker::COFF/;
+use parent qw/ExtUtils::Builder::Linker::COFF/;
 
 sub _init {
 	my ($self, %args) = @_;

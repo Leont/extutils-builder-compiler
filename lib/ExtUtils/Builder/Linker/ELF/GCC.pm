@@ -3,7 +3,7 @@ package ExtUtils::Builder::Linker::ELF::GCC;
 use strict;
 use warnings;
 
-use base 'ExtUtils::Builder::Linker::ELF::Any';
+use parent 'ExtUtils::Builder::Linker::ELF::Any';
 
 sub _init {
 	my ($self, %args) = @_;
