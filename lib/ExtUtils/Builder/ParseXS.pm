@@ -13,8 +13,8 @@ sub add_methods {
 
 	my $config = $options{config} || ($planner->can('config') ? $planner->config : ExtUtils::Config->new);
 
-	$self->add_delegate($planner, 'parse_xs', sub {
-		my ($source, $destination, %options) = @_;
+	$planner->add_delegate('parse_xs', sub {
+		my (undef, $source, $destination, %options) = @_;
 
 		my @actions;
 		if ($options{mkdir}) {
@@ -36,22 +36,22 @@ sub add_methods {
 
 		my @dependencies = @{ $options{dependencies} || [] };
 
-		ExtUtils::Builder::Node->new(
+		$planner->create_node(
 			target       => $destination,
 			dependencies => [ $source, @dependencies ],
 			actions      => \@actions,
 		);
 	});
 
-	$self->add_helper($planner, 'c_file_for_xs', sub {
-		my ($source, $outdir) = @_;
+	$planner->add_delegate('c_file_for_xs', sub {
+		my (undef, $source, $outdir) = @_;
 		$outdir ||= dirname($source);
 		my $file_base = basename($source, '.xs');
 		return catfile($outdir, "$file_base.c");
 	});
 
-	$self->add_helper($planner, 'module_for_xs', sub {
-		my ($source, $relative) = @_;
+	$planner->add_delegate('module_for_xs', sub {
+		my (undef, $source, $relative) = @_;
 		my @parts = splitdir(dirname(abs2rel($source, $relative)));
 		push @parts, basename($source, '.xs');
 		return join '::', @parts;
@@ -60,8 +60,8 @@ sub add_methods {
 	require DynaLoader;
 	my $mod2fname = defined &DynaLoader::mod2fname ? \&DynaLoader::mod2fname : sub { return $_[0][-1] };
 
-	$self->add_helper($planner, 'extension_filename', sub {
-		my ($module) = @_;
+	$planner->add_delegate('extension_filename', sub {
+		my (undef, $module) = @_;
 		my @parts = split '::', $module;
 		my $archdir = catdir(qw/blib arch auto/, @parts);
 

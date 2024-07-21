@@ -53,8 +53,8 @@ sub require_module {
 sub add_compiler {
 	my ($self, $planner, %opts) = @_;
 	my $as = $opts{as} || 'compile';
-	return $self->add_delegate($planner, $as, sub {
-		my ($from, $to, %extra) = @_;
+	return $planner->add_delegate($as, sub {
+		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
 		my $compiler = $self->_make_command($self->_get_compiler(\%args));
 		if (my $profile = $args{profile}) {
@@ -71,7 +71,8 @@ sub add_compiler {
 		if (my $extra = $args{extra_args}) {
 			$compiler->add_argument(value => $extra);
 		}
-		$compiler->compile($from, $to, %args)
+		my $node = $compiler->compile($from, $to, %args);
+		$planner->add_node($node);
 	});
 }
 
@@ -108,8 +109,8 @@ sub _get_linker {
 sub add_linker {
 	my ($self, $planner, %opts) = @_;
 	my $as = $opts{as} || 'link';
-	return $self->add_delegate($planner, $as, sub {
-		my ($from, $to, %extra) = @_;
+	return $planner->add_delegate($as, sub {
+		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
 		my $linker = $self->_make_command($self->_get_linker(\%args));
 		if (my $profile = $args{profile}) {
@@ -126,7 +127,8 @@ sub add_linker {
 		if (my $extra_args = $args{extra_args}) {
 			$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
 		}
-		$linker->link($from, $to, %args)
+		my $node = $linker->link($from, $to, %args);
+		$planner->add_node($node);
 	});
 }
 
@@ -143,28 +145,29 @@ sub add_methods {
 	$class->add_linker($planner, %opts, as => $as_linker);
 
 	my $o = $opts{config}->get('_o');
-	$class->add_helper($planner, 'obj_file', sub {
-		my ($file) = @_;
+	$planner->add_delegate('obj_file', sub {
+		my ($planner, $file) = @_;
 		"$file$o";
 	});
 
 	my $dlext = $opts{config}->get('dlext');
-	$class->add_helper($planner, 'loadable_file', sub {
-		my ($file, $dir) = @_;
+
+	$planner->add_delegate('loadable_file', sub {
+		my ($planner, $file, $dir) = @_;
 		my $filename = "$file.$dlext";
 		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
 	my $so = $opts{config}->get('so');
-	$class->add_helper($planner, 'library_file', sub {
-		my ($file, $dir) = @_;
+	$planner->add_delegate('library_file', sub {
+		my ($planner, $file, $dir) = @_;
 		my $filename = "$file.$so";
 		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
 	my $exe = $opts{config}->get('_exe');
-	$class->add_helper($planner, 'exe_file', sub {
-		my ($file, $dir) = @_;
+	$planner->add_delegate('exe_file', sub {
+		my ($planner, $file, $dir) = @_;
 		my $filename = "$file$exe";
 		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
