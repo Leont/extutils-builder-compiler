@@ -27,14 +27,24 @@ sub add_methods {
 				message   => "mkdir $dirname",
 			);
 		}
+		my %args = (
+			filename     => $source,
+			output       => $destination,
+			prototypes   => 0,
+			die_on_error => 1,
+		);
+		$args{$_} = $options{$_} for grep { defined $options{$_} } qw/typemap hiertype versioncheck linenumbers optimize prototypes/;
+
 		push @actions, ExtUtils::Builder::Action::Function->new(
 			module    => 'ExtUtils::ParseXS',
 			function  => 'process_file',
-			arguments => [ filename => $source, prototypes => 0, output => $destination ],
+			arguments => [ %args ],
 			message   => "parse-xs $source",
 		);
 
 		my @dependencies = @{ $options{dependencies} || [] };
+		$args{typemap} ||= 'typemap' if -f 'typemap';
+		push @dependencies, $args{typemap} if $args{typemap};
 
 		$planner->create_node(
 			target       => $destination,
@@ -101,6 +111,14 @@ If set this will mkdir the base of the target before running the parse.
 =item * dependencies
 
 This lists additional dependencies that will be added to the target.
+
+=item * typemap
+
+The name of the typemap file. Defaults to C<typemap> if that file exists.
+
+=item * hiertype
+
+Allow hierarchical types (with double colons) such as used in C++.
 
 =back
 
