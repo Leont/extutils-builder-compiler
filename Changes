@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Add ExtUtils::Builder::Conf
           - Add typemap and hiertype arguments to parse-xs
 
 0.015     2024-07-20 15:18:22+02:00 Europe/Brussels
