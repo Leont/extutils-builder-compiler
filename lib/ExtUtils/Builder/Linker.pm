@@ -1,5 +1,8 @@
 package ExtUtils::Builder::Linker;
 
+use strict;
+use warnings;
+
 use parent qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 use ExtUtils::Builder::Action::Command;
