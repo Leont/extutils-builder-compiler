@@ -8,6 +8,7 @@ use parent 'ExtUtils::Builder::Planner::Extension';
 use Carp 'croak';
 use ExtUtils::Config 0.007;
 use ExtUtils::Helpers 0.027 'split_like_shell';
+use File::Spec::Functions 'catfile';
 use Perl::OSType 'is_os_type';
 
 sub _split_conf {
@@ -146,8 +147,9 @@ sub add_methods {
 
 	my $o = $opts{config}->get('_o');
 	$planner->add_delegate('obj_file', sub {
-		my ($planner, $file) = @_;
-		"$file$o";
+		my ($planner, $file, $dir) = @_;
+		my $filename = "$file$o";
+		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
 	my $dlext = $opts{config}->get('dlext');
