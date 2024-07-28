@@ -60,13 +60,6 @@ sub add_methods {
 		return catfile($outdir, "$file_base.c");
 	});
 
-	$planner->add_delegate('module_for_xs', sub {
-		my (undef, $source, $relative) = @_;
-		my @parts = splitdir(dirname(abs2rel($source, $relative)));
-		push @parts, basename($source, '.xs');
-		return join '::', @parts;
-	});
-
 	require DynaLoader;
 	my $mod2fname = defined &DynaLoader::mod2fname ? \&DynaLoader::mod2fname : sub { return $_[0][-1] };
 
