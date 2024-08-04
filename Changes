@@ -1,6 +1,8 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+
+0.017     2024-08-04 20:57:12+02:00 Europe/Brussels
           - Fix missing prereq declarations
           - Remove superfluous debugging output in EUB::Conf
 
