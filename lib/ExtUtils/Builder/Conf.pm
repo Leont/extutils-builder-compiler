@@ -191,7 +191,23 @@ sub add_methods {
 		return !!0;
 	});
 
-	foreach my $name (qw/find_cflags_for find_libs_for find_include_dirs_for/) {
+	$planner->add_delegate(try_find_library_dirs_for => sub {
+		my ($self, %args) = @_;
+
+		ref(my $dirs = $args{dirs}) eq "ARRAY" or croak "Expected 'dirs' as ARRAY ref";
+
+		foreach my $d (@$dirs) {
+			ref $d eq "ARRAY" or croak "Expected 'dirs' element as ARRAY ref";
+
+			$self->try_compile_run(%args, library_dirs => $d) or next;
+			$self->push_library_dirs(@$d);
+			return !!1;
+		}
+
+		return !!0;
+	});
+
+	foreach my $name (qw/find_cflags_for find_libs_for find_include_dirs_for find_library_dirs_for/) {
 		my $trymethod = "try_$name";
 
 		$planner->add_delegate($name, sub {
@@ -352,6 +368,34 @@ Source code to compile
 =item libs => ARRAY of STRINGs
 
 Gives a list of sets of libraries. Each set of libraries should be space-separated.
+
+=item define => STRING
+
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), or in the C<defines_to> file.
+
+=back
+
+=head2 try_find_library_dirs_for
+
+ $success = try_find_library_dirs_for(%args);
+
+Try to compile, link and execute the given source, using extra library directories.
+
+When a usable combination is found, the directories required are stored in the object for use in further compile operations, or returned by C<library_dirs>. The method then returns true.
+
+If no a usable combination is found, it returns false.
+
+Takes the following arguments:
+
+=over 4
+
+=item source => STRING
+
+Source code to compile
+
+=item dirs => ARRAY of ARRAYs
+
+Gives a list of sets of dirs. Each set of dirs should be strings in its own array reference.
 
 =item define => STRING
 
