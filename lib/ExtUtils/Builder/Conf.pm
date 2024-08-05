@@ -80,8 +80,6 @@ sub add_methods {
 
 		my ($source_file, $c_file) = tempfile('try_compilerXXXX', DIR => $dir, SUFFIX => '.c');
 
-		print $source_file $args{source};
-
 		my $inner = $self->new_planner;
 		$inner->load_module('ExtUtils::Builder::AutoDetect::C', 0.015);
 
