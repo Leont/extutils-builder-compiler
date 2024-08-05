@@ -93,7 +93,7 @@ sub add_methods {
 			include_dirs => \@include_dirs,
 		);
 
-		my $basename = basename($c_file);
+		my $basename = basename($c_file, '.c');
 		my $o_file = $inner->obj_file($basename);
 		$inner->compile($c_file, $o_file, %compile_args);
 

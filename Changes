@@ -3,6 +3,7 @@ Revision history for ExtUtils-Builder-Compiler
 {{$NEXT}}
           - Add try_find_library_dirs_for
           - Fix find_libs_for to pass library correctly
+          - Fix basename in try_compile_run
 
 0.017     2024-08-04 20:57:12+02:00 Europe/Brussels
           - Fix missing prereq declarations
