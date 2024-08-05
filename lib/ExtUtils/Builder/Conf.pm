@@ -26,8 +26,8 @@ sub add_methods {
 			return @{ $self->{$name} || [] };
 		});
 		$planner->add_delegate("push_$name", sub {
-			my $self = shift;
-			push @{ $self->{$name} }, @_;
+			my ($self, @args) = @_;
+			push @{ $self->{$name} }, @args;
 		});
 	}
 
