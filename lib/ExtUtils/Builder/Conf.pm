@@ -118,7 +118,6 @@ sub add_methods {
 				target       => 'test',
 				dependencies => [ $exe_file ],
 				actions      => [
-					ExtUtils::Builder::Action::Command->new(command => [ 'echo', "running $exe_file" ]),
 					ExtUtils::Builder::Action::Command->new(command => [ catfile(curdir, $exe_file) ]),
 				],
 				phony        => 1,
