@@ -184,7 +184,7 @@ sub add_methods {
 
 		foreach my $libraries (@$libs) {
 			$self->try_compile_run(%args, libraries => $libraries) or next;
-			$self->push_extra_linker_flags(@$libraries);
+			$self->push_libraries(@$libraries);
 			return !!1;
 		}
 
@@ -353,7 +353,7 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
 Try to compile, link and execute the given source, when linked against a given set of extra libraries.
 
-When a usable combination is found, the libraries required are stored in the object for use in further link operations, or returned by C<extra_linker_flags>. The method then returns true.
+When a usable combination is found, the libraries required are stored in the object for use in further link operations, or returned by C<libraries>. The method then returns true.
 
 If no usable combination is found, it returns false.
 
