@@ -268,7 +268,7 @@ Optional. If specified, pass extra flags to the linker.
 
 =item define => STRING
 
-Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), or in the C<defines_to> file.
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
 
 =back
 
@@ -312,7 +312,7 @@ Gives a list of sets of flags. Each set of flags should be strings in its own ar
 
 =item define => STRING
 
-Optional. If specified, then the named symbol will be defined if the program ran successfully.
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
 
 =back
 
@@ -340,7 +340,7 @@ Gives a list of sets of dirs. Each set of dirs should be strings in its own arra
 
 =item define => STRING
 
-Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), or in the C<defines_to> file.
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
 
 =back
 
@@ -368,7 +368,7 @@ Gives a list of sets of libraries. Each set of libraries should be space-separat
 
 =item define => STRING
 
-Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), or in the C<defines_to> file.
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
 
 =back
 
@@ -396,7 +396,7 @@ Gives a list of sets of dirs. Each set of dirs should be strings in its own arra
 
 =item define => STRING
 
-Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), or in the C<defines_to> file.
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
 
 =back
 
