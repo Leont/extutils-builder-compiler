@@ -174,7 +174,7 @@ sub add_methods {
 		return !!0;
 	});
 
-	$planner->add_delegate(try_find_libs_for => sub {
+	$planner->add_delegate(try_find_libraries_for => sub {
 		my ($self, %args) = @_;
 
 		ref(my $libs = $args{libs}) eq "ARRAY" or croak "Expected 'libs' as ARRAY ref";
@@ -204,7 +204,7 @@ sub add_methods {
 		return !!0;
 	});
 
-	foreach my $name (qw/find_cflags_for find_libs_for find_include_dirs_for find_library_dirs_for/) {
+	foreach my $name (qw/find_cflags_for find_libraries_for find_include_dirs_for find_library_dirs_for/) {
 		my $trymethod = "try_$name";
 
 		$planner->add_delegate($name, sub {
@@ -344,9 +344,9 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
 =back
 
-=head2 try_find_libs_for
+=head2 try_find_libraries_for
 
- $success = try_find_libs_for(%args);
+ $success = try_find_libraries_for(%args);
 
 Try to compile, link and execute the given source, when linked against a given set of extra libraries.
 
@@ -408,11 +408,11 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
  find_include_dirs_for(%args);
 
-=head2 find_libs_for
+=head2 find_libraries_for
 
- find_libs_for(%args);
+ find_libraries_for(%args);
 
-Calls C<try_find_cflags_for>, C<try_find_include_dirs_for> or C<try_find_libs_for> respectively. If it fails, die with an C<OS unsupported> message.
+Calls C<try_find_cflags_for>, C<try_find_include_dirs_for> or C<try_find_libraries_for> respectively. If it fails, die with an C<OS unsupported> message.
 
 Each method takes one extra optional argument:
 
@@ -496,7 +496,7 @@ Adds a new defined symbol directly; either by appending to the compiler flags or
 
 Some operating systems provide the BSD sockets API in their primary F<libc>. Others keep it in a separate library which should be linked against. The following example demonstrates how this would be handled.
 
- find_libs_for(
+ find_libraries_for(
    diag => 'no socket()',
    libs => [ [], ['socket', 'nsl' ]],
    source => q[
