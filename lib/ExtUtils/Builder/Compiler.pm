@@ -87,7 +87,7 @@ sub compile {
 
 =head1 DESCRIPTION
 
-This is an interface wrapping around different compilers. It's usually not used directly but by a portability layer like L<ExtUtils:Builder::Autodetect::C>.
+This is an interface wrapping around different compilers. It's usually not used directly but by a portability layer like L<ExtUtils::Builder::Autodetect::C>.
 
 =method add_include_dirs($dirs, %options)
 
