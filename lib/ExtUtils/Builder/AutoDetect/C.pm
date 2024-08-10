@@ -86,7 +86,7 @@ sub _unix_flags {
 	my %ldflags = map { ($_ => 1) } _split_conf($opts->{config}, 'ldflags');
 	my @lddlflags = grep { not $ldflags{$_} } split_like_shell($lddlflags);
 	my @cc = _split_conf($opts->{config}, 'ccdlflags');
-	return (cc => \@cc, ldd_flags => \@lddlflags )
+	return (cc => \@cc, lddlflags => \@lddlflags )
 }
 
 sub _get_linker {
