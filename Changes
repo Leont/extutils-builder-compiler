@@ -2,6 +2,7 @@ Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
           - Use tempdir correctly in try_compile_run
+          - Add quiet argument to try_compile_run
 
 0.020     2024-08-10 18:16:16+02:00 Europe/Brussels
           - Correctly pass lddlflags in Linker creation
