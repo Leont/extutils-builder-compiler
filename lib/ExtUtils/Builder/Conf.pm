@@ -237,11 +237,9 @@ It may also be necessary to search for the correct library to link against, or f
 
  $success = try_compile_run(%args);
 
- $success = try_compile_run($source);
-
 Try to compile, link, and execute a C program whose source is given. Returns true if the program compiled and linked, and exited successfully. Returns false if any of these steps fail.
 
-Takes the following named arguments. If a single argument is given, that is taken as the source string.
+Takes the following named arguments:
 
 =over 4
 
