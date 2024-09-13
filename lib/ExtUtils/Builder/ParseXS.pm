@@ -11,7 +11,7 @@ use File::Spec::Functions qw/curdir catfile catdir splitdir/;
 sub add_methods {
 	my ($self, $planner, %options) = @_;
 
-	my $config = $options{config} || ($planner->can('config') ? $planner->config : ExtUtils::Config->new);
+	my $config = $options{config} // ($planner->can('config') ? $planner->config : ExtUtils::Config->new);
 
 	$planner->add_delegate('parse_xs', sub {
 		my (undef, $source, $destination, %options) = @_;
@@ -42,8 +42,8 @@ sub add_methods {
 			message   => "parse-xs $source",
 		);
 
-		my @dependencies = @{ $options{dependencies} || [] };
-		$args{typemap} ||= 'typemap' if -f 'typemap';
+		my @dependencies = @{ $options{dependencies} // [] };
+		$args{typemap} //= 'typemap' if -f 'typemap';
 		push @dependencies, $args{typemap} if $args{typemap};
 
 		$planner->create_node(
@@ -55,7 +55,7 @@ sub add_methods {
 
 	$planner->add_delegate('c_file_for_xs', sub {
 		my (undef, $source, $outdir) = @_;
-		$outdir ||= dirname($source);
+		$outdir //= dirname($source);
 		my $file_base = basename($source, '.xs');
 		return catfile($outdir, "$file_base.c");
 	});

@@ -7,10 +7,10 @@ use parent 'ExtUtils::Builder::Compiler';
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{cc} ||= ['cc'];
+	$args{cc} //= ['cc'];
 	$self->SUPER::_init(%args);
 	$self->{cccdlflags} = $args{cccdlflags};
-	$self->{pic} = $args{pic} || ($self->type eq 'shared-library' || $self->type eq 'loadable-object') && @{ $self->{cccdlflags} };
+	$self->{pic} = $args{pic} // ($self->type eq 'shared-library' || $self->type eq 'loadable-object') && @{ $self->{cccdlflags} };
 	return;
 }
 

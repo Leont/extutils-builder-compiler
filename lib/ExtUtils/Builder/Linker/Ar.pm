@@ -9,10 +9,10 @@ use parent 'ExtUtils::Builder::Linker';
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{ld} ||= ['ar'];
-	$args{export} ||= 'all';
+	$args{ld} //= ['ar'];
+	$args{export} //= 'all';
 	$self->SUPER::_init(%args);
-	$self->{static_args} = $args{static_args} || ['cr'];
+	$self->{static_args} = $args{static_args} // ['cr'];
 	return;
 }
 

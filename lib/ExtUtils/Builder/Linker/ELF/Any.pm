@@ -7,8 +7,8 @@ use parent 'ExtUtils::Builder::Linker::Unixy';
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{ld} ||= ['cc'];
-	$args{export} ||= $args{type} eq 'executable' ? 'none' : 'all';
+	$args{ld} //= ['cc'];
+	$args{export} //= $args{type} eq 'executable' ? 'none' : 'all';
 	$self->SUPER::_init(%args);
 	$self->{ccdlflags} = defined $args{ccdlflags} ? $args{ccdlflags} : Carp::croak('');
 	$self->{lddlflags} = defined $args{lddlflags} ? $args{lddlflags} : Carp::croak('');

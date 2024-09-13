@@ -9,7 +9,7 @@ use Carp ();
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{cc} ||= ['CC/DECC'];
+	$args{cc} //= ['CC/DECC'];
 	$self->SUPER::_init(%args);
 	return;
 }

@@ -7,7 +7,7 @@ use parent qw/ExtUtils::Builder::Compiler ExtUtils::Builder::MultiLingual/;
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{cc} ||= ['cl'];
+	$args{cc} //= ['cl'];
 	$self->ExtUtils::Builder::Compiler::_init(%args);
 	$self->ExtUtils::Builder::MultiLingual::_init(%args);
 	return;

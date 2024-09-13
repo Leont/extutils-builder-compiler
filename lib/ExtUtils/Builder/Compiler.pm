@@ -77,7 +77,7 @@ sub compile {
 	}
 	my @argv = $self->arguments($from, $to, %opts);
 	push @actions, ExtUtils::Builder::Action::Command->new(command => [ $self->cc, @argv ]);
-	my $deps = [ $from, @{ $opts{dependencies} || [] } ];
+	my $deps = [ $from, @{ $opts{dependencies} // [] } ];
 	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => \@actions);
 }
 

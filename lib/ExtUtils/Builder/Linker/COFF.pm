@@ -14,7 +14,7 @@ my %export_for = (
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{export} ||= $export_for{ $args{type} };
+	$args{export} //= $export_for{ $args{type} };
 	$self->{autoimport} = defined $args{autoimport} ? $args{autoimport} : 1;
 	$self->SUPER::_init(%args);
 	return;

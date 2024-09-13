@@ -9,7 +9,7 @@ use parent qw/ExtUtils::Builder::Linker::COFF/;
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{ld} ||= ['link'];
+	$args{ld} //= ['link'];
 	$self->ExtUtils::Builder::Linker::COFF::_init(%args);
 	return;
 }
@@ -30,7 +30,7 @@ sub linker_flags {
 sub post_action {
 	my ($self, $from, $to, %opts) = @_;
 	my @ret = $self->SUPER::post_action(%opts);
-	my $manifest = $opts{manifest} || "$to.manifest";
+	my $manifest = $opts{manifest} // "$to.manifest";
 	push @ret, ExtUtils::Builder::Action::Command->new(command => [ 'if', 'exist', $manifest, 'mt', '-nologo', '-manifest', $manifest, "-outputresource:$to;2" ]);
 	return @ret;
 }

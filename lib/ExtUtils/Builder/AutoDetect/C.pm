@@ -53,7 +53,7 @@ sub require_module {
 
 sub add_compiler {
 	my ($self, $planner, %opts) = @_;
-	my $as = $opts{as} || 'compile';
+	my $as = $opts{as} // 'compile';
 	return $planner->add_delegate($as, sub {
 		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
@@ -109,7 +109,7 @@ sub _get_linker {
 
 sub add_linker {
 	my ($self, $planner, %opts) = @_;
-	my $as = $opts{as} || 'link';
+	my $as = $opts{as} // 'link';
 	return $planner->add_delegate($as, sub {
 		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
@@ -136,8 +136,8 @@ sub add_linker {
 sub add_methods {
 	my ($class, $planner, %opts) = @_;
 
-	$opts{config} ||= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
-	$opts{type} ||= 'executable';
+	$opts{config} //= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
+	$opts{type} //= 'executable';
 
 	my $as_compiler = delete $opts{as_compiler};
 	$class->add_compiler($planner, %opts, as => $as_compiler);

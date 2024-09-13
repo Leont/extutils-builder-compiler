@@ -7,9 +7,9 @@ use parent 'ExtUtils::Builder::Linker::ELF::Any';
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{ld} ||= 'gcc';
-	$args{ccdlflags} ||= ['-Wl,-E'];
-	$args{lddlflags} ||= ['-shared'];
+	$args{ld} //= 'gcc';
+	$args{ccdlflags} //= ['-Wl,-E'];
+	$args{lddlflags} //= ['-shared'];
 	$self->SUPER::_init(%args);
 	return;
 }

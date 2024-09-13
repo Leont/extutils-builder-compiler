@@ -7,8 +7,8 @@ use parent 'ExtUtils::Builder::Linker::Unixy';
 
 sub _init {
 	my ($self, %args) = @_;
-	$args{ld} ||= [qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/];
-	$args{export} ||= 'all';
+	$args{ld} //= [qw/env MACOSX_DEPLOYMENT_TARGET=10.3 cc/];
+	$args{export} //= 'all';
 	$self->SUPER::_init(%args);
 	return;
 }

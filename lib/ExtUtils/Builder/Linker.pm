@@ -124,7 +124,7 @@ sub link {
 	my @argv    = $self->arguments(@args);
 	my $main    = ExtUtils::Builder::Action::Command->new(command => [ $self->ld, @argv ]);
 	my @actions = ($self->pre_action(@args), $main, $self->post_action(@args));
-	my $deps    = [ @{$from}, @{ $opts{dependencies} || [] } ];
+	my $deps    = [ @{$from}, @{ $opts{dependencies} // [] } ];
 	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => \@actions);
 }
 

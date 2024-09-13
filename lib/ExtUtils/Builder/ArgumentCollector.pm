@@ -5,7 +5,7 @@ use warnings;
 
 sub _init {
 	my ($self, %args) = @_;
-	$self->{arguments} = $args{arguments} || [];
+	$self->{arguments} = $args{arguments} // [];
 	return;
 }
 
@@ -18,7 +18,7 @@ sub add_argument {
 
 sub new_argument {
 	my ($self, %args) = @_;
-	return [ $args{ranking} || 50, $args{value} ];
+	return [ $args{ranking} // 50, $args{value} ];
 }
 
 sub collect_arguments {
