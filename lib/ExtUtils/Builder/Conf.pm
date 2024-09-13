@@ -117,7 +117,7 @@ sub add_methods {
 			$target = $exe_file;
 		}
 
-		my $result = eval { $inner->materialize->run($target, quiet => 1 || $args{quiet}); 1 };
+		my $result = eval { $inner->materialize->run($target, quiet => $args{quiet}); 1 };
 
 		return !!0 if not $result;
 

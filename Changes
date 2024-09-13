@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Fix quiet argument of try_compile_run
 
 0.021     2024-09-13 10:59:41+02:00 Europe/Brussels
           - Use tempdir correctly in try_compile_run
