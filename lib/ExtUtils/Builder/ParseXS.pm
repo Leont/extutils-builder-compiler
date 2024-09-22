@@ -8,6 +8,8 @@ use parent 'ExtUtils::Builder::Planner::Extension';
 use File::Basename qw/basename dirname/;
 use File::Spec::Functions qw/curdir catfile catdir splitdir/;
 
+use ExtUtils::Builder::Util 'function';
+
 sub add_methods {
 	my ($self, $planner, %options) = @_;
 
@@ -19,7 +21,7 @@ sub add_methods {
 		my @actions;
 		if ($options{mkdir}) {
 			my $dirname = dirname($destination);
-			push @actions, ExtUtils::Builder::Action::Function->new(
+			push @actions, function(
 				module    => 'File::Path',
 				function  => 'make_path',
 				arguments => [ $dirname ],
@@ -35,7 +37,7 @@ sub add_methods {
 		);
 		$args{$_} = $options{$_} for grep { defined $options{$_} } qw/typemap hiertype versioncheck linenumbers optimize prototypes/;
 
-		push @actions, ExtUtils::Builder::Action::Function->new(
+		push @actions, function(
 			module    => 'ExtUtils::ParseXS',
 			function  => 'process_file',
 			arguments => [ %args ],

@@ -3,7 +3,7 @@ package ExtUtils::Builder::Compiler;
 use strict;
 use warnings;
 
-use ExtUtils::Builder::Action::Command;
+use ExtUtils::Builder::Util qw/command function/;
 use ExtUtils::Builder::Node;
 
 use parent qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
@@ -67,7 +67,7 @@ sub compile {
 	my @actions ;
 	if ($opts{mkdir}) {
 		my $dirname = File::Basename::dirname($to);
-		push @actions, ExtUtils::Builder::Action::Function->new(
+		push @actions, function(
 			module    => 'File::Path',
 			function  => 'make_path',
 			exports   => 'explicit',
@@ -76,7 +76,7 @@ sub compile {
 		);
 	}
 	my @argv = $self->arguments($from, $to, %opts);
-	push @actions, ExtUtils::Builder::Action::Command->new(command => [ $self->cc, @argv ]);
+	push @actions, command($self->cc, @argv);
 	my $deps = [ $from, @{ $opts{dependencies} // [] } ];
 	return ExtUtils::Builder::Node->new(target => $to, dependencies => $deps, actions => \@actions);
 }
