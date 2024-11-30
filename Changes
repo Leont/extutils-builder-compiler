@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Make module work on static perls
 
 0.022     2024-09-13 14:11:23+02:00 Europe/Brussels
           - Fix quiet argument of try_compile_run

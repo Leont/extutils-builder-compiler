@@ -95,13 +95,14 @@ sub _get_linker {
 	my %args = _filter_args($opts, qw/type export language/);
 	my $cc = $opts->{config}->get('cc');
 	my $ld = $opts->{config}->get('ld');
+	my $eff_ld = $args{type} eq 'executable' ? $cc : $ld;
 	my ($module, $link, %opts) =
 		$args{type} eq 'static-library' ? ('Ar', $opts->{config}->get('ar')) :
-		$os eq 'darwin' ? ('Mach::GCC', $ld) :
+		$os eq 'darwin' ? ('Mach::GCC', $eff_ld) :
 		_is_gcc($opts->{config}, $ld, $opts) ?
-		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $ld) :
+		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $eff_ld) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
-		is_os_type('Unix', $os) ? ('ELF', $ld, $self->_unix_flags($opts)) :
+		is_os_type('Unix', $os) ? ('ELF', $eff_ld, $self->_unix_flags($opts)) :
 		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
 	return ("Linker::$module", ld => $link, %opts, %args);
