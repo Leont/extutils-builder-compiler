@@ -5,6 +5,7 @@ Revision history for ExtUtils-Builder-Compiler
           - Make module work on static perls
           - Allow for multiple profiles in compilation
           - Fix libpath argument in MSVC linker
+          - Ignore manifest files on MSVC for now
 
 0.022     2024-09-13 14:11:23+02:00 Europe/Brussels
           - Fix quiet argument of try_compile_run
