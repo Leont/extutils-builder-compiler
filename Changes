@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Pass module name to prelink for loadable object
 
 0.023     2025-03-13 16:34:20+01:00 Europe/Brussels
           - Restore module_for_xs delegate
