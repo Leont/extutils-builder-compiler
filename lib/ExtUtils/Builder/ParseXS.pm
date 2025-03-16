@@ -6,7 +6,7 @@ use warnings;
 use parent 'ExtUtils::Builder::Planner::Extension';
 
 use File::Basename qw/basename dirname/;
-use File::Spec::Functions qw/curdir catfile catdir splitdir/;
+use File::Spec::Functions qw/abs2rel curdir catfile catdir splitdir/;
 
 use ExtUtils::Builder::Util 'function';
 
