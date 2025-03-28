@@ -45,6 +45,10 @@ sub process_linker {
 		$linker->add_option_filter(sub {
 			my ($self, $from, $to, %opts) = @_;
 			$opts{dl_name} //= $opts{module_name} if $opts{module_name};
+			$opts{dl_file} //= do {
+				(my $short = $opts{dl_name}) =~ s/.*:://;
+				catdir(dirname($from), "$short.def");
+			};
 			return ($from, $to, %opts);
 		});
 	}
