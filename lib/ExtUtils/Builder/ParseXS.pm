@@ -89,7 +89,7 @@ sub add_methods {
 
 =head1 SYNOPSIS
 
- $planner->load_module("ExtUtils::Builder::ParseXS");
+ $planner->load_extension("ExtUtils::Builder::ParseXS");
  $planner->parse_xs("foo.xs", "foo.c");
 
 =head1 DESCRIPTION

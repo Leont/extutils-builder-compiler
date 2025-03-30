@@ -75,7 +75,7 @@ sub process_linker {
 
 =head1 SYNOPSIS
 
- $planner->load_module('ExtUtils::Builder::AutoDetect::C',
+ $planner->load_extension('ExtUtils::Builder::AutoDetect::C',
     profile => '@Perl',
  );
 

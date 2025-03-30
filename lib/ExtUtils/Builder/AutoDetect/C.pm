@@ -203,7 +203,7 @@ sub add_methods {
 =head1 SYNOPSIS
 
  my $planner = ExtUtils::Builder::Planner->new;
- $planner->load_module('ExtUtils::Builder::AutoDetect::C', '0.001',
+ $planner->load_extension('ExtUtils::Builder::AutoDetect::C', '0.001',
 	profiles => ['@Perl'],
 	type     => 'loadable-object',
  );
@@ -222,7 +222,7 @@ This adds two delegate methods to the planner, C<compile> and C<link>. It takes 
 
 If your C<$planner> has a C<config> delegate, that will be used as default value for C<config>.
 
-This is usually not called directly, but through L<ExtUtils::Builder::Planner|ExtUtils::Builder::Planner>'s C<load_module> method.
+This is usually not called directly, but through L<ExtUtils::Builder::Planner|ExtUtils::Builder::Planner>'s C<load_extension> method.
 
 =head1 DELEGATES
 
