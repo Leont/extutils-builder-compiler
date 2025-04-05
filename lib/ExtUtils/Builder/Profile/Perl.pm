@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use ExtUtils::Helpers 0.027 'split_like_shell';
+use File::Basename 'dirname';
 use File::Spec::Functions qw/catdir/;
 
 sub _get_var {
