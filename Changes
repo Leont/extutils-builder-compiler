@@ -1,6 +1,8 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+
+0.027     2025-04-05 19:45:01+02:00 Europe/Brussels
           - Adapt to load_extension rename
           - Add missing dirname include to Profile::Perl
 
