@@ -74,12 +74,14 @@ sub add_methods {
 		my $inner = $self->new_planner;
 		$inner->load_extension('ExtUtils::Builder::AutoDetect::C', 0.015);
 
-		my @include_dirs         = (@{ $args{include_dirs} // [] }, @{ $self->{include_dirs} // [] });
+		my @include_dirs         = (@{ $args{include_dirs} // [] },         @{ $self->{include_dirs} // [] });
 		my @extra_compiler_flags = (@{ $args{extra_compiler_flags} // [] }, @{ $self->{extra_compiler_flags} // [] });
+		my %defines              = (%{ $args{defines} // {} },              %{ $self->{defines} // {} });
 
 		my %compile_args = (
 			extra_args   => \@extra_compiler_flags,
 			include_dirs => \@include_dirs,
+			defines      => \%defines,
 		);
 
 		my $basename = basename($c_file, '.c');
@@ -246,6 +248,10 @@ Takes the following named arguments:
 =item source => STRING
 
 The source code of the C program to try compiling, building, and running.
+
+=item defines => HASH
+
+Optional. A set of defines to be passed to the compiler.
 
 =item extra_compiler_flags => ARRAY
 
