@@ -255,6 +255,18 @@ Optional. If specified, pass extra flags to the compiler.
 
 Optional. If specified, pass extra flags to the linker.
 
+=item include_dirs => ARRAY
+
+Optional. If specified, pass extra include dirs to the compiler.
+
+=item libraries => ARRAY
+
+Optional. If specified, pass extra libaries to the linker.
+
+=item library_dirs => ARRAY
+
+Optional. If specified, pass extra libary directories to the linker.
+
 =item quiet => BOOL
 
 This makes C<try_compile_run> run quietly.
