@@ -1,6 +1,8 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+
+0.028     2025-04-09 18:03:07+02:00 Europe/Brussels
           - Add push_args to try_compile_run
           - Add defines argument to try_compile_run
 
