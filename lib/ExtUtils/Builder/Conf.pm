@@ -17,10 +17,12 @@ sub fail {
 	die $message;
 }
 
+my @names = qw/include_dirs library_dirs libraries extra_compiler_flags extra_linker_flags/;
+
 sub add_methods {
 	my ($self, $planner, %args) = @_;
 
-	for my $name (qw/include_dirs library_dirs libraries extra_compiler_flags extra_linker_flags/) {
+	for my $name (@names) {
 		$planner->add_delegate($name, sub {
 			my $self = shift;
 			return @{ $self->{$name} // [] };
@@ -125,6 +127,19 @@ sub add_methods {
 
 		$self->define($args{define}) if defined $args{define};
 
+		if ($args{push_args}) {
+			for my $name (@names) {
+				if (my $arg = $args{$name}) {
+					push @{ $self->{$name} }, @{$arg};
+				}
+			}
+			if ($args{defines}) {
+				for my $key (keys %{$args{defines}}) {
+					$self->{defines}{$key} = $args{defines}{$key};
+				}
+			}
+		}
+
 		return !!1;
 	});
 
@@ -143,8 +158,7 @@ sub add_methods {
 		foreach my $f (@$cflags) {
 			ref $f eq "ARRAY" or croak "Expected 'cflags' element as ARRAY ref";
 
-			$self->try_compile_run(%args, extra_compiler_flags => $f) or next;
-			$self->push_extra_compiler_flags(@$f);
+			$self->try_compile_run(%args, extra_compiler_flags => $f, push_args => 1) or next;
 			return !!1;
 		}
 
@@ -159,8 +173,7 @@ sub add_methods {
 		foreach my $d (@$dirs) {
 			ref $d eq "ARRAY" or croak "Expected 'dirs' element as ARRAY ref";
 
-			$self->try_compile_run(%args, include_dirs => $d) or next;
-			$self->push_include_dirs(@$d);
+			$self->try_compile_run(%args, include_dirs => $d, push_args => 1) or next;
 			return !!1;
 		}
 
@@ -173,8 +186,7 @@ sub add_methods {
 		ref(my $libs = $args{libs}) eq "ARRAY" or croak "Expected 'libs' as ARRAY ref";
 
 		foreach my $libraries (@$libs) {
-			$self->try_compile_run(%args, libraries => $libraries) or next;
-			$self->push_libraries(@$libraries);
+			$self->try_compile_run(%args, libraries => $libraries, push_args => 1) or next;
 			return !!1;
 		}
 
@@ -189,8 +201,7 @@ sub add_methods {
 		foreach my $d (@$dirs) {
 			ref $d eq "ARRAY" or croak "Expected 'dirs' element as ARRAY ref";
 
-			$self->try_compile_run(%args, library_dirs => $d) or next;
-			$self->push_library_dirs(@$d);
+			$self->try_compile_run(%args, library_dirs => $d, push_args => 1) or next;
 			return !!1;
 		}
 
@@ -280,6 +291,10 @@ This makes C<try_compile_run> run quietly.
 =item define => STRING
 
 Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
+
+=item push_args => BOOL
+
+If true, any of C<extra_compiler_flags>, C<extra_linker_flags>, C<include_dirs>, C<libraries>, C<library_dirs> or C<defines> will have its value pushed on success (e.g. C<push_include_dirs> for the C<include_dirs> argument).
 
 =back
 
