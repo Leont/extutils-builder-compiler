@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Remove nologo argument to MSVC
 
 0.030     2025-04-25 13:12:46+02:00 Europe/Brussels
           - Only set MSVC export for shared-library and loadable-object
