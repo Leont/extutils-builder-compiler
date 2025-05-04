@@ -48,7 +48,7 @@ sub process_linker {
 			$opts{dl_name} //= $opts{module_name} if $opts{module_name};
 			$opts{dl_file} //= do {
 				(my $short = $opts{dl_name}) =~ s/.*:://;
-				catdir(dirname($from), "$short.def");
+				catdir(dirname($to), "$short");
 			};
 			return ($from, $to, %opts);
 		});
