@@ -7,7 +7,7 @@ use parent 'ExtUtils::Builder::Planner::Extension';
 
 use Carp 'croak';
 use ExtUtils::Config 0.007;
-use ExtUtils::Helpers 0.027 'split_like_shell';
+use ExtUtils::Builder::Util 0.018 'split_like_shell';
 use File::Spec::Functions 'catfile';
 use Perl::OSType 'is_os_type';
 

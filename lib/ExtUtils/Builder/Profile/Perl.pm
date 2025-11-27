@@ -3,7 +3,7 @@ package ExtUtils::Builder::Profile::Perl;
 use strict;
 use warnings;
 
-use ExtUtils::Helpers 0.027 'split_like_shell';
+use ExtUtils::Builder::Util 0.018 'split_like_shell';
 use File::Basename 'dirname';
 use File::Spec::Functions qw/catdir/;
 
