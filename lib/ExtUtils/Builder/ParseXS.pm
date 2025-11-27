@@ -45,7 +45,6 @@ sub add_methods {
 		);
 
 		my @dependencies = @{ $options{dependencies} // [] };
-		$args{typemap} //= 'typemap' if -f 'typemap';
 		push @dependencies, $args{typemap} if $args{typemap};
 
 		$planner->create_node(
