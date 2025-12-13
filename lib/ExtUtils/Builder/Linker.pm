@@ -102,16 +102,7 @@ sub pre_action  {
 			exports   => 1,
 		);
 	}
-	if ($opts{mkdir}) {
-		my $dirname = File::Basename::dirname($to);
-		push @result, function(
-			module    => 'File::Path',
-			function  => 'make_path',
-			exports   => 'explicit',
-			arguments => [ $dirname ],
-			message   => "mkdir $dirname",
-		);
-	}
+	push @result, $self->_mkdir_for($to) if $opts{mkdir};
 	return @result;
 }
 sub post_action { }
