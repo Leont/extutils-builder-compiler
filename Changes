@@ -1,6 +1,8 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+
+0.033     2025-12-13 19:27:39+01:00 Europe/Brussels
           - Don't pass default typemap argument to ParseXS
           - Change typemap to prefer arrayref form
           - Add extra_sources and extra_objects to EUB::Conf
