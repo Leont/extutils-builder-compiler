@@ -17,7 +17,7 @@ sub fail {
 	die $message;
 }
 
-my @names = qw/include_dirs library_dirs libraries extra_compiler_flags extra_linker_flags/;
+my @names = qw/include_dirs library_dirs libraries extra_compiler_flags extra_linker_flags extra_sources extra_objects/;
 
 sub add_methods {
 	my ($self, $planner, %args) = @_;
@@ -138,6 +138,13 @@ sub add_methods {
 					$self->{defines}{$key} = $args{defines}{$key};
 				}
 			}
+		}
+
+		if ($args{push_sources}) {
+			push @{ $self->{extra_sources} }, @{ $args{push_sources} };
+		}
+		if ($args{push_objects}) {
+			push @{ $self->{extra_objects} }, @{ $args{push_objects} };
 		}
 
 		return !!1;
