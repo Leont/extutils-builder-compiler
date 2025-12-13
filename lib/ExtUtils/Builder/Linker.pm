@@ -120,6 +120,8 @@ sub link {
 
 1;
 
+# ABSTRACT: An interface around different linkers.
+
 =method new
 
 =over 4
