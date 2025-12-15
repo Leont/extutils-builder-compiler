@@ -19,6 +19,7 @@ sub compile_flags {
 	my @ret;
 	push @ret, $self->new_argument(ranking => 75, value => [ '-o' => $to, '-c', $from ]);
 	push @ret, $self->new_argument(ranking => 45, value => $self->{cccdlflags}) if $self->{pic};
+	push @ret, $self->new_argument(ranking => 15, value => [ "-std=$self->{standard}"]) if $self->{standard};
 	push @ret, map { $self->new_argument(ranking => $_->{ranking}, value => [ "-I$_->{value}" ]) } @{ $self->{include_dirs} };
 	for my $entry (@{ $self->{defines} }) {
 		my $key = $entry->{key};

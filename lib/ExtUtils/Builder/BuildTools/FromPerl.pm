@@ -79,6 +79,9 @@ sub add_compiler {
 		if (my $extra = $args{extra_args}) {
 			$compiler->add_argument(value => $extra);
 		}
+		if (my $standard = $args{standard}) {
+			$compiler->set_standard($standard);
+		}
 
 		my $node = $compiler->compile($from, $to, %args);
 		$planner->add_node($node);
@@ -271,6 +274,10 @@ A list of directories to add to the include path, e.g. C<['include', '.']>.
 =item define
 
 A hash of preprocessor defines, e.g. C<< {DEBUG => 1, HAVE_FEATURE => 0 } >>
+
+=item standard
+
+The language standard to use, e.g. C<"c99">, C<"c11">.
 
 =item extra_args
 

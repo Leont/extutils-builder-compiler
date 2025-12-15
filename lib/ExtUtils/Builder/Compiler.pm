@@ -16,6 +16,7 @@ sub new {
 		cc           => $cc,
 		include_dirs => [],
 		defines      => [],
+		standard     => $args{standard},
 	}, $class;
 	$self->_init(%args);
 	return $self;
@@ -55,6 +56,12 @@ sub add_defines {
 
 sub default_define_ranking {
 	return 40;
+}
+
+sub set_standard {
+	my ($self, $version) = @_;
+	$self->{standard} = $version;
+	return;
 }
 
 sub collect_arguments  {
