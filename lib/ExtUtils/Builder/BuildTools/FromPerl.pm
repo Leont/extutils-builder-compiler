@@ -209,8 +209,14 @@ sub add_methods {
 		return defined $dir ? catfile($dir, $filename) : $filename;
 	});
 
-	my $dlext = $opts{config}->get('dlext');
+	my $a = $opts{config}->get('_a');
+	$planner->add_delegate('static_library_file', sub {
+		my ($planner, $file, $dir) = @_;
+		my $filename = "$file$a";
+		return defined $dir ? catfile($dir, $filename) : $filename;
+	});
 
+	my $dlext = $opts{config}->get('dlext');
 	$planner->add_delegate('loadable_file', sub {
 		my ($planner, $file, $dir) = @_;
 		my $filename = "$file.$dlext";
