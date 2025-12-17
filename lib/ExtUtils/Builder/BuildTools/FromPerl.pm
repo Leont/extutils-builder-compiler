@@ -17,8 +17,7 @@ sub _split_conf {
 }
 
 sub _make_command {
-	my ($self, $shortname, $argument, $command, %options) = @_;
-	my $module = "ExtUtils::Builder::$shortname";
+	my ($module, $argument, $command, %options) = @_;
 	require_module($module);
 	my @command = ref $command ? @{$command} : split_like_shell($command);
 	return $module->new($argument => \@command, %options);
@@ -26,7 +25,7 @@ sub _make_command {
 
 sub _is_gcc {
 	my ($config, $cc, $opts) = @_;
-	return $config->get('gccversion') || $cc =~ / ^ g(?: cc | [+]{2} ) /ix;
+	return $config->get('gccversion') || $cc =~ / ^ (?: gcc | g[+]{2} | clang (?: [+]{2} ) ) /ix;
 }
 
 sub _filter_args {
@@ -38,11 +37,19 @@ sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $os = $opts->{config}->get('osname');
 	my $cc = $opts->{config}->get('cc');
-	my ($module, %extra) = is_os_type('Unix', $os) || _is_gcc($opts->{config}, $cc, $opts) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
-	my %args = _filter_args($opts, qw/language type/);
-	$args{cccdlflags} = [ _split_conf($opts->{config}, 'cccdlflags') ];
-	return ("Compiler::$module", cc => $cc, %extra, %args);
+	my ($module, %extra) = is_os_type('Unix', $os) || _is_gcc($opts->{config}, $cc) ? 'Unixy' : is_os_type('Windows', $os) ? ('MSVC', language => 'C') : croak 'Your platform is not supported yet';
+	$extra{$_} = $opts->{$_} for grep { exists $opts->{$_} } qw/language type/;
+	$extra{cccdlflags} = [ _split_conf($opts->{config}, 'cccdlflags') ];
+	my $module_name = "ExtUtils::Builder::Compiler::$module";
+	return ($module_name, $cc, %extra);
 }
+
+my %gpp_map = (
+	'cc' => 'c++',
+	'gcc' => 'g++',
+	'clang' => 'clang++',
+);
+my %is_gpp = reverse %gpp_map;
 
 sub require_module {
 	my $module = shift;
@@ -57,7 +64,20 @@ sub add_compiler {
 	return $planner->add_delegate($as, sub {
 		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
-		my $compiler = $self->_make_command($self->_get_compiler(\%args));
+
+		my ($module_name, $cc, %command) = $self->_get_compiler(\%args);
+		my $language = $args{language} // 'C';
+		if (uc $language eq 'C++') {
+			if ($module_name->isa('ExtUtils::Builder::Compiler::Unixy')) {
+				push @{ $command{extra_flags} }, qw/-xc++/ if _is_gcc($opts{config}, $cc);
+				$cc = $gpp_map{$cc} // croak "Don't know C++ compiler for $cc" unless $is_gpp{$cc};
+			} elsif (!$module_name->isa('ExtUtils::Builder::Compiler::MSVC')) {
+				croak "Can't find C++ compiler for your platform"
+			}
+		} elsif (uc $language ne 'C') {
+			croak "Unknown language $language";
+		}
+		my $compiler = _make_command($module_name, cc => $cc, %command);
 
 		$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
 		if (my $profiles = $args{profiles}) {
@@ -96,27 +116,27 @@ sub _unix_flags {
 	$lddlflags =~ s/ ?\Q$optimize// if not $self->{auto_optimize};
 	my %ldflags = map { ($_ => 1) } _split_conf($opts->{config}, 'ldflags');
 	my @lddlflags = grep { not $ldflags{$_} } split_like_shell($lddlflags);
-	my @cc = _split_conf($opts->{config}, 'ccdlflags');
-	return (cc => \@cc, lddlflags => \@lddlflags )
+	return (lddlflags => \@lddlflags )
 }
 
 sub _get_linker {
 	my ($self, $opts) = @_;
 	my $os = $opts->{config}->get('osname');
-	my %args = _filter_args($opts, qw/type export language/);
 	my $cc = $opts->{config}->get('cc');
 	my $ld = $opts->{config}->get('ld');
-	my $eff_ld = $args{type} eq 'executable' ? $cc : $ld;
-	my ($module, $link, %opts) =
-		$args{type} eq 'static-library' ? ('Ar', $opts->{config}->get('ar')) :
+	my $eff_ld = $opts->{type} eq 'executable' ? $cc : $ld;
+	my ($module, $link, %command) =
+		$opts->{type} eq 'static-library' ? ('Ar', $opts->{config}->get('ar')) :
 		$os eq 'darwin' ? ('Mach::GCC', $eff_ld) :
-		_is_gcc($opts->{config}, $ld, $opts) ?
+		_is_gcc($opts->{config}, $ld) ?
 		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $eff_ld) :
 		$os eq 'aix' ? ('XCOFF', $cc) :
-		is_os_type('Unix', $os) ? ('ELF', $eff_ld, $self->_unix_flags($opts)) :
+		is_os_type('Unix', $os) ? ('ELF::Any', $eff_ld, $self->_unix_flags($opts)) :
 		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
 		croak 'Linking is not supported yet on your platform';
-	return ("Linker::$module", ld => $link, %opts, %args);
+	$command{$_} = $opts->{$_} for grep { exists $opts->{$_} } qw/exports language type/;
+	my $module_name = "ExtUtils::Builder::Linker::$module";
+	return ($module_name, $link, %command);
 }
 
 sub add_linker {
@@ -125,7 +145,22 @@ sub add_linker {
 	return $planner->add_delegate($as, sub {
 		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
-		my $linker = $self->_make_command($self->_get_linker(\%args));
+
+		my ($module, $link, %command) = $self->_get_linker(\%args);
+
+		my $language = $args{language} // 'C';
+		if (uc $language eq 'C++') {
+			my $prefix = 'ExtUtils::Builder::Linker:';
+			if ($module->isa("$prefix:ELF::GCC") || $module->isa("$prefix:Mach::GCC") || $module->isa("$prefix:PE::GCC")) {
+				$link = $gpp_map{$link} // croak "Don't know C++ compiler for $link" unless $is_gpp{$link};
+			} elsif (!$module->isa("$prefix:PE::MSVC") && !$module->isa("$prefix:Ar")) {
+				croak "Can't find C++ linker for your platform"
+			}
+		} elsif (uc $language ne 'C') {
+			croak "Unknown language $language";
+		}
+
+		my $linker = _make_command($module, ld => $link, %command);
 
 		$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
 		if (my $profiles = $args{profiles}) {
@@ -275,6 +310,10 @@ A list of directories to add to the include path, e.g. C<['include', '.']>.
 
 A hash of preprocessor defines, e.g. C<< {DEBUG => 1, HAVE_FEATURE => 0 } >>
 
+=item language
+
+The language to use for compilation. Valid values are C<"C"> or C<"C++">.
+
 =item standard
 
 The language standard to use, e.g. C<"c99">, C<"c11">.
@@ -298,6 +337,10 @@ This works the same as with C<compile>.
 This works the same as with C<compile>.
 
 =item profile
+
+This works the same as with C<compile>.
+
+=item language
 
 This works the same as with C<compile>.
 
