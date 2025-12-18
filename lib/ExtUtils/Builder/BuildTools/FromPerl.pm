@@ -58,14 +58,49 @@ sub require_module {
 	return $module;
 }
 
-sub add_compiler {
-	my ($self, $planner, %opts) = @_;
-	my $as = $opts{as} // 'compile';
-	return $planner->add_delegate($as, sub {
+sub _unix_flags {
+	my ($self, $opts) = @_;
+	return $opts->{lddlflags} if defined $opts->{lddlflags};
+	my $lddlflags = $opts->{config}->get('lddlflags');
+	my $optimize = $opts->{config}->get('optimize');
+	$lddlflags =~ s/ ?\Q$optimize// if not $opts->{auto_optimize};
+	my %ldflags = map { ($_ => 1) } _split_conf($opts->{config}, 'ldflags');
+	my @lddlflags = grep { not $ldflags{$_} } split_like_shell($lddlflags);
+	return (lddlflags => \@lddlflags )
+}
+
+sub _get_linker {
+	my ($self, $opts) = @_;
+	my $os = $opts->{config}->get('osname');
+	my $cc = $opts->{config}->get('cc');
+	my $ld = $opts->{config}->get('ld');
+	my $eff_ld = $opts->{type} eq 'executable' ? $cc : $ld;
+	my ($module, $link, %command) =
+		$opts->{type} eq 'static-library' ? ('Ar', $opts->{config}->get('ar')) :
+		$os eq 'darwin' ? ('Mach::GCC', $eff_ld) :
+		_is_gcc($opts->{config}, $ld) ?
+		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $eff_ld) :
+		$os eq 'aix' ? ('XCOFF', $cc) :
+		is_os_type('Unix', $os) ? ('ELF::Any', $eff_ld, $self->_unix_flags($opts)) :
+		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
+		croak 'Linking is not supported yet on your platform';
+	$command{$_} = $opts->{$_} for grep { exists $opts->{$_} } qw/exports language type/;
+	my $module_name = "ExtUtils::Builder::Linker::$module";
+	return ($module_name, $link, %command);
+}
+
+sub add_methods {
+	my ($class, $planner, %opts) = @_;
+
+	$opts{config} //= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
+	$opts{type} //= 'executable';
+
+	my $compiler_as = delete $opts{compiler_as} // 'compile';
+	$planner->add_delegate($compiler_as, sub {
 		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
 
-		my ($module_name, $cc, %command) = $self->_get_compiler(\%args);
+		my ($module_name, $cc, %command) = $class->_get_compiler(\%args);
 		my $language = $args{language} // 'C';
 		if (uc $language eq 'C++') {
 			if ($module_name->isa('ExtUtils::Builder::Compiler::Unixy')) {
@@ -106,47 +141,13 @@ sub add_compiler {
 		my $node = $compiler->compile($from, $to, %args);
 		$planner->add_node($node);
 	});
-}
 
-sub _unix_flags {
-	my ($self, $opts) = @_;
-	return $opts->{lddlflags} if defined $opts->{lddlflags};
-	my $lddlflags = $opts->{config}->get('lddlflags');
-	my $optimize = $opts->{config}->get('optimize');
-	$lddlflags =~ s/ ?\Q$optimize// if not $self->{auto_optimize};
-	my %ldflags = map { ($_ => 1) } _split_conf($opts->{config}, 'ldflags');
-	my @lddlflags = grep { not $ldflags{$_} } split_like_shell($lddlflags);
-	return (lddlflags => \@lddlflags )
-}
-
-sub _get_linker {
-	my ($self, $opts) = @_;
-	my $os = $opts->{config}->get('osname');
-	my $cc = $opts->{config}->get('cc');
-	my $ld = $opts->{config}->get('ld');
-	my $eff_ld = $opts->{type} eq 'executable' ? $cc : $ld;
-	my ($module, $link, %command) =
-		$opts->{type} eq 'static-library' ? ('Ar', $opts->{config}->get('ar')) :
-		$os eq 'darwin' ? ('Mach::GCC', $eff_ld) :
-		_is_gcc($opts->{config}, $ld) ?
-		$os eq 'MSWin32' ? ('PE::GCC', $cc) : ('ELF::GCC', $eff_ld) :
-		$os eq 'aix' ? ('XCOFF', $cc) :
-		is_os_type('Unix', $os) ? ('ELF::Any', $eff_ld, $self->_unix_flags($opts)) :
-		$os eq 'MSWin32' ? ('PE::MSVC', $ld) :
-		croak 'Linking is not supported yet on your platform';
-	$command{$_} = $opts->{$_} for grep { exists $opts->{$_} } qw/exports language type/;
-	my $module_name = "ExtUtils::Builder::Linker::$module";
-	return ($module_name, $link, %command);
-}
-
-sub add_linker {
-	my ($self, $planner, %opts) = @_;
-	my $as = $opts{as} // 'link';
-	return $planner->add_delegate($as, sub {
+	my $linker_as = delete $opts{linker_as} // 'link';
+	$planner->add_delegate($linker_as, sub {
 		my ($planner, $from, $to, %extra) = @_;
 		my %args = (%opts, %extra);
 
-		my ($module, $link, %command) = $self->_get_linker(\%args);
+		my ($module, $link, %command) = $class->_get_linker(\%args);
 
 		my $language = $args{language} // 'C';
 		if (uc $language eq 'C++') {
@@ -188,19 +189,6 @@ sub add_linker {
 		my $node = $linker->link($from, $to, %args);
 		$planner->add_node($node);
 	});
-}
-
-sub add_methods {
-	my ($class, $planner, %opts) = @_;
-
-	$opts{config} //= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
-	$opts{type} //= 'executable';
-
-	my $as_compiler = delete $opts{as_compiler};
-	$class->add_compiler($planner, %opts, as => $as_compiler);
-
-	my $as_linker = delete $opts{as_linker};
-	$class->add_linker($planner, %opts, as => $as_linker);
 
 	my $o = $opts{config}->get('_o');
 	$planner->add_delegate('obj_file', sub {
