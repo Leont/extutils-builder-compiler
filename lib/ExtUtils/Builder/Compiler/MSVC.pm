@@ -3,14 +3,19 @@ package ExtUtils::Builder::Compiler::MSVC;
 use strict;
 use warnings;
 
-use parent qw/ExtUtils::Builder::Compiler ExtUtils::Builder::MultiLingual/;
+use parent qw/ExtUtils::Builder::Compiler/;
 
 sub _init {
 	my ($self, %args) = @_;
 	$args{cc} //= ['cl'];
+	$self->{language} = $args{language} // 'C';
 	$self->ExtUtils::Builder::Compiler::_init(%args);
-	$self->ExtUtils::Builder::MultiLingual::_init(%args);
 	return;
+}
+
+sub language {
+	my $self = shift;
+	return $self->{language};
 }
 
 sub compile_flags {
