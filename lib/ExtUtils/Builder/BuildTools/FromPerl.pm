@@ -33,6 +33,21 @@ sub _filter_args {
 	return map { $_ => $opts->{$_} } grep { exists $opts->{$_} } @names;
 }
 
+sub _apply_profiles {
+	my ($tool, $method, %args) = @_;
+
+	$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
+	if (my $profiles = $args{profiles}) {
+		for my $profile (@$profiles) {
+			if (not ref($profile)) {
+				$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+				require_module($profile);
+			}
+			$profile->$method($tool, \%args);
+		}
+	}
+}
+
 sub _get_compiler {
 	my ($self, $opts) = @_;
 	my $os = $opts->{config}->get('osname');
@@ -114,16 +129,7 @@ sub add_methods {
 		}
 		my $compiler = _make_command($module_name, cc => $cc, %command);
 
-		$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
-		if (my $profiles = $args{profiles}) {
-			for my $profile (@$profiles) {
-				if (not ref($profile)) {
-					$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-					require_module($profile);
-				}
-				$profile->process_compiler($compiler, \%args);
-			}
-		}
+		_apply_profiles($compiler, 'process_compiler', %args);
 
 		if (my $include_dirs = $args{include_dirs}) {
 			$compiler->add_include_dirs($include_dirs);
@@ -163,18 +169,7 @@ sub add_methods {
 
 		my $linker = _make_command($module, ld => $link, %command);
 
-		$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
-		if (my $profiles = $args{profiles}) {
-			for my $profile (@$profiles) {
-				if (ref($profile)) {
-
-				} else {
-					$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-					require_module($profile);
-					$profile->process_linker($linker, \%args);
-				}
-			}
-		}
+		_apply_profiles($linker, 'process_linker', %args);
 
 		if (my $library_dirs = $args{library_dirs}) {
 			$linker->add_library_dirs($library_dirs);
