@@ -7,7 +7,7 @@ use parent 'ExtUtils::Builder::Planner::Extension';
 
 use Carp 'croak';
 use ExtUtils::Config 0.007;
-use ExtUtils::Builder::Util 0.018 'split_like_shell';
+use ExtUtils::Builder::Util 0.018 qw/require_module split_like_shell/;
 use File::Spec::Functions 'catfile';
 use Perl::OSType 'is_os_type';
 
@@ -65,13 +65,6 @@ my %gpp_map = (
 	'clang' => 'clang++',
 );
 my %is_gpp = reverse %gpp_map;
-
-sub require_module {
-	my $module = shift;
-	(my $filename = "$module.pm") =~ s{::}{/}g;
-	require $filename;
-	return $module;
-}
 
 sub _unix_flags {
 	my ($self, $opts) = @_;
