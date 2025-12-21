@@ -6,7 +6,7 @@ use warnings;
 use parent 'ExtUtils::Builder::Planner::Extension';
 
 use File::Basename qw/basename dirname/;
-use File::Spec::Functions qw/abs2rel curdir catfile catdir splitdir/;
+use File::Spec::Functions qw/abs2rel curdir catfile catdir splitdir splitpath/;
 
 use ExtUtils::Builder::Util 'function';
 
@@ -68,9 +68,8 @@ sub add_methods {
 
 	$planner->add_delegate('module_for_xs', sub {
 		my (undef, $source, $relative) = @_;
-		my @parts = splitdir(dirname(abs2rel($source, $relative)));
-		push @parts, basename($source, '.xs');
-		return join '::', @parts;
+		my (undef, $dirs, $file) = splitpath(abs2rel($source, $relative));
+		return join '::', splitdir($dirs), basename($file, '.xs', '.c');
 	});
 
 	require DynaLoader;
