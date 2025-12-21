@@ -19,8 +19,8 @@ sub add_methods {
 		my (undef, $source, $destination, %options) = @_;
 
 		my @actions;
+		my $dirname = dirname($destination);
 		if ($options{mkdir}) {
-			my $dirname = dirname($destination);
 			push @actions, function(
 				module    => 'File::Path',
 				function  => 'make_path',
@@ -46,6 +46,10 @@ sub add_methods {
 		);
 
 		my @dependencies = @{ $options{dependencies} // [] };
+		for my $dir ($dirname, curdir) {
+			my $filename = catfile($dir, 'typemap');
+			push @dependencies, $filename if -f $filename;
+		}
 		push @dependencies, @{ $args{typemap} } if $args{typemap};
 
 		$planner->create_node(
