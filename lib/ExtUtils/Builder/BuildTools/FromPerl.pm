@@ -3,32 +3,16 @@ package ExtUtils::Builder::BuildTools::FromPerl;
 use strict;
 use warnings;
 
-use parent 'ExtUtils::Builder::Planner::Extension';
+use parent 'ExtUtils::Builder::BuildTools::Base';
 
 use Carp 'croak';
 use ExtUtils::Config 0.007;
 use ExtUtils::Builder::Util 0.018 qw/require_module split_like_shell/;
-use File::Spec::Functions 'catfile';
 use Perl::OSType 'is_os_type';
 
 sub _is_gcc {
 	my ($config, $cc, $opts) = @_;
 	return $config->get('gccversion') || $cc =~ / ^ (?: gcc | g[+]{2} | clang (?: [+]{2} ) ) /ix;
-}
-
-sub _apply_profiles {
-	my ($tool, $method, %args) = @_;
-
-	$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
-	if (my $profiles = $args{profiles}) {
-		for my $profile (@$profiles) {
-			if (not ref($profile)) {
-				$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-				require_module($profile);
-			}
-			$profile->$method($tool, \%args);
-		}
-	}
 }
 
 my %gpp_map = (
@@ -115,73 +99,16 @@ sub add_methods {
 	my ($class, $planner, %opts) = @_;
 
 	$opts{config} //= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
-	$opts{type} //= 'executable';
 
-	my $compiler_as = delete $opts{compiler_as} // 'compile';
-	$planner->add_delegate($compiler_as, sub {
-		my ($planner, $from, $to, %extra) = @_;
-		my %args = (%opts, %extra);
-
-		my $compiler = $class->make_compiler(\%args);
-
-		_apply_profiles($compiler, 'process_compiler', %args);
-
-		if (my $include_dirs = $args{include_dirs}) {
-			$compiler->add_include_dirs($include_dirs);
-		}
-		if (my $defines = $args{defines}) {
-			$compiler->add_defines($defines);
-		}
-		if (my $extra = $args{extra_args}) {
-			$compiler->add_argument(value => $extra);
-		}
-		if (my $standard = $args{standard}) {
-			$compiler->set_standard($standard);
-		}
-
-		my $node = $compiler->compile($from, $to, %args);
-		$planner->add_node($node);
-	});
-
-	my $linker_as = delete $opts{linker_as} // 'link';
-	$planner->add_delegate($linker_as, sub {
-		my ($planner, $from, $to, %extra) = @_;
-		my %args = (%opts, %extra);
-
-		my $linker = $class->make_linker(\%args);
-
-		_apply_profiles($linker, 'process_linker', %args);
-
-		if (my $library_dirs = $args{library_dirs}) {
-			$linker->add_library_dirs($library_dirs);
-		}
-		if (my $libraries = $args{libraries}) {
-			$linker->add_libraries($libraries);
-		}
-		if (my $extra_args = $args{extra_args}) {
-			$linker->add_argument(ranking => 85, value => [ @{$extra_args} ]);
-		}
-
-		my $node = $linker->link($from, $to, %args);
-		$planner->add_node($node);
-	});
-
-	my %extensions = (
-		object_file         => $opts{config}->get('_o'),
-		library_file        => '.' . $opts{config}->get('so'),
-		static_library_file => $opts{config}->get('_a'),
-		loadable_file       => '.' . $opts{config}->get('dlext'),
-		executable_file     => $opts{config}->get('_exe'),
+	$class->SUPER::add_methods($planner,
+		object_file         => '%s' . $opts{config}->get('_o'),
+		library_file        => '%s.' . $opts{config}->get('so'),
+		static_library_file => '%s' . $opts{config}->get('_a'),
+		loadable_file       => '%s.' . $opts{config}->get('dlext'),
+		executable_file     => '%s' . $opts{config}->get('_exe'),
+		%opts,
 	);
 
-	for my $name (qw/object_file library_file static_library_file loadable_file executable_file/) {
-		my $tail = $extensions{$name};
-		$planner->add_delegate($name, sub {
-			my ($planner, $file, $dir) = @_;
-			my $filename = $file . $tail;
-			return defined $dir ? catfile($dir, $filename) : $filename;
-		});
-	}
 	# backwards compatability
 	$planner->add_delegate('obj_file', sub {
 		my ($this, @args) = @_;
@@ -198,18 +125,19 @@ sub add_methods {
 =head1 SYNOPSIS
 
  my $planner = ExtUtils::Builder::Planner->new;
- $planner->load_extension('ExtUtils::Builder::BuildTools::FromPerl', '0.034',
-	profiles => ['@Perl'],
-	type     => 'loadable-object',
+ $planner->load_extension('ExtUtils::Builder::BuildTools::FromPerl', 0.034,
+	 config => $config,
  );
- $planner->compile('foo.c', 'foo.o', include_dirs => ['.']);
- $planner->link([ 'foo.o' ], 'foo.so', libraries => ['foo']);
+ my $foo_o = $planner->object_name('foo');
+ $planner->compile('foo.c', $foo_o, include_dirs => ['.']);
+ my $foo_exe = $planner->executable_name('foo');
+ $planner->link([ 'foo.o' ], $foo_exe, libraries => ['foo']);
  my $plan = $planner->materialize;
- $plan->run(['foo.so']);
+ $plan->run($foo_exe);
 
 =head1 DESCRIPTION
 
-This module is a L<ExtUtils::Builder::Planner::Extension|ExtUtils::Builder::Planner::Extension> that facilitates compiling object.
+This module is a L<ExtUtils::Builder::Planner::Extension|ExtUtils::Builder::Planner::Extension> that facilitates compiling object. It takes one named argument: C<config>, an L<ExtUtils::Config> (compatible) object.
 
 =method add_methods(%options)
 
@@ -221,96 +149,22 @@ This is usually not called directly, but through L<ExtUtils::Builder::Planner|Ex
 
 =head1 DELEGATES
 
-=head2 compile($source, $target, %options)
-
-This compiles C<$source> to C<$target>. It takes the following optional arguments:
+It inherits the following delegates from L<ExtUtils::Builder::BuildTools::Base>.
 
 =over 4
 
-=item type
+=item compile($source, $target, %options)
 
-The type of the final product. This must be one of:
+=item link(\@sources, $target, %options)
 
-=over 4
+=item object_file($basename, $dir = undef)
 
-=item * executable
+=item library_file($basename, $dir = undef)
 
-An executable to be run. This is the default.
+=item static_library_file($basename, $dir = undef)
 
-=item * static-library
+=item loadable_file($basename, $dir = undef)
 
-A static library to link against.
-
-=item * dynamic-library
-
-A dynamic library to link against.
-
-=item * loadable-object
-
-A loadable extension. On most platforms this is the same as a dynamic library, but some (Mac) make a distinction between these two.
-
-=back
-
-=item config
-
-A Perl configuration to take hints from, must be an C<ExtUtils::Config> compatible object.
-
-=item profiles
-
-A list of profile that can be used when compiling and linking. One profile comes with this distribution: C<'@Perl'>, which sets up the appropriate things to compile/link with C<libperl>.
-
-=item include_dirs
-
-A list of directories to add to the include path, e.g. C<['include', '.']>.
-
-=item define
-
-A hash of preprocessor defines, e.g. C<< {DEBUG => 1, HAVE_FEATURE => 0 } >>
-
-=item language
-
-The language to use for compilation. Valid values are C<"C"> or C<"C++">.
-
-=item standard
-
-The language standard to use, e.g. C<"c99">, C<"c11">.
-
-=item extra_args
-
-A list of additional arguments to the compiler.
-
-=back
-
-=method link(\@sources, $target, %options)
-
-=over 4
-
-=item type
-
-This works the same as with C<compile>.
-
-=item config
-
-This works the same as with C<compile>.
-
-=item profile
-
-This works the same as with C<compile>.
-
-=item language
-
-This works the same as with C<compile>.
-
-=item libraries
-
-A list of libraries to link to. E.g. C<['z']>.
-
-=item library_dirs
-
-A list of directories to find libraries in. E.g. C<['/opt/my-app/lib/']>.
-
-=item extra_args
-
-A list of additional arguments to the linker.
+=item executable_file($basename, $dir = undef)
 
 =back
