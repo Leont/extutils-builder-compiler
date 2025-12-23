@@ -2,6 +2,7 @@ Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
           - Fix mkdir order in Linker
+          - Rename obj_file/exe_file to object_file/executable_file in BuildTools
           - Add make_compiler and make_linker to BuildTools
 
 0.034     2025-12-22 17:02:29+01:00 Europe/Brussels

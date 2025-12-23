@@ -100,7 +100,7 @@ sub add_methods {
 			extra_args   => \@extra_linker_flags,
 		);
 
-		my $exe_file = $inner->exe_file($basename, $dir);
+		my $exe_file = $inner->executable_file($basename, $dir);
 		$inner->link([ $o_file ], $exe_file, %link_args);
 
 		my $run = $args{run} // 1;

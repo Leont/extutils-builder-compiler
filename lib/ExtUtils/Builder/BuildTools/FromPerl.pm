@@ -167,14 +167,14 @@ sub add_methods {
 	});
 
 	my %extensions = (
-		obj_file            => $opts{config}->get('_o'),
+		object_file         => $opts{config}->get('_o'),
 		library_file        => '.' . $opts{config}->get('so'),
 		static_library_file => $opts{config}->get('_a'),
 		loadable_file       => '.' . $opts{config}->get('dlext'),
-		exe_file            => $opts{config}->get('_exe'),
+		executable_file     => $opts{config}->get('_exe'),
 	);
 
-	for my $name (qw/obj_file library_file static_library_file loadable_file exe_file/) {
+	for my $name (qw/object_file library_file static_library_file loadable_file executable_file/) {
 		my $tail = $extensions{$name};
 		$planner->add_delegate($name, sub {
 			my ($planner, $file, $dir) = @_;
@@ -182,6 +182,11 @@ sub add_methods {
 			return defined $dir ? catfile($dir, $filename) : $filename;
 		});
 	}
+	# backwards compatability
+	$planner->add_delegate('obj_file', sub {
+		my ($this, @args) = @_;
+		return $this->object_file(@args);
+	});
 
 	return;
 }
