@@ -1,6 +1,7 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+          - Fix mkdir order in Linker
 
 0.034     2025-12-22 17:02:29+01:00 Europe/Brussels
           - Rename EUB::AutoDetect::C to EUB::BuildTools::FromPerl

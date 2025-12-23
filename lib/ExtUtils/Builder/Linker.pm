@@ -92,6 +92,7 @@ my %key_for = (
 sub pre_action  {
 	my ($self, $from, $to, %opts) = @_;
 	my @result;
+	push @result, $self->_mkdir_for($to) if $opts{mkdir};
 	if ($self->export eq 'some') {
 		my %args = map { $key_for{$_} => $opts{$_} } grep { exists $key_for{$_} } keys %opts;
 		push @result, function(
@@ -102,7 +103,6 @@ sub pre_action  {
 			exports   => 1,
 		);
 	}
-	push @result, $self->_mkdir_for($to) if $opts{mkdir};
 	return @result;
 }
 sub post_action { }
