@@ -166,40 +166,22 @@ sub add_methods {
 		$planner->add_node($node);
 	});
 
-	my $o = $opts{config}->get('_o');
-	$planner->add_delegate('obj_file', sub {
-		my ($planner, $file, $dir) = @_;
-		my $filename = "$file$o";
-		return defined $dir ? catfile($dir, $filename) : $filename;
-	});
+	my %extensions = (
+		obj_file            => $opts{config}->get('_o'),
+		library_file        => '.' . $opts{config}->get('so'),
+		static_library_file => $opts{config}->get('_a'),
+		loadable_file       => '.' . $opts{config}->get('dlext'),
+		exe_file            => $opts{config}->get('_exe'),
+	);
 
-	my $a = $opts{config}->get('_a');
-	$planner->add_delegate('static_library_file', sub {
-		my ($planner, $file, $dir) = @_;
-		my $filename = "$file$a";
-		return defined $dir ? catfile($dir, $filename) : $filename;
-	});
-
-	my $dlext = $opts{config}->get('dlext');
-	$planner->add_delegate('loadable_file', sub {
-		my ($planner, $file, $dir) = @_;
-		my $filename = "$file.$dlext";
-		return defined $dir ? catfile($dir, $filename) : $filename;
-	});
-
-	my $so = $opts{config}->get('so');
-	$planner->add_delegate('library_file', sub {
-		my ($planner, $file, $dir) = @_;
-		my $filename = "$file.$so";
-		return defined $dir ? catfile($dir, $filename) : $filename;
-	});
-
-	my $exe = $opts{config}->get('_exe');
-	$planner->add_delegate('exe_file', sub {
-		my ($planner, $file, $dir) = @_;
-		my $filename = "$file$exe";
-		return defined $dir ? catfile($dir, $filename) : $filename;
-	});
+	for my $name (qw/obj_file library_file static_library_file loadable_file exe_file/) {
+		my $tail = $extensions{$name};
+		$planner->add_delegate($name, sub {
+			my ($planner, $file, $dir) = @_;
+			my $filename = $file . $tail;
+			return defined $dir ? catfile($dir, $filename) : $filename;
+		});
+	}
 
 	return;
 }
