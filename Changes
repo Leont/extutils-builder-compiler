@@ -5,6 +5,7 @@ Revision history for ExtUtils-Builder-Compiler
           - Rename obj_file/exe_file to object_file/executable_file in BuildTools
           - Add make_compiler and make_linker to BuildTools
           - Add ExtUtils::Builder::BuildTools::Base
+          - Refactor profile handling code into Compiler/Linker
 
 0.034     2025-12-22 17:02:29+01:00 Europe/Brussels
           - Rename EUB::AutoDetect::C to EUB::BuildTools::FromPerl

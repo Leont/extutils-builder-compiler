@@ -6,7 +6,7 @@ use warnings;
 use parent qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
 
 use ExtUtils::Builder::Node;
-use ExtUtils::Builder::Util qw/command function/;
+use ExtUtils::Builder::Util qw/command function require_module/;
 
 use Carp ();
 use File::Basename 'dirname';
@@ -78,6 +78,15 @@ sub add_option_filter {
 	my ($self, $filter) = @_;
 	push @{ $self->{option_filters} }, $filter;
 	return;
+}
+
+sub add_profile {
+	my ($self, $profile, %args) = @_;
+	if (not ref($profile)) {
+		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+		require_module($profile);
+	}
+	return $profile->process_linker($self, \%args);
 }
 
 my %key_for = (

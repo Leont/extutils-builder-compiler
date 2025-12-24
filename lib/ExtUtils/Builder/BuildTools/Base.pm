@@ -6,23 +6,7 @@ use warnings;
 use parent 'ExtUtils::Builder::Planner::Extension';
 
 use Carp 'croak';
-use ExtUtils::Builder::Util qw/require_module/;
 use File::Spec::Functions 'catfile';
-
-sub _apply_profiles {
-	my ($tool, $method, %args) = @_;
-
-	$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
-	if (my $profiles = $args{profiles}) {
-		for my $profile (@$profiles) {
-			if (not ref($profile)) {
-				$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
-				require_module($profile);
-			}
-			$profile->$method($tool, \%args);
-		}
-	}
-}
 
 sub add_methods {
 	my ($class, $planner, %opts) = @_;
@@ -36,7 +20,10 @@ sub add_methods {
 
 		my $compiler = $class->make_compiler(\%args);
 
-		_apply_profiles($compiler, 'process_compiler', %args);
+		$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
+		for my $profile (@{ $args{profiles} // [] }) {
+			$compiler->add_profile($profile, %args);
+		}
 
 		if (my $include_dirs = $args{include_dirs}) {
 			$compiler->add_include_dirs($include_dirs);
@@ -62,7 +49,10 @@ sub add_methods {
 
 		my $linker = $class->make_linker(\%args);
 
-		_apply_profiles($linker, 'process_linker', %args);
+		$args{profiles} = [ delete $args{profile} ] if $args{profile} and not $args{profiles};
+		for my $profile (@{ $args{profiles} // [] }) {
+			$linker->add_profile($profile, %args);
+		}
 
 		if (my $library_dirs = $args{library_dirs}) {
 			$linker->add_library_dirs($library_dirs);

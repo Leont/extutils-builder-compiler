@@ -3,7 +3,7 @@ package ExtUtils::Builder::Compiler;
 use strict;
 use warnings;
 
-use ExtUtils::Builder::Util qw/command/;
+use ExtUtils::Builder::Util qw/command require_module/;
 use ExtUtils::Builder::Node;
 
 use parent qw/ExtUtils::Builder::ArgumentCollector ExtUtils::Builder::Binary/;
@@ -52,6 +52,15 @@ sub add_defines {
 	my $ranking = $self->fix_ranking($self->default_define_ranking, $opts{ranking});
 	push @{ $self->{defines} }, map { { key => $_, ranking => $ranking, value => $defines->{$_} } } keys %{ $defines };
 	return;
+}
+
+sub add_profile {
+	my ($self, $profile, %args) = @_;
+	if (not ref($profile)) {
+		$profile =~ s/ \A @ /ExtUtils::Builder::Profile::/xms;
+		require_module($profile);
+	}
+	return $profile->process_compiler($self, \%args);
 }
 
 sub default_define_ranking {
