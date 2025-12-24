@@ -3,6 +3,7 @@ Revision history for ExtUtils-Builder-Compiler
 {{$NEXT}}
           - Fix mkdir order in Linker
           - Rename obj_file/exe_file to object_file/executable_file in BuildTools
+          - Add lib prefix to library files on Unix
           - Add make_compiler and make_linker to BuildTools
           - Add ExtUtils::Builder::BuildTools::Base
           - Refactor profile handling code into Compiler/Linker

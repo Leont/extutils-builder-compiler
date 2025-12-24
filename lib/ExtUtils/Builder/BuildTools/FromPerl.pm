@@ -99,11 +99,13 @@ sub add_methods {
 	my ($class, $planner, %opts) = @_;
 
 	$opts{config} //= $planner->can('config') ? $planner->config : ExtUtils::Config->new;
+	my $os = $opts{config}->get('osname');
+	my $lib_prefix = is_os_type('Unix', $os) ? 'lib' : '';
 
 	$class->SUPER::add_methods($planner,
 		object_file         => '%s' . $opts{config}->get('_o'),
-		library_file        => '%s.' . $opts{config}->get('so'),
-		static_library_file => '%s' . $opts{config}->get('_a'),
+		library_file        => "$lib_prefix%s." . $opts{config}->get('so'),
+		static_library_file => "$lib_prefix%s" . $opts{config}->get('_a'),
 		loadable_file       => '%s.' . $opts{config}->get('dlext'),
 		executable_file     => '%s' . $opts{config}->get('_exe'),
 		%opts,
