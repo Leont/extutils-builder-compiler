@@ -106,7 +106,7 @@ An executable to be run. This is the default.
 
 A static library to link against.
 
-=item * dynamic-library
+=item * shared-library
 
 A dynamic library to link against.
 
@@ -115,6 +115,8 @@ A dynamic library to link against.
 A loadable extension. On most platforms this is the same as a dynamic library, but some (Mac) make a distinction between these two.
 
 =back
+
+Note that if you first compile for a static library that will later be linked into a shared library, you need to pick C<'shared-library'> here.
 
 =item profiles
 
