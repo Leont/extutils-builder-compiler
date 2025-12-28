@@ -129,12 +129,12 @@ Allow hierarchical types (with double colons) such as used in C++.
 
 =head3 c_file_for_xs($filename, $dir = dirname($filename))
 
-This returns the path to the C file for a certain XS file.
+This returns the path to the C file for a certain XS file. B<Deprecated>.
 
 =head3 module_for_xs($filename)
 
-This returns the module corresponding to a specific XS files.
+This returns the module corresponding to a specific XS files. B<Deprecated>.
 
 =head3 extension_filename($module_name)
 
-This will return the path for the loadable object of an extension for C<$module>.
+This will return the path for the loadable object of an extension for C<$module>. B<Deprecated>.
