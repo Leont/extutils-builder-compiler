@@ -33,18 +33,18 @@ sub make_compiler {
 	my $module_name = "ExtUtils::Builder::Compiler::$module";
 
 	my $language = $opts->{language} // 'C';
+	require_module($module_name);
 	if (uc $language eq 'C++') {
 		if ($module_name->isa('ExtUtils::Builder::Compiler::Unixy')) {
 			push @{ $command{extra_flags} }, qw/-xc++/ if _is_gcc($opts->{config}, $cc);
 			$cc = $gpp_map{$cc} // croak "Don't know C++ compiler for $cc" unless $is_gpp{$cc};
 		} elsif (!$module_name->isa('ExtUtils::Builder::Compiler::MSVC')) {
-			croak "Can't find C++ compiler for your platform"
+			croak "Can't find C++ compiler for your platform";
 		}
 	} elsif (uc $language ne 'C') {
 		croak "Unknown language $language";
 	}
 
-	require_module($module_name);
 	return $module_name->new(cc => [$cc, @cc_extra], %command);
 }
 
@@ -80,18 +80,18 @@ sub make_linker {
 	my $module_name = "ExtUtils::Builder::Linker::$module";
 
 	my $language = $opts->{language} // 'C';
+	require_module($module_name);
 	if (uc $language eq 'C++') {
 		my $prefix = 'ExtUtils::Builder::Linker:';
-		if ($module->isa("$prefix:ELF::GCC") || $module->isa("$prefix:Mach::GCC") || $module->isa("$prefix:PE::GCC")) {
+		if ($module_name->isa("$prefix:ELF::GCC") || $module_name->isa("$prefix:Mach::GCC") || $module_name->isa("$prefix:PE::GCC")) {
 			$link = $gpp_map{$link} // croak "Don't know C++ compiler for $link" unless $is_gpp{$link};
 		} elsif (!$module->isa("$prefix:PE::MSVC") && !$module->isa("$prefix:Ar")) {
-			croak "Can't find C++ linker for your platform"
+			croak "Can't find C++ linker for your platform";
 		}
 	} elsif (uc $language ne 'C') {
 		croak "Unknown language $language";
 	}
 
-	require_module($module_name);
 	return $module_name->new(ld => [ $link, @{$extra} ], %command);
 }
 
