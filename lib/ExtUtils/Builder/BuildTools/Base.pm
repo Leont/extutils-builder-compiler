@@ -69,7 +69,7 @@ sub add_methods {
 	});
 
 	for my $name (qw/object_file library_file static_library_file loadable_file executable_file/) {
-		my $format = $opts{$name} // croak "No known extension for $name";
+		my $format = delete $opts{$name} // croak "No known extension for $name";
 		$planner->add_delegate($name, sub {
 			my ($planner, $file, $dir) = @_;
 			my $filename = sprintf $format, $file;
