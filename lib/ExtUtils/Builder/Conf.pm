@@ -247,7 +247,8 @@ sub add_methods {
 		return !!0;
 	});
 
-	foreach my $name (qw/find_compiler_flags_for find_libraries_for find_include_dirs_for find_library_dirs_for find_standard_for/) {
+	foreach my $shortname (qw/compiler_flags libraries include_dirs library_dirs standard/) {
+		my $name = "find_${shortname}_for";
 		my $trymethod = "try_$name";
 
 		$planner->add_delegate($name, sub {
@@ -256,7 +257,7 @@ sub add_methods {
 			my $diag = delete $args{diag};
 			$self->$trymethod(%args) or fail($diag);
 		});
-	};
+	}
 }
 
 1;
