@@ -4,6 +4,7 @@ Revision history for ExtUtils-Builder-Compiler
           - Mark ParseXS helper functions deprecated
           - Fix C++ compiler code to load modules in correct order
           - Avoid using push_args in try_find_* methods
+          - Add try_find_standard_for method to EUB::Conf
 
 0.035     2025-12-28 15:16:05+01:00 Europe/Brussels
           - Fix mkdir order in Linker

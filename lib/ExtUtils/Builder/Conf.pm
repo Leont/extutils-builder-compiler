@@ -33,6 +33,16 @@ sub add_methods {
 		});
 	}
 
+	$planner->add_delegate(standard => sub {
+		my $self = shift;
+		return $self->{standard};
+	});
+
+	$planner->add_delegate(set_standard => sub {
+		my ($self, $new_value) = @_;
+		$self->{standard} = $new_value;
+	});
+
 	$planner->add_delegate(define => sub {
 		my ($self, $symbol, $value) = @_;
 		$self->{defines}{$symbol} = $value // '';
@@ -79,11 +89,13 @@ sub add_methods {
 		my @include_dirs         = (@{ $args{include_dirs} // [] },         @{ $self->{include_dirs} // [] });
 		my @extra_compiler_flags = (@{ $args{extra_compiler_flags} // [] }, @{ $self->{extra_compiler_flags} // [] });
 		my %defines              = (%{ $args{defines} // {} },              %{ $self->{defines} // {} });
+		my $standard             = $args{standard} || $self->{standard};
 
 		my %compile_args = (
 			extra_args   => \@extra_compiler_flags,
 			include_dirs => \@include_dirs,
 			defines      => \%defines,
+			standard     => $standard,
 		);
 
 		my $basename = basename($c_file, '.c');
@@ -138,6 +150,8 @@ sub add_methods {
 					$self->{defines}{$key} = $args{defines}{$key};
 				}
 			}
+
+			$self->{standard} = $args{standard} if $args{standard};
 		}
 
 		if ($args{push_sources}) {
@@ -219,7 +233,21 @@ sub add_methods {
 		return !!0;
 	});
 
-	foreach my $name (qw/find_cflags_for find_libraries_for find_include_dirs_for find_library_dirs_for/) {
+	$planner->add_delegate(try_find_standard_for => sub {
+		my ($self, %args) = @_;
+
+		ref(my $standards = $args{standards}) eq "ARRAY" or croak "Expected 'standards' as ARRAY ref";
+
+		foreach my $standard (@$standards) {
+			$self->try_compile_run(%args, standard => $standard) or next;
+			$self->set_standard($standard);
+			return !!1;
+		}
+
+		return !!0;
+	});
+
+	foreach my $name (qw/find_cflags_for find_libraries_for find_include_dirs_for find_library_dirs_for find_standard_for/) {
 		my $trymethod = "try_$name";
 
 		$planner->add_delegate($name, sub {
@@ -437,6 +465,34 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
 =back
 
+=head2 try_find_standard_for
+
+ $success = try_find_standard_for(%args)
+
+Try to compile, link and execute the given source, using a given standard.
+
+When a usable standard is found, the standard is stored in the object for use in further compile operations, or returned by C<standard>. The method then returns true.
+
+If no a usable standard is found, it returns false.
+
+Takes the following arguments:
+
+=over 4
+
+=item source => STRING
+
+Source code to compile
+
+=item standards => ARRAY of STRINGs
+
+Gives a list of standards. C<undef> is treated as no explicit standard.
+
+=item define => STRING
+
+Optional. If specified, then the named symbol will be defined if the program ran successfully. This will either on the C compiler commandline (by passing an option C<-DI<SYMBOL>>), in the C<defines> method, or via the C<write_defines> method.
+
+=back
+
 =head2 find_cflags_for
 
  find_cflags_for(%args);
@@ -453,7 +509,11 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
  find_library_dirs_for(%args);
 
-Calls C<try_find_cflags_for>, C<try_find_include_dirs_for>, C<try_find_libraries_for> or C<try_find_library_dirs_for> respectively. If it fails, die with an C<OS unsupported> message.
+=head2 find_standard_for
+
+ find_standard_for(%args)
+
+Calls C<try_find_cflags_for>, C<try_find_include_dirs_for>, C<try_find_libraries_for>, C<try_find_library_dirs_for> or C<try_find_standard_for> respectively. If it fails, die with an C<OS unsupported> message.
 
 Each method takes one extra optional argument:
 
