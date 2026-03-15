@@ -165,7 +165,8 @@ sub add_methods {
 		foreach my $f (@$cflags) {
 			ref $f eq "ARRAY" or croak "Expected 'cflags' element as ARRAY ref";
 
-			$self->try_compile_run(%args, extra_compiler_flags => $f, push_args => 1) or next;
+			$self->try_compile_run(%args, extra_compiler_flags => $f) or next;
+			$self->push_extra_compiler_flags(@$f);
 			return !!1;
 		}
 
@@ -180,7 +181,8 @@ sub add_methods {
 		foreach my $d (@$dirs) {
 			ref $d eq "ARRAY" or croak "Expected 'dirs' element as ARRAY ref";
 
-			$self->try_compile_run(%args, include_dirs => $d, push_args => 1) or next;
+			$self->try_compile_run(%args, include_dirs => $d) or next;
+			$self->push_include_dirs(@$d);
 			return !!1;
 		}
 
@@ -193,7 +195,8 @@ sub add_methods {
 		ref(my $libs = $args{libs}) eq "ARRAY" or croak "Expected 'libs' as ARRAY ref";
 
 		foreach my $libraries (@$libs) {
-			$self->try_compile_run(%args, libraries => $libraries, push_args => 1) or next;
+			$self->try_compile_run(%args, libraries => $libraries) or next;
+			$self->push_libraries(@$libraries);
 			return !!1;
 		}
 
@@ -208,7 +211,8 @@ sub add_methods {
 		foreach my $d (@$dirs) {
 			ref $d eq "ARRAY" or croak "Expected 'dirs' element as ARRAY ref";
 
-			$self->try_compile_run(%args, library_dirs => $d, push_args => 1) or next;
+			$self->try_compile_run(%args, library_dirs => $d) or next;
+			$self->push_library_dirs(@$d);
 			return !!1;
 		}
 
