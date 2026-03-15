@@ -449,7 +449,11 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
  find_libraries_for(%args);
 
-Calls C<try_find_cflags_for>, C<try_find_include_dirs_for> or C<try_find_libraries_for> respectively. If it fails, die with an C<OS unsupported> message.
+=head2 find_library_dirs_for
+
+ find_library_dirs_for(%args);
+
+Calls C<try_find_cflags_for>, C<try_find_include_dirs_for>, C<try_find_libraries_for> or C<try_find_library_dirs_for> respectively. If it fails, die with an C<OS unsupported> message.
 
 Each method takes one extra optional argument:
 
