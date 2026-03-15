@@ -171,7 +171,7 @@ sub add_methods {
 		$self->try_compile_run(%args) or fail($diag);
 	});
 
-	$planner->add_delegate(try_find_cflags_for => sub {
+	$planner->add_delegate(try_find_compiler_flags_for => sub {
 		my ($self, %args) = @_;
 
 		ref(my $cflags = $args{cflags}) eq "ARRAY" or croak "Expected 'cflags' as ARRAY ref";
@@ -247,7 +247,7 @@ sub add_methods {
 		return !!0;
 	});
 
-	foreach my $name (qw/find_cflags_for find_libraries_for find_include_dirs_for find_library_dirs_for find_standard_for/) {
+	foreach my $name (qw/find_compiler_flags_for find_libraries_for find_include_dirs_for find_library_dirs_for find_standard_for/) {
 		my $trymethod = "try_$name";
 
 		$planner->add_delegate($name, sub {
@@ -353,9 +353,9 @@ If present, this string will be appended to the failure message if one is genera
 
 =back
 
-=head2 try_find_cflags_for
+=head2 try_find_compiler_flags_for
 
- $success = try_find_cflags_for(%args);
+ $success = try_find_compiler_flags_for(%args);
 
 Try to compile, link and execute the given source, using extra compiler flags.
 
@@ -493,9 +493,9 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
 =back
 
-=head2 find_cflags_for
+=head2 find_compiler_flags_for
 
- find_cflags_for(%args);
+ find_compiler_flags_for(%args);
 
 =head2 find_include_dirs_for
 
@@ -513,7 +513,7 @@ Optional. If specified, then the named symbol will be defined if the program ran
 
  find_standard_for(%args)
 
-Calls C<try_find_cflags_for>, C<try_find_include_dirs_for>, C<try_find_libraries_for>, C<try_find_library_dirs_for> or C<try_find_standard_for> respectively. If it fails, die with an C<OS unsupported> message.
+Calls C<try_find_compiler_flags_for>, C<try_find_include_dirs_for>, C<try_find_libraries_for>, C<try_find_library_dirs_for> or C<try_find_standard_for> respectively. If it fails, die with an C<OS unsupported> message.
 
 Each method takes one extra optional argument:
 
