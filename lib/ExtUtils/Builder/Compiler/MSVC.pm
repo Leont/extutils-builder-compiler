@@ -21,7 +21,7 @@ sub language {
 sub compile_flags {
 	my ($self, $from, $to) = @_;
 	my @ret;
-	push @ret, $self->new_argument(ranking => 5,  value => ['/NOLOGO']);
+	push @ret, $self->new_argument(ranking => 5,  value => ['/nologo']);
 	push @ret, $self->new_argument(ranking => 10, value => [qw{/TP /EHsc}]) if $self->language eq 'C++';
 	push @ret, $self->new_argument(ranking => 15, value => [ "/std:$self->{standard}"]) if $self->{standard};
 	push @ret, $self->new_argument(ranking => 75, value => [ "/Fo$to", '/c', $from ]);
