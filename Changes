@@ -1,6 +1,8 @@
 Revision history for ExtUtils-Builder-Compiler
 
 {{$NEXT}}
+
+0.037     2026-06-01 12:05:26+02:00 Europe/Brussels
           - Lowercase nologo argument to MSVC
 
 0.036     2026-03-15 23:27:43+01:00 Europe/Brussels
